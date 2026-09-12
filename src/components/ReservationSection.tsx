@@ -206,7 +206,6 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         speaker: '萊可（店長）',
         avatarSeed: 'laiko',
         photoUrl: 'https://i.meee.com.tw/dkSZ6nR.png',
-        title: '夢想熱情店長',
         quote: `「主人 ${name}！歡迎回家～萊可已經親手把您的名字記在大本本上囉！今天的星光特別璀璨，一定是因為主人要來了～我會準備好最棒的笑容與特調開心汁，期待在星夜下見到您！✨」`,
         badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
       };
@@ -215,7 +214,6 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         speaker: '璐可',
         avatarSeed: 'luko',
         photoUrl: 'https://i.meee.com.tw/CMH9DxK.png',
-        title: '細緻體貼侍從',
         quote: `「主人 ${name}，歡迎回來。您的席位已精心登記妥當。今夜就請放慢腳步，放下旅途所有風塵與疲憊，璐可會為您沏上一壺溫熱甘甜的茶，靜候您的歸來。」`,
         badgeColor: 'bg-sky-100 text-sky-800 border-sky-200',
       };
@@ -224,7 +222,6 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         speaker: '栗栗皆辛苦',
         avatarSeed: 'kurikuri',
         photoUrl: 'https://i.meee.com.tw/Hneru75.png',
-        title: '黑粉系傲嬌小公主',
         quote: `「哼哼～主人 ${name}！小公主才、才沒有在時鐘前倒數等著你來呢！……不過既然你都特地指名本公主了，那天我就勉為其難好好陪你聊聊天、吃好吃的瑪黛茶餅乾吧，可絕對不能遲到喔！」`,
         badgeColor: 'bg-pink-100 text-pink-800 border-pink-200',
       };
@@ -233,7 +230,6 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         speaker: '胖冬瓜',
         avatarSeed: 'donggua',
         photoUrl: 'https://i.meee.com.tw/EmzeSiG.png',
-        title: '清冷優雅傾聽者',
         quote: `「主人 ${name}，預約已妥善收悉。漫長夜色會溫柔包容一切冒險者的故事，若主人不嫌棄，我已備妥私心最愛的鮮紅羅蘭莓派，願能在靜謐的燭光下成為您的傾聽者。」`,
         badgeColor: 'bg-teal-100 text-teal-800 border-teal-200',
       };
@@ -242,7 +238,6 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         speaker: '夜蒔館全體女僕',
         avatarSeed: undefined,
         photoUrl: undefined,
-        title: '星夜館邸女僕團',
         quote: `「敬愛的主人 ${name}，夜蒔館全體女僕向您致上最誠摯的敬意與感激！星光庇護所的溫暖壁爐與雅座已為您點亮，我們正滿懷期待，靜候您推開館邸大門的瞬間。」`,
         badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
       };
@@ -936,13 +931,6 @@ export function ReservationSection({
                               <span className="font-bold text-sm sm:text-base font-serif-tc block">
                                 {staff.name}
                               </span>
-                              <span
-                                className={`text-[10px] sm:text-[11px] font-semibold mt-0.5 block ${
-                                  isSelected ? 'text-amber-300' : 'text-[#5C7E9F]'
-                                }`}
-                              >
-                                {staff.title}
-                              </span>
                             </div>
                           </div>
                         );
@@ -1508,9 +1496,6 @@ export function ReservationSection({
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-sm sm:text-base text-white font-serif-tc">
                               {maidNote.speaker}
-                            </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/15 text-amber-200 border border-white/20">
-                              {maidNote.title}
                             </span>
                           </div>
                           <span className="text-[11px] text-[#A9CCE9] flex items-center gap-1 mt-0.5">

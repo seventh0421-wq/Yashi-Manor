@@ -429,7 +429,7 @@ export function LocationSection() {
                   >
                     {STAFF_MEMBERS.map((s) => (
                       <option key={s.id} value={s.name}>
-                        {s.name} ({s.title})
+                        {s.name}
                       </option>
                     ))}
                   </select>

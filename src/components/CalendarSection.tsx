@@ -482,9 +482,6 @@ export function CalendarSection({
                                       女僕 Maid
                                     </span>
                                   </div>
-                                  <p className="text-xs text-[#507293] font-medium truncate mt-0.5">
-                                    {maid.title}
-                                  </p>
                                   {maid.recommendedDish && (
                                     <p className="text-[11px] text-amber-700 font-medium mt-1 flex items-center gap-1">
                                       <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />

@@ -28,7 +28,7 @@ export interface StaffMember {
   name: string;
   jpName?: string;
   role: 'maid' | 'butler';
-  title: string;
+  title?: string;
   threadsHandle: string;
   threadsUrl: string;
   quote: string;

@@ -543,7 +543,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                       id={`arc-staff-btn-${member.id}`}
                       onClick={() => handleSelectStaff(idx)}
                       className="group relative flex flex-col items-center cursor-pointer transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-105 active:scale-98"
-                      title={`指名 ${member.name} (${member.title})`}
+                      title={`指名 ${member.name}`}
                     >
                       {/* Glowing Circular Avatar Button with White Background & Gold Border Accent */}
                       <div
@@ -564,7 +564,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                         )}
                       </div>
 
-                      {/* Staff Name and Title Label directly underneath with text stroke */}
+                      {/* Staff Name directly underneath with text stroke */}
                       <div className="flex flex-col items-center text-center mt-2 transition-transform duration-300 group-hover:-translate-y-0.5">
                         <div className="inline-flex items-center justify-center gap-1.5">
                           {/* Small elegant glowing status dot */}
@@ -593,13 +593,6 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                             {member.name}
                           </span>
                         </div>
-                        <span
-                          className={`text-[10px] sm:text-[11px] whitespace-nowrap transition-colors ${
-                            pos.isSelected ? 'text-[#856006] font-semibold' : 'text-[#6284A5] group-hover:text-[#385E82]'
-                          }`}
-                        >
-                          {member.title}
-                        </span>
                       </div>
                     </button>
                   </motion.div>
