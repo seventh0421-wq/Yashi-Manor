@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import {
   getMonthSchedule,
-  getMaidsOnDuty,
+  getStaffMembersByIds,
   findNearestOpenDay,
 } from '../data/scheduleData';
 import { StaffAvatar } from './StaffAvatars';
@@ -114,10 +114,10 @@ export function CalendarSection({
   const trailingDaysCount = (7 - (totalCells % 7)) % 7;
   const trailingDays = Array.from({ length: trailingDaysCount }, (_, i) => i + 1);
 
-  // Maids on duty for the selected active day (執事不再分出，只專注於女僕上班名單)
-  const maidsOnDuty = useMemo(() => {
+  // Staff on duty for the selected active day (女僕與執事出勤名單)
+  const staffOnDuty = useMemo(() => {
     if (!activeDay || !activeDay.isOpen) return [];
-    return getMaidsOnDuty(activeDay.dutyStaffIds);
+    return getStaffMembersByIds(activeDay.dutyStaffIds);
   }, [activeDay]);
 
   // Format date header nicely
@@ -169,16 +169,16 @@ export function CalendarSection({
         <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 border border-[#BBD7EE] shadow-2xs text-[#204970] text-xs font-bold tracking-wider uppercase mb-2 backdrop-blur-xs font-cinzel">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>Monthly Hours & Maid Schedule</span>
+            <span>Monthly Hours & Staff Schedule</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-wider text-[#142C44] font-serif-tc text-stroke-white-title">
-            本月營業時間與女僕班表
+            本月營業時間與出勤班表
           </h2>
 
           <p className="mt-2 text-xs sm:text-sm text-[#466584] leading-relaxed font-serif-tc font-medium">
             夜蒔館每週五、週六 晚間 <span className="font-bold text-[#1B3E63]">20:30 - 24:00</span> 開館。
-            點選月曆日期，即可查看當日出勤女僕！
+            點選月曆日期，即可查看當日出勤女僕與執事！
           </p>
 
           {/* Quick Legend Tags: Simple Open / Closed */}
@@ -439,7 +439,7 @@ export function CalendarSection({
                 </div>
 
                 {/* =================================================== */}
-                {/* CASE 1: OPEN DAY - SHOW MAIDS ON DUTY ONLY */}
+                {/* CASE 1: OPEN DAY - SHOW STAFF ON DUTY (MAIDS & BUTLERS) */}
                 {/* =================================================== */}
                 {activeDay?.isOpen ? (
                   <div className="pt-3.5 space-y-4">
@@ -448,27 +448,29 @@ export function CalendarSection({
                         <div className="flex items-center gap-1.5">
                           <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
                           <h4 className="text-sm sm:text-base font-bold text-[#15324E] font-serif-tc">
-                            當日上班女僕
+                            當日值班女僕與執事
                           </h4>
                         </div>
                         <span className="text-[11px] font-bold text-[#355D85] bg-[#E8F1F9] px-2 py-0.5 rounded-full">
-                          {maidsOnDuty.length} 位女僕在席
+                          {staffOnDuty.length} 位侍從在席
                         </span>
                       </div>
 
-                      {maidsOnDuty.length > 0 ? (
+                      {staffOnDuty.length > 0 ? (
                         <div className="space-y-2.5">
-                          {maidsOnDuty.map((maid) => (
+                          {staffOnDuty.map((staff) => (
                             <div
-                              key={maid.id}
+                              key={staff.id}
                               className="group relative p-3 rounded-2xl bg-gradient-to-br from-white to-[#F8FAFC] border border-[#CBDDEB] shadow-2xs hover:border-[#86B4DC] hover:shadow-xs transition-all flex items-start justify-between gap-3"
                             >
-                              {/* Left: Maid Avatar & Basic Info */}
+                              {/* Left: Staff Avatar & Basic Info */}
                               <div className="flex items-start gap-3 min-w-0">
-                                <div className="w-12 h-12 rounded-full border-2 border-pink-200 shadow-2xs overflow-hidden shrink-0 bg-white ring-2 ring-white">
+                                <div className={`w-12 h-12 rounded-full border-2 shadow-2xs overflow-hidden shrink-0 bg-white ring-2 ring-white ${
+                                  staff.role === 'butler' ? 'border-slate-300' : 'border-pink-200'
+                                }`}>
                                   <StaffAvatar
-                                    seed={maid.avatarSeed}
-                                    avatarUrl={maid.photoUrl}
+                                    seed={staff.avatarSeed}
+                                    avatarUrl={staff.photoUrl}
                                     size="md"
                                     className="w-full h-full"
                                   />
@@ -476,28 +478,32 @@ export function CalendarSection({
                                 <div className="min-w-0">
                                   <div className="flex items-center gap-1.5 flex-wrap">
                                     <h5 className="text-base font-bold text-[#142F4B] font-serif-tc">
-                                      {maid.name}
+                                      {staff.name}
                                     </h5>
-                                    <span className="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-pink-100 text-pink-800 border border-pink-200">
-                                      女僕 Maid
+                                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold border ${
+                                      staff.role === 'butler'
+                                        ? 'bg-slate-100 text-slate-800 border-slate-300'
+                                        : 'bg-pink-100 text-pink-800 border-pink-200'
+                                    }`}>
+                                      {staff.role === 'butler' ? '執事 Butler' : '女僕 Maid'}
                                     </span>
                                   </div>
-                                  {maid.recommendedDish && (
+                                  {staff.recommendedDish && (
                                     <p className="text-[11px] text-amber-700 font-medium mt-1 flex items-center gap-1">
                                       <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
-                                      <span>特調推薦：{maid.recommendedDish}</span>
+                                      <span>特調推薦：{staff.recommendedDish}</span>
                                     </p>
                                   )}
                                 </div>
                               </div>
 
-                              {/* Right: Quick Reserve button for this specific Maid */}
+                              {/* Right: Quick Reserve button for this specific Staff */}
                               <div className="shrink-0 flex flex-col items-end gap-1.5">
                                 <button
                                   type="button"
-                                  onClick={() => handleReserveStaff(maid.name)}
+                                  onClick={() => handleReserveStaff(staff.name)}
                                   className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#21456A] to-[#34628E] hover:from-[#163350] hover:to-[#254A6F] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
-                                  title={`指名 ${maid.name} 預約此日席位`}
+                                  title={`指名 ${staff.name} 預約此日席位`}
                                 >
                                   <span>指名預約</span>
                                   <ArrowRight className="w-3.5 h-3.5" />
@@ -517,7 +523,7 @@ export function CalendarSection({
                         </div>
                       ) : (
                         <p className="text-xs text-slate-500 italic p-3 bg-slate-50 rounded-xl">
-                          本日女僕輪休中，敬請留意其他開館日。
+                          本日侍從輪休中，敬請留意其他開館日。
                         </p>
                       )}
                     </div>
@@ -545,7 +551,7 @@ export function CalendarSection({
                         <span>休館研習與茶葉備料日</span>
                       </div>
                       <p>
-                        本日為夜蒔館休館整備日，女僕們正在黑衣森林採集香草葉與研習新調飲。
+                        本日為夜蒔館休館整備日，女僕與執事們正在黑衣森林採集香草葉與研習新調飲。
                       </p>
                       <p className="font-medium text-[#2A4C70]">
                         ✦ 夜蒔館常態營業時間為每週五、週六 晚間 20:30 - 24:00。

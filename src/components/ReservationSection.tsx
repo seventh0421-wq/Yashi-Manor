@@ -82,7 +82,7 @@ async function sendReservationToDiscord(reservation: ReservationData): Promise<b
     const payload = {
       username: '夜蒔館 預約管家',
       avatar_url: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=200&fit=crop&q=80',
-      content: `✨ **【夜蒔館】收到新的主人入席預約！** 請值班女僕確認留位 ✨`,
+      content: `✨ **【夜蒔館】收到新的主人入席預約！** 請值班女僕與執事確認留位 ✨`,
       embeds: [
         {
           title: `✦ 預約通知單：${reservation.id}`,
@@ -95,7 +95,7 @@ async function sendReservationToDiscord(reservation: ReservationData): Promise<b
               inline: true,
             },
             {
-              name: '🎀 指定侍奉女僕',
+              name: '🎀 指定侍奉侍從',
               value: `**${reservation.staffName}**`,
               inline: true,
             },
@@ -235,10 +235,10 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
       };
     default:
       return {
-        speaker: '夜蒔館全體女僕',
+        speaker: '夜蒔館全體女僕與執事',
         avatarSeed: undefined,
         photoUrl: undefined,
-        quote: `「敬愛的主人 ${name}，夜蒔館全體女僕向您致上最誠摯的敬意與感激！星光庇護所的溫暖壁爐與雅座已為您點亮，我們正滿懷期待，靜候您推開館邸大門的瞬間。」`,
+        quote: `「敬愛的主人 ${name}，夜蒔館全體女僕與執事向您致上最誠摯的敬意與感激！星光庇護所的溫暖壁爐與雅座已為您點亮，我們正滿懷期待，靜候您推開館邸大門的瞬間。」`,
         badgeColor: 'bg-indigo-100 text-indigo-800 border-indigo-200',
       };
   }
@@ -251,7 +251,7 @@ export function ReservationSection({
   onNavigateToStaff,
   onNavigateToFaq,
 }: ReservationSectionProps) {
-  // Step state (1: 時段與女僕, 2: 主人資訊, 3: 餐點選擇, 4: 確認預約)
+  // Step state (1: 時段與侍從, 2: 主人資訊, 3: 餐點選擇, 4: 確認預約)
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [hasCopiedCode, setHasCopiedCode] = useState(false);
 
@@ -363,7 +363,7 @@ export function ReservationSection({
     // Validate Step 1
     if (currentStep === 1) {
       if (!selectedDate || !selectedTimeSlot || !selectedStaff) {
-        setValidationError('請完整選擇預約日期、時段與指名女僕選項');
+        setValidationError('請完整選擇預約日期、時段與指名侍從選項');
         return;
       }
       playChime(1.1);
@@ -375,7 +375,7 @@ export function ReservationSection({
     // Validate Step 2
     if (currentStep === 2) {
       if (!customerName.trim()) {
-        setValidationError('請填寫主人的尊稱或角色名稱，以便女僕為您登記銘牌');
+        setValidationError('請填寫主人的尊稱或角色名稱，以便女僕與執事為您登記銘牌');
         return;
       }
       playChime(1.15);
@@ -507,7 +507,7 @@ export function ReservationSection({
             夜蒔館・主人入席預約
           </h1>
           <p className="text-sm sm:text-base text-[#567594] mt-2 max-w-xl mx-auto font-medium">
-            為確保每位主人皆能享有專屬女僕悉心侍奉，請登記您的冒險者資訊。
+            為確保每位主人皆能享有專屬侍從悉心侍奉，請登記您的冒險者資訊。
           </p>
 
           {/* Quick FAQ Helper Bar */}
@@ -599,7 +599,7 @@ export function ReservationSection({
 
                   <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
                     <span className="text-xs text-[#A8C8E6] flex items-center gap-1.5 mb-1">
-                      <Star className="w-3.5 h-3.5 text-amber-300" /> 專屬指名女僕
+                      <Star className="w-3.5 h-3.5 text-amber-300" /> 專屬指名侍從
                     </span>
                     <span className="text-base font-bold text-amber-300 font-serif-tc">
                       {confirmedReservation.staffName === '不指名'
@@ -638,7 +638,7 @@ export function ReservationSection({
                         Gil）
                       </span>
                     ) : (
-                      <span className="text-white/70">未提前預選（入席後現場向女僕點餐）</span>
+                      <span className="text-white/70">未提前預選（入席後現場向女僕或執事點餐）</span>
                     )}
                   </div>
 
@@ -684,7 +684,7 @@ export function ReservationSection({
                   className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-[#142A42] text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
                 >
                   <PartyPopper className="w-4 h-4" />
-                  <span>💌 查看女僕感謝信</span>
+                  <span>💌 查看侍從感謝信</span>
                 </button>
 
                 {onNavigateToMenu && (
@@ -712,7 +712,7 @@ export function ReservationSection({
             <div className="mb-8 sm:mb-10">
               <div className="grid grid-cols-4 gap-2 sm:gap-4 relative">
                 {[
-                  { num: 1, label: '時段與女僕', sub: 'Date & Maid' },
+                  { num: 1, label: '時段與侍從', sub: 'Date & Staff' },
                   { num: 2, label: '主人資訊', sub: 'Guest Info' },
                   { num: 3, label: '餐點選擇', sub: 'Menu (Optional)' },
                   { num: 4, label: '確認預約', sub: 'Review' },
@@ -850,11 +850,11 @@ export function ReservationSection({
                     </div>
                   </div>
 
-                  {/* 1.3 Preferred Maid selection (專屬指名女僕) */}
+                  {/* 1.3 Preferred Staff selection (專屬指名侍從) */}
                   <div>
                     <div className="flex items-center justify-between mb-2.5">
                       <label className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel">
-                        3. 專屬指名女僕 (Preferred Maid)
+                        3. 專屬指名女僕／執事 (Preferred Staff)
                       </label>
                       {onNavigateToStaff && (
                         <button
@@ -862,7 +862,7 @@ export function ReservationSection({
                           onClick={onNavigateToStaff}
                           className="text-xs text-[#285078] hover:underline font-semibold flex items-center gap-1"
                         >
-                          <span>查看女僕詳情</span>
+                          <span>查看侍從詳情</span>
                           <ExternalLink className="w-3 h-3" />
                         </button>
                       )}
@@ -992,7 +992,7 @@ export function ReservationSection({
                       className="w-full px-4 py-3 rounded-2xl bg-white border border-[#CBDDEB] text-[#1C3A5A] placeholder-[#8BA4BD] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#528AC0] shadow-2xs"
                     />
                     <p className="text-[11px] text-[#6383A0] mt-1.5">
-                      女僕將以此尊稱向您問候行禮，並為您呈上專屬桌牌。
+                      女僕與執事將以此尊稱向您問候行禮，並為您呈上專屬桌牌。
                     </p>
                   </div>
 
@@ -1061,7 +1061,7 @@ export function ReservationSection({
                         </span>
                       </div>
                       <p className="text-xs text-[#5D7E9F] mt-1">
-                        提前為您備妥精緻茶點與主餐。若尚未決定，可直接點擊「下一步」跳過，入席時再向女僕點餐。
+                        提前為您備妥精緻茶點與主餐。若尚未決定，可直接點擊「下一步」跳過，入席時再向女僕或執事點餐。
                       </p>
                     </div>
 
@@ -1223,13 +1223,13 @@ export function ReservationSection({
                       </div>
 
                       <div>
-                        <span className="text-xs text-[#5D7E9F]">專屬指名女僕：</span>
+                        <span className="text-xs text-[#5D7E9F]">專屬指名侍從：</span>
                         <div className="text-base font-bold text-[#23466B] font-serif-tc mt-0.5 flex items-center gap-1.5">
                           <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                           <span>
                             {selectedStaff === '不指名'
                               ? '不指名 (館內隨機安排)'
-                              : `${selectedStaff}（專屬女僕）`}
+                              : `${selectedStaff}（專屬侍從）`}
                           </span>
                         </div>
                       </div>
@@ -1293,7 +1293,7 @@ export function ReservationSection({
                     <div>
                       <strong className="text-[#193B5D]">夜蒔館預約守則：</strong>
                       <span className="ml-1">
-                        送出預約後將為您保留專屬桌位與女僕時段。若需更改時段，可在營業日前一天向女僕告知。請保持紳士淑女禮儀，夜蒔館願為您提供最安心舒心的庇護所。
+                        送出預約後將為您保留專屬桌位與侍從時段。若需更改時段，可在營業日前一天向女僕或執事告知。請保持紳士淑女禮儀，夜蒔館願為您提供最安心舒心的庇護所。
                       </span>
                     </div>
                   </div>
@@ -1456,7 +1456,7 @@ export function ReservationSection({
                     感謝主人預約歸館！
                   </h3>
                   <p className="text-xs sm:text-sm text-[#B7D4EE] mt-1 font-medium">
-                    您的席位與女僕侍奉時段已妥善保留於星夜紀錄簿中
+                    您的席位與侍從侍奉時段已妥善保留於星夜紀錄簿中
                   </p>
                 </div>
 
@@ -1500,7 +1500,7 @@ export function ReservationSection({
                           </div>
                           <span className="text-[11px] text-[#A9CCE9] flex items-center gap-1 mt-0.5">
                             <Heart className="w-3 h-3 text-rose-400 fill-rose-400" />
-                            <span>女僕的感謝私語</span>
+                            <span>侍從的感謝私語</span>
                           </span>
                         </div>
                       </div>
@@ -1528,7 +1528,7 @@ export function ReservationSection({
                       </div>
                     </div>
                     <div>
-                      <span className="text-[#88AFD4]">指定女僕：</span>
+                      <span className="text-[#88AFD4]">指定侍從：</span>
                       <div className="text-amber-200 font-bold font-serif-tc mt-0.5">
                         {confirmedReservation.staffName}
                       </div>

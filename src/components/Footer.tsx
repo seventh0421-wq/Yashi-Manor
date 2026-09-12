@@ -168,7 +168,7 @@ export function Footer({ onSelectTab }: FooterProps) {
         {/* Bottom Credits & Copyright */}
         <div className="pt-4 sm:pt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6F869D]">
           <div className="flex items-center gap-1">
-            <span>© 2026 夜蒔館 Nocturne Herbal Cafe. Crafted with</span>
+            <span>© 2026 夜蒔館 Yashi Manor. Crafted with</span>
             <Heart className="w-3 h-3 text-[#DE6B7C] fill-[#DE6B7C]" />
             <span>for Eorzea Adventurers.</span>
           </div>

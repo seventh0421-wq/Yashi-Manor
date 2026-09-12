@@ -58,8 +58,8 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
           >
             夜蒔館
           </h1>
-          <p className="text-xs sm:text-sm md:text-base tracking-[0.6em] text-[#55738E] uppercase mt-3 font-medium font-cinzel">
-            N O C T U R N E
+          <p className="text-xs sm:text-sm md:text-base tracking-[0.45em] sm:tracking-[0.55em] text-[#55738E] uppercase mt-3 font-medium font-cinzel pl-1">
+            Y A S H I &nbsp; M A N O R
           </p>
         </div>
 

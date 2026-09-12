@@ -7,7 +7,6 @@ import {
   UserCheck,
   HeartHandshake,
   Quote,
-  Volume2,
   Check,
   ExternalLink,
   Coffee,
@@ -32,7 +31,6 @@ interface StaffSectionProps {
 export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSectionProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [rotationDirection, setRotationDirection] = useState<'forward' | 'backward'>('forward');
-  const [activeVoiceLine, setActiveVoiceLine] = useState<string | null>(null);
   const [confirmedNotice, setConfirmedNotice] = useState(false);
 
   const [isMobile, setIsMobile] = useState(false);
@@ -62,7 +60,6 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
     setRotationDirection(dir);
     playChime(1.1);
     setSelectedIndex(targetIndex);
-    setActiveVoiceLine(null);
   };
 
   const handlePrevStaff = () => {
@@ -73,15 +70,6 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
   const handleNextStaff = () => {
     const nextIdx = (selectedIndex + 1) % STAFF_MEMBERS.length;
     handleSelectStaff(nextIdx);
-  };
-
-  const handleVoiceLine = () => {
-    if (currentStaff.role === 'maid') {
-      playMagicSpell();
-    } else {
-      playChime(0.95);
-    }
-    setActiveVoiceLine(currentStaff.greetingVoiceLine);
   };
 
   const handleConfirm = () => {
@@ -364,38 +352,17 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                   </ul>
                 </div>
 
-                {/* 3. 店員語錄 (精簡優雅，播放鈕同列) */}
+                {/* 3. 店員語錄 */}
                 <div id="status-strip-quote" className="space-y-1.5">
-                  <div className="flex items-center justify-between pb-1 border-b border-[#3A6B94]/30">
-                    <div className="flex items-center gap-2">
-                      <Quote className="w-4 h-4 text-[#1B4269]" />
-                      <h4 className="text-stroke-white-title font-bold text-base tracking-wider">
-                        店員語錄
-                      </h4>
-                    </div>
-                    <button
-                      onClick={handleVoiceLine}
-                      className="group flex items-center gap-1.5 text-[11px] px-3 py-1 rounded-full border border-white/90 bg-[#224A73] hover:bg-[#163657] text-white font-bold transition-all shadow-xs cursor-pointer"
-                      title="點擊聆聽專屬問候"
-                    >
-                      <Volume2 className="w-3.5 h-3.5 text-white group-hover:scale-110 transition-transform" />
-                      <span>播放語音</span>
-                    </button>
+                  <div className="flex items-center gap-2 pb-1 border-b border-[#3A6B94]/30">
+                    <Quote className="w-4 h-4 text-[#1B4269]" />
+                    <h4 className="text-stroke-white-title font-bold text-base tracking-wider">
+                      店員語錄
+                    </h4>
                   </div>
                   <div className="relative pl-3 border-l-2 border-[#244F78] italic text-stroke-white text-xs sm:text-sm font-serif-tc font-bold leading-relaxed">
                     {currentStaff.quote}
                   </div>
-
-                  {activeVoiceLine && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-stroke-white text-xs font-bold flex items-center gap-1.5 text-[#183D63]"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-[#1E4870] shrink-0" />
-                      <span>{activeVoiceLine}</span>
-                    </motion.div>
-                  )}
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -445,7 +412,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
           <div className="flex items-center justify-center gap-3 mb-3">
             <span className="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-[#8DB5DB]" />
             <span className="text-base sm:text-lg tracking-widest text-[#1B3E63] font-bold font-serif-tc flex items-center gap-2 text-stroke-white">
-              ❤️ 選擇你的女僕 ❤️
+              ❤️ 選擇你的女僕與執事 ❤️
             </span>
             <span className="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-[#8DB5DB]" />
           </div>

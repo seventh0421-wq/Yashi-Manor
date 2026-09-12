@@ -13,7 +13,7 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
         <div className="text-center max-w-2xl mx-auto mb-16">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EBF2F8] text-[#2F4D6D] text-xs font-semibold tracking-wider uppercase mb-3 border border-[#D5E3EF]">
             <Compass className="w-3.5 h-3.5 text-[#4E7399]" />
-            <span>About Nocturne Herbal Cafe</span>
+            <span>About Yashi Manor</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-bold text-[#1C3146] font-cinzel">
             夜蒔館・店內簡介

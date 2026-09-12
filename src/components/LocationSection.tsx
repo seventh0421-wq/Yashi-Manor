@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { MapPin, Navigation, Copy, Check, Compass, MessageSquare, Send, Sparkles, Home, Clock } from 'lucide-react';
+import { MapPin, Navigation, Copy, Check, Compass, MessageSquare, Send, Sparkles, Clock } from 'lucide-react';
 import { SHOP_INFO, STAFF_MEMBERS } from '../data/cafeData';
 import { GuestbookEntry } from '../types';
 import { playChime } from '../utils/audio';
@@ -257,10 +257,6 @@ export function LocationSection() {
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#DCE8F5] text-[#244569] border border-[#CADAE8]">
                     {SHOP_INFO.server}
-                  </span>
-                  <span className="text-xs text-[#5D7A96] flex items-center gap-1">
-                    <Home className="w-3.5 h-3.5" />
-                    <span>{SHOP_INFO.houseSize}</span>
                   </span>
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-[#19324B] tracking-wide font-cinzel">

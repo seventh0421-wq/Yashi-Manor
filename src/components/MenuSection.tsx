@@ -14,7 +14,7 @@ export function MenuSection() {
             <div className="flex items-center justify-between gap-4 mb-2">
               <div className="h-[1px] bg-[#D6E3EF] flex-1" />
               <span className="text-[11px] sm:text-xs font-serif tracking-[0.35em] text-[#4D7196] uppercase font-semibold">
-                NOCTURNE HERBAL CAFE
+                YASHI MANOR
               </span>
               <div className="h-[1px] bg-[#D6E3EF] flex-1" />
             </div>
@@ -23,8 +23,8 @@ export function MenuSection() {
             <div className="flex items-center justify-between pt-1">
               {/* Left: Circle Emblem Badge */}
               <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-full bg-[#23466B] text-white flex flex-col items-center justify-center text-center p-1 shadow-sm shrink-0 select-none border border-[#CBDDEB]/60">
-                <span className="text-[8px] sm:text-[9px] tracking-widest uppercase font-semibold text-[#A6C5E2] leading-none">
-                  NOCTURNE
+                <span className="text-[7.5px] sm:text-[8.5px] tracking-wider uppercase font-semibold text-[#A6C5E2] leading-none">
+                  YASHI MANOR
                 </span>
                 <span className="text-[11px] sm:text-xs font-serif-tc font-bold mt-0.5 leading-none">
                   夜蒔館
