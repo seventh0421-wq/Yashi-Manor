@@ -1,0 +1,6 @@
+{
+  "name": "❤夜蒔館｜Yashi-Manor❤",
+  "description": "FF14 RP女僕執事咖啡廳「夜蒔館」官方網站。當流星劃過夜空，每次的相逢皆如星辰般璀璨，願我們傾心的侍奉，能為您拂去漫長旅途中的疲憊。ご主人様！おかえり。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
