@@ -74,7 +74,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       10,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (1w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -87,7 +87,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       10,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (1w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
               </div>
@@ -109,7 +109,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       20,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (2w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -122,7 +122,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       20,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (2w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
               </div>
@@ -145,7 +145,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       10,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (1w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -158,7 +158,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       10,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (1w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -171,7 +171,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       10,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (1w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -184,7 +184,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       10,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (1w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
               </div>
@@ -221,7 +221,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       20,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (2w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -234,7 +234,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       20,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (2w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -247,7 +247,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       20,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (2w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
               </div>
@@ -289,7 +289,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       50,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (5w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -310,7 +310,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       50,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (5w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -331,7 +331,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       50,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (5w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
 
@@ -352,7 +352,7 @@ export function MenuSection() {
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       50,000
                     </span>
-                    <span className="text-xs font-serif text-[#627D98]">Gil (5w)</span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
               </div>
@@ -409,14 +409,16 @@ export function MenuSection() {
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[#E3EDF6] flex items-baseline justify-between">
-                      <span className="text-xs text-[#71879D] font-medium">侍奉費用</span>
-                      <div className="flex items-baseline gap-1">
-                        <span className="font-serif text-2xl font-bold text-[#23466B]">
+                    <div className="mt-5 pt-3.5 border-t border-[#E3EDF6]">
+                      <div className="text-xs sm:text-sm text-[#71879D] font-medium tracking-wide mb-1.5">
+                        侍奉費用
+                      </div>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="font-serif text-2xl sm:text-3xl font-bold text-[#23466B]">
                           {srv.price.toLocaleString()}
                         </span>
-                        <span className="text-xs font-serif text-[#627D98]">
-                          Gil ({srv.price / 10000}w)
+                        <span className="text-xs sm:text-sm font-serif text-[#627D98]">
+                          Gil
                         </span>
                       </div>
                     </div>
@@ -439,7 +441,7 @@ export function MenuSection() {
             <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0 bg-white px-3 py-1.5 rounded-lg border border-[#CBDDEB] shadow-2xs">
               <span className="text-[#647C94]">入席基本消費：</span>
               <strong className="text-[#1A3858] font-serif text-sm sm:text-base">
-                低消 30,000 Gil (3w)
+                低消 30,000 Gil
               </strong>
             </div>
           </div>

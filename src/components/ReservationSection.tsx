@@ -158,41 +158,41 @@ const PRE_ORDER_CATEGORIES = [
   {
     category: 'SALAD・沙拉輕食',
     items: [
-      { id: 'salad-1', name: '無花果沙拉', price: 10000, desc: '鮮採無花果佐清脆生菜特調油醋 (1w)' },
-      { id: 'salad-2', name: '番茄沙拉', price: 10000, desc: '熟成紅番茄切片佐新鮮水牛起司 (1w)' },
+      { id: 'salad-1', name: '無花果沙拉', price: 10000, desc: '鮮採無花果佐清脆生菜特調油醋' },
+      { id: 'salad-2', name: '番茄沙拉', price: 10000, desc: '熟成紅番茄切片佐新鮮水牛起司' },
     ],
   },
   {
     category: 'MAIN DISHES・飽足主餐',
     items: [
-      { id: 'dish-1', name: '元氣蛋包飯', price: 20000, desc: '金黃歐姆蛋番茄燉飯，含桌邊女僕手繪 (2w)' },
-      { id: 'dish-2', name: '雞肉奶油麵', price: 20000, desc: '濃郁白醬燉嫩雞義大利麵 (2w)' },
-      { id: 'dish-3', name: '魚子醬三明治', price: 20000, desc: '特選珍品魚子醬手作軟吐司 (2w)' },
+      { id: 'dish-1', name: '元氣蛋包飯', price: 20000, desc: '金黃歐姆蛋番茄燉飯，含桌邊女僕手繪' },
+      { id: 'dish-2', name: '雞肉奶油麵', price: 20000, desc: '濃郁白醬燉嫩雞義大利麵' },
+      { id: 'dish-3', name: '魚子醬三明治', price: 20000, desc: '特選珍品魚子醬手作軟吐司' },
     ],
   },
   {
     category: 'DESSERTS・甜蜜點心',
     items: [
-      { id: 'dessert-1', name: '巧克力奶油蛋糕', price: 20000, desc: '濃郁絲滑黑巧克力佐手打鮮奶油 (2w)' },
-      { id: 'dessert-2', name: '無花果餅乾', price: 20000, desc: '低溫烘烤手作香酥無花果碎餅乾 (2w)' },
+      { id: 'dessert-1', name: '巧克力奶油蛋糕', price: 20000, desc: '濃郁絲滑黑巧克力佐手打鮮奶油' },
+      { id: 'dessert-2', name: '無花果餅乾', price: 20000, desc: '低溫烘烤手作香酥無花果碎餅乾' },
     ],
   },
   {
     category: 'DRINKS・沁涼飲品與熱茶',
     items: [
-      { id: 'drink-1', name: '蜜瓜果汁', price: 10000, desc: '鮮榨冰鎮香甜蜜瓜汁 (1w)' },
-      { id: 'drink-2', name: '高山茶', price: 10000, desc: '甘醇清雅手採高山溫潤熱茶 (1w)' },
-      { id: 'drink-3', name: '馬薩拉奶茶', price: 10000, desc: '近東芳香辛香料厚濃暖胃奶茶 (1w)' },
-      { id: 'drink-4', name: '抹茶', price: 10000, desc: '遠東特級石臼抹茶現點手工刷泡 (1w)' },
+      { id: 'drink-1', name: '蜜瓜果汁', price: 10000, desc: '鮮榨冰鎮香甜蜜瓜汁' },
+      { id: 'drink-2', name: '高山茶', price: 10000, desc: '甘醇清雅手採高山溫潤熱茶' },
+      { id: 'drink-3', name: '馬薩拉奶茶', price: 10000, desc: '近東芳香辛香料厚濃暖胃奶茶' },
+      { id: 'drink-4', name: '抹茶', price: 10000, desc: '遠東特級石臼抹茶現點手工刷泡' },
     ],
   },
   {
     category: 'SPECIALTIES・特色餐點',
     items: [
-      { id: 'spec-1', name: '開心汁', price: 50000, desc: '夢幻微醺氣泡特調飲品 (5w)', tag: '萊可推薦', staffSeed: 'laiko' },
-      { id: 'spec-2', name: '無花果凍糕', price: 50000, desc: '層次豐富的法式清甜凍糕 (5w)', tag: '璐可推薦', staffSeed: 'luko' },
-      { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅 (5w)', tag: '栗栗皆辛苦推薦', staffSeed: 'kurikuri' },
-      { id: 'spec-4', name: '鮮紅羅蘭莓派', price: 50000, desc: '黑衣森林酸甜飽滿漿果派 (5w)', tag: '胖冬瓜推薦', staffSeed: 'donggua' },
+      { id: 'spec-1', name: '開心汁', price: 50000, desc: '夢幻微醺氣泡特調飲品', tag: '萊可推薦', staffSeed: 'laiko' },
+      { id: 'spec-2', name: '無花果凍糕', price: 50000, desc: '層次豐富的法式清甜凍糕', tag: '璐可推薦', staffSeed: 'luko' },
+      { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅', tag: '栗栗皆辛苦推薦', staffSeed: 'kurikuri' },
+      { id: 'spec-4', name: '鮮紅羅蘭莓派', price: 50000, desc: '黑衣森林酸甜飽滿漿果派', tag: '胖冬瓜推薦', staffSeed: 'donggua' },
     ],
   },
 ];

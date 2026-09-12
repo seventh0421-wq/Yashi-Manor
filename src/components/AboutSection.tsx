@@ -109,31 +109,44 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
         </div>
 
         {/* RP Rules & Etiquette Grid */}
-        <div className="mt-8">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-[#1F3348] flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-[#4A729A]" />
-              <span>入店禮儀與 RP 規範</span>
+        <div className="mt-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+            <h3 className="text-xl sm:text-2xl font-bold text-[#1F3348] flex items-center gap-2.5">
+              <ShieldCheck className="w-6 h-6 text-[#38618B]" />
+              <span>夜蒔館歸宅守則</span>
             </h3>
-            <span className="text-xs text-[#617B94]">共同維護美好的咖啡廳氣氛</span>
+            <span className="text-sm text-[#5D7791]">共同守護優雅溫柔的宅邸時光</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             {RP_RULES.map((rule, idx) => (
               <div
                 key={idx}
-                className="p-5 rounded-xl bg-white border border-[#E0EBF3] hover:border-[#B8D1E6] transition-all hover:shadow-xs flex flex-col justify-between"
+                className="p-6 sm:p-7 rounded-2xl bg-white border border-[#DCE8F2] hover:border-[#B8D1E6] transition-all hover:shadow-xs flex flex-col justify-between"
               >
                 <div>
-                  <div className="w-8 h-8 rounded-lg bg-[#EDF4FA] text-[#345579] flex items-center justify-center mb-3 text-xs font-bold font-mono">
-                    0{idx + 1}
+                  <div className="flex items-center gap-3 mb-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-[#EDF4FA] text-[#284C72] flex items-center justify-center text-sm font-bold font-mono">
+                      0{idx + 1}
+                    </div>
+                    <h4 className="font-bold text-[#18344E] text-base sm:text-lg tracking-wide">
+                      {rule.title}
+                    </h4>
                   </div>
-                  <h4 className="font-bold text-[#20374E] text-sm mb-2">
-                    {rule.title}
-                  </h4>
-                  <p className="text-xs text-[#526B82] leading-relaxed">
-                    {rule.desc}
-                  </p>
+                  <div className="text-sm sm:text-base text-[#3E5872] leading-relaxed space-y-2.5">
+                    {rule.desc.split('\n').map((line, lIdx) => (
+                      <p
+                        key={lIdx}
+                        className={
+                          line.startsWith('#')
+                            ? 'text-amber-800 font-semibold text-sm sm:text-base pt-1.5 inline-block bg-amber-50/90 px-3 py-1 rounded-lg border border-amber-200/70'
+                            : ''
+                        }
+                      >
+                        {line}
+                      </p>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
