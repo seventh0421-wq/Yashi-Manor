@@ -108,6 +108,17 @@ export function Footer({ onSelectTab }: FooterProps) {
               <li>
                 <button
                   onClick={() => {
+                    onSelectTab?.('decoration');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer text-left"
+                >
+                  Decoration（店舗内装）
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
                     onSelectTab?.('location');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}

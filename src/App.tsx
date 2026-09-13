@@ -6,6 +6,7 @@ import { CalendarSection } from './components/CalendarSection';
 import { AboutSection } from './components/AboutSection';
 import { StaffSection } from './components/StaffSection';
 import { MenuSection } from './components/MenuSection';
+import { DecorationSection } from './components/DecorationSection';
 import { LocationSection } from './components/LocationSection';
 import { FaqSection } from './components/FaqSection';
 import { ReservationSection } from './components/ReservationSection';
@@ -64,6 +65,10 @@ export default function App() {
         )}
 
         {activeTab === 'menu' && <MenuSection />}
+
+        {activeTab === 'decoration' && (
+          <DecorationSection onNavigateToReservation={() => handleTabChange('reservation')} />
+        )}
 
         {activeTab === 'location' && <LocationSection />}
 

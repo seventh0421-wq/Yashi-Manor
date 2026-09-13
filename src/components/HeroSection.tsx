@@ -31,8 +31,20 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
   return (
     <section
       id="home"
-      className="relative flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-6 sm:pb-8 overflow-hidden bg-gradient-to-b from-[#F2F6FA] via-[#FAFBFD] to-[#F5F8FA] text-center"
+      className="relative flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-10 sm:pb-14 overflow-hidden min-h-[78vh] text-center"
     >
+      {/* Home Page Background Image with 70% Opacity */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden select-none">
+        <img
+          src="https://r2.uploads.tw/2026/09/hfozJ4Hgb7.webp"
+          alt="夜蒔館首頁背景"
+          className="w-full h-full object-cover object-center opacity-70"
+          referrerPolicy="no-referrer"
+        />
+        {/* Soft gradient wash to ensure smooth blending and optimal text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FAFBFD]/40 via-[#FAFBFD]/20 to-[#F5F8FA]" />
+      </div>
+
       {/* Subtle, slowly drifting shooting stars & stardust meteor background */}
       <MeteorBackground />
 
@@ -54,11 +66,11 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
         <div className="mb-5 sm:mb-7">
           <h1
             id="home-store-name"
-            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-[0.22em] text-[#162B3F] font-cinzel select-none drop-shadow-sm leading-none"
+            className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-[0.22em] text-[#162B3F] font-cinzel select-none drop-shadow-[0_2px_14px_rgba(255,255,255,0.95)] leading-none"
           >
             夜蒔館
           </h1>
-          <p className="text-xs sm:text-sm md:text-base tracking-[0.45em] sm:tracking-[0.55em] text-[#55738E] uppercase mt-3 font-medium font-cinzel pl-1">
+          <p className="text-xs sm:text-sm md:text-base tracking-[0.45em] sm:tracking-[0.55em] text-[#24476B] uppercase mt-3 font-bold font-cinzel pl-1 drop-shadow-[0_1px_4px_rgba(255,255,255,0.9)]">
             Y A S H I &nbsp; M A N O R
           </p>
         </div>
@@ -66,7 +78,7 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
         {/* Copy (文案 - 縮小版面與內距) */}
         <div
           id="home-copy-content"
-          className="relative max-w-xl mx-auto px-5 sm:px-6 py-4 sm:py-4.5 rounded-2xl bg-white/75 border border-[#D9E5F0]/90 shadow-2xs backdrop-blur-xs"
+          className="relative max-w-xl mx-auto px-5 sm:px-6 py-4 sm:py-4.5 rounded-2xl bg-white/85 border border-[#D9E5F0] shadow-sm backdrop-blur-sm"
         >
           <p className="text-xs sm:text-sm md:text-base leading-relaxed text-[#2C4156] font-serif-tc font-medium tracking-wide">
             當流星劃過夜空，每次的相逢皆如星辰般璀璨，

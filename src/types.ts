@@ -1,4 +1,4 @@
-export type PageTab = 'home' | 'about' | 'staff' | 'menu' | 'location' | 'faq' | 'reservation';
+export type PageTab = 'home' | 'about' | 'staff' | 'menu' | 'decoration' | 'location' | 'faq' | 'reservation';
 
 export interface PreOrderItem {
   name: string;

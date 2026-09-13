@@ -13,6 +13,7 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
     { id: 'about', en: 'About us', jp: '当店のご案内' },
     { id: 'staff', en: 'Maids', jp: 'メイド紹介' },
     { id: 'menu', en: 'Menu', jp: 'メニュー' },
+    { id: 'decoration', en: 'Decoration', jp: '店舗内装' },
     { id: 'location', en: 'Location', jp: 'アクセス' },
     { id: 'faq', en: 'FAQ', jp: 'よくある質問' },
   ];
