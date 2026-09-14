@@ -13,12 +13,13 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
     xl: 'w-32 h-32',
   }[size];
 
-  // If a photoUrl is directly supplied, or seed is 'laiko' / 'luko' / 'kurikuri' / 'donggua' with photo
-  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua') {
+  // If a photoUrl is directly supplied, or seed is 'laiko' / 'luko' / 'kurikuri' / 'donggua' / 'potatobrave' with photo
+  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave') {
     let defaultPhoto = 'https://i.meee.com.tw/dkSZ6nR.png';
     if (seed === 'luko') defaultPhoto = 'https://i.meee.com.tw/CMH9DxK.png';
     if (seed === 'kurikuri') defaultPhoto = 'https://i.meee.com.tw/Hneru75.png';
     if (seed === 'donggua') defaultPhoto = 'https://i.meee.com.tw/EmzeSiG.png';
+    if (seed === 'potatobrave') defaultPhoto = 'https://i.meee.com.tw/V4AC8Ds.png';
     const photo = avatarUrl || defaultPhoto;
 
     let objectPos = 'object-[center_17%]';
@@ -37,6 +38,11 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       objectPos = 'object-[center_19%]';
       zoomScale = 'scale-[1.65]';
       transformOrigin = 'origin-[center_19%]';
+    } else if (seed === 'potatobrave' || photo.includes('V4AC8Ds') || photo.includes('potatobrave') || photo.includes('JuLHejO')) {
+      // Precise zoom focused on Potato Brave face
+      objectPos = 'object-[45%_25%]';
+      zoomScale = 'scale-[2.4]';
+      transformOrigin = 'origin-[45%_25%]';
     } else if (seed === 'laiko' || photo.includes('dkSZ6nR')) {
       objectPos = 'object-[center_17%]';
       zoomScale = 'scale-[1.65]';
@@ -50,6 +56,11 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
           alt="Staff Avatar"
           className={`w-full h-full object-cover ${zoomScale} ${transformOrigin} ${objectPos}`}
           referrerPolicy="no-referrer"
+          onError={(e) => {
+            if (photo.includes('V4AC8Ds')) {
+              e.currentTarget.src = '/staff/potatobrave.png';
+            }
+          }}
         />
       </div>
     );

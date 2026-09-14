@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StaffMember } from '../types';
 import { triggerTopProgress, completeTopProgress } from '../utils/progress';
 
@@ -7,22 +7,40 @@ interface StaffPortraitProps {
 }
 
 export function StaffPortrait({ staff }: StaffPortraitProps) {
+  const [imageSrc, setImageSrc] = useState<string>(() => staff.photoUrl || '');
+
   useEffect(() => {
-    if (staff.photoUrl) {
+    setImageSrc(staff.photoUrl || '');
+  }, [staff.id, staff.photoUrl]);
+
+  useEffect(() => {
+    if (imageSrc) {
       triggerTopProgress();
     }
-  }, [staff.id, staff.photoUrl]);
+  }, [staff.id, imageSrc]);
 
   // Render real photo if provided (e.g. 萊可 photo), otherwise bespoke detailed character illustration
   const renderCharacterIllustration = () => {
-    if (staff.photoUrl) {
+    if (imageSrc) {
+      const isPotatoBrave = staff.id === 'potatobrave' || imageSrc.includes('V4AC8Ds') || imageSrc.includes('potatobrave');
+
       return (
         <div className="w-full h-full flex items-center justify-center">
           <img
-            src={staff.photoUrl}
+            src={imageSrc}
             alt={staff.name}
-            className="w-auto max-w-full h-auto max-h-[620px] sm:max-h-[700px] md:max-h-[760px] lg:max-h-[820px] object-contain drop-shadow-[0_20px_40px_rgba(20,40,70,0.24)] transition-transform duration-500 ease-out hover:scale-[1.02]"
+            className={`w-auto max-w-full h-auto drop-shadow-[0_20px_40px_rgba(20,40,70,0.24)] max-h-[620px] sm:max-h-[700px] md:max-h-[760px] lg:max-h-[820px] object-contain select-none pointer-events-none ${
+              isPotatoBrave
+                ? 'scale-[1.19] origin-bottom'
+                : ''
+            }`}
             referrerPolicy="no-referrer"
+            onError={() => {
+              // If remote URL fails for potato brave, fallback to local cached copy
+              if (staff.id === 'potatobrave' && !imageSrc.includes('potatobrave.png')) {
+                setImageSrc('/staff/potatobrave.png');
+              }
+            }}
             onLoad={() => completeTopProgress()}
           />
         </div>

@@ -24,7 +24,7 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
           </p>
         </div>
 
-        {/* RP Degree Notice Banner (店內輕中RP程度提醒) */}
+        {/* RP Degree Notice Banner (店內輕無RP程度提醒) */}
         <div className="max-w-4xl mx-auto mb-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#F0F6FC] via-[#E8F2FA] to-[#EFF6FC] border-2 border-[#BCD6EA] shadow-xs flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
           <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#214972] shrink-0 shadow-xs border border-[#CBDDEB]">
             <Sparkles className="w-6 h-6 text-[#2A5580]" />
@@ -35,11 +35,11 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
                 RP 程度提醒
               </span>
               <h3 className="text-base sm:text-lg font-bold text-[#17324D] font-serif-tc">
-                夜蒔館為「輕～中度 RP」角色扮演風格
+                夜蒔館為「輕無 RP」交流風格
               </h3>
             </div>
             <p className="text-xs sm:text-sm text-[#3E5C7A] leading-relaxed">
-              本店侍從將以女僕與執事的身分提供沉浸侍奉與互動。主人們可以隨心所欲地暢聊或扮演您的光之戰士，無論是初次接觸 RP 的新手，或是想放鬆喝茶的冒險者，皆可輕鬆無負擔地享受溫馨氛圍！
+              本店侍從將以親切溫柔的女僕與執事身分迎接主人。您可以隨心所欲地暢聊日常或享受簡單互動，無論是否接觸過 RP，都能以最自在放鬆的狀態享受宅邸溫馨氛圍，完全輕鬆零負擔！
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
                 <Sparkles className="w-4 h-4 text-[#2C5680] shrink-0" />
                 <div>
                   <div className="font-semibold text-[#1B3E63]">RP 程度</div>
-                  <div className="text-xs font-bold text-[#234A70]">輕～中度 RP（輕鬆沉浸）</div>
+                  <div className="text-xs font-bold text-[#234A70]">輕無 RP（輕鬆自在）</div>
                 </div>
               </div>
             </div>
@@ -125,10 +125,10 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
               </div>
               <div>
                 <h4 className="font-bold text-[#1E344A] text-base mb-1">
-                  輕中度 RP・新手友善
+                  輕無 RP・新手友善
                 </h4>
                 <p className="text-xs sm:text-sm text-[#4D657D] leading-relaxed">
-                  店內採輕中度 RP 沉浸交流，即使是第一次接觸 FF14 RP（角色扮演）的主人，侍從們也會親切引導交流，完全無需擔心！
+                  店內採輕無 RP 交流風格，無需設定繁複背景，初次接觸 FF14 RP 的主人也能毫無壓力、輕鬆自在暢聊！
                 </p>
               </div>
             </div>

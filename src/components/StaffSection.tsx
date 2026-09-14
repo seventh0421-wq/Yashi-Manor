@@ -20,7 +20,7 @@ import { STAFF_MEMBERS } from '../data/cafeData';
 import { StaffMember } from '../types';
 import { StaffAvatar } from './StaffAvatars';
 import { StaffPortrait } from './StaffPortrait';
-import { StaffHeartBackground } from './StaffHeartBackground';
+import { StaffRibbonBackground } from './StaffRibbonBackground';
 import { playChime, playMagicSpell } from '../utils/audio';
 import { triggerTopProgress } from '../utils/progress';
 
@@ -52,10 +52,11 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
   const handleSelectStaff = (targetIndex: number) => {
     if (targetIndex === selectedIndex) return;
     triggerTopProgress();
-    // Calculate shortest circular step on 4-item ring (-1, 1, 2)
-    let step = (targetIndex - selectedIndex) % 4;
-    if (step > 2) step -= 4;
-    if (step < -1) step += 4;
+    const count = STAFF_MEMBERS.length;
+    // Calculate shortest circular step on count-item ring
+    let step = (targetIndex - selectedIndex) % count;
+    if (step > Math.floor(count / 2)) step -= count;
+    if (step < -Math.floor((count - 1) / 2)) step += count;
 
     const dir = step > 0 ? 'forward' : 'backward';
     setRotationDirection(dir);
@@ -83,20 +84,21 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
   };
 
   const getStaffPosition = (staffIdx: number) => {
-    // Relative difference from selectedIndex on 4-item circular loop (0, 1, 2, 3)
-    let diff = (staffIdx - selectedIndex) % 4;
-    if (diff < 0) diff += 4;
+    // Relative difference from selectedIndex on circular loop
+    const count = STAFF_MEMBERS.length;
+    let diff = (staffIdx - selectedIndex) % count;
+    if (diff < 0) diff += count;
 
     let slot = 0;
     if (diff === 0) {
       slot = 0; // CENTER APEX (The selected person!)
-    } else if (diff === 1) {
-      slot = 1; // RIGHT
-    } else if (diff === 3) {
-      slot = -1; // LEFT
-    } else if (diff === 2) {
-      // Opposite side: place on side based on rotation direction
+    } else if (count === 4 && diff === 2) {
+      // 4-item ring: place opposite based on rotation direction
       slot = rotationDirection === 'backward' ? -2 : 2;
+    } else if (diff <= Math.floor(count / 2)) {
+      slot = diff; // 1, 2
+    } else {
+      slot = diff - count; // -2, -1
     }
 
     let x = 0;
@@ -190,8 +192,8 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className="relative min-h-[calc(100vh-60px)] pt-16 sm:pt-20 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#EAF3FA] via-[#F4F9FD] to-[#DFEDF7] overflow-hidden"
     >
-      {/* Full-bleed Heart Background with Staff Cheer Color Gradient & Left-side prominence */}
-      <StaffHeartBackground
+      {/* Seamless Ribbon Bow Trellis Wallpaper Background with Staff Cheer Color */}
+      <StaffRibbonBackground
         cheerColor={currentStaff.themeColor}
         staffName={currentStaff.name}
       />
@@ -304,6 +306,11 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                         style={{ backgroundColor: currentStaff.themeColor }}
                       />
                       <span>應援色 {currentStaff.themeColor}</span>
+                    </div>
+
+                    {/* Staff Role Tag (女僕 / 執事) */}
+                    <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#1E3B5C]/10 border border-[#1E3B5C]/20 text-[11px] font-bold text-[#1E3B5C] shadow-2xs backdrop-blur-xs">
+                      <span>{currentStaff.role === 'butler' ? '執事・Butler' : '女僕・Maid'}</span>
                     </div>
                   </div>
                 </div>
@@ -429,11 +436,11 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
         {/* BOTTOM AREA: ROTATING ARC CAROUSEL (弧線旋轉選單 居中切換) */}
         {/* ========================================================= */}
         <div className="relative max-w-5xl mx-auto pt-6 pb-4">
-          {/* Section Indicator: ❤️選擇你的女僕❤️ */}
+          {/* Section Indicator: ❤️選擇你的專屬女僕/執事❤️ */}
           <div className="flex items-center justify-center gap-3 mb-3">
             <span className="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-[#8DB5DB]" />
             <span className="text-base sm:text-lg tracking-widest text-[#1B3E63] font-bold font-serif-tc flex items-center gap-2 text-stroke-white">
-              ❤️ 選擇你的專屬女僕 ❤️
+              ❤️ 選擇你的專屬女僕/執事 ❤️
             </span>
             <span className="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-[#8DB5DB]" />
           </div>
@@ -530,7 +537,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                     <button
                       id={`arc-staff-btn-${member.id}`}
                       onClick={() => handleSelectStaff(idx)}
-                      className="group relative flex flex-col items-center cursor-pointer transition-all duration-300 ease-out hover:-translate-y-2 hover:scale-105 active:scale-98"
+                      className="group relative flex flex-col items-center cursor-pointer transition-all duration-300 ease-out hover:-translate-y-1 active:scale-98"
                       title={`指名 ${member.name}`}
                     >
                       {/* Glowing Circular Avatar Button with White Background & Gold Border Accent */}
@@ -541,7 +548,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                             : 'ring-2 ring-white/95 group-hover:ring-3 group-hover:ring-[#E5C158] shadow-sm group-hover:shadow-[0_8px_20px_rgba(30,60,90,0.18),0_0_16px_rgba(229,193,88,0.45)]'
                         }`}
                       >
-                        <StaffAvatar seed={member.avatarSeed} avatarUrl={member.photoUrl} size="xl" className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
+                        <StaffAvatar seed={member.avatarSeed} avatarUrl={member.photoUrl} size="xl" className="w-full h-full" />
 
                         {/* Active Radiant Gold Pulse Indicator for selected avatar */}
                         {pos.isSelected && (
