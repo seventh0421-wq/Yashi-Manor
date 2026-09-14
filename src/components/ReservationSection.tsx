@@ -854,7 +854,7 @@ export function ReservationSection({
                   <div>
                     <div className="flex items-center justify-between mb-2.5">
                       <label className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel">
-                        3. 專屬指名女僕／執事 (Preferred Staff)
+                        3. 專屬指名女僕 (Preferred Staff)
                       </label>
                       {onNavigateToStaff && (
                         <button

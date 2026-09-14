@@ -91,7 +91,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Maids（メイド紹介）
+                  STAFF（スタッフ紹介）
                 </button>
               </li>
               <li>

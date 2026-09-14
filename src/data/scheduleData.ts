@@ -65,9 +65,9 @@ export function getMonthSchedule(year: number, month: number): DutyScheduleDay[]
         } else if (weekIndex === 3) {
           // Third Friday
           dutyStaffIds = ['luko', 'laiko', 'donggua'];
-          themeTitle = '【皇家夜語】萊可執事長手沖茶室';
+          themeTitle = '【星夜茶香】店長萊可手沖茶室';
           specialTag = '手沖茶沙龍';
-          note = '由店長萊可親自解說艾歐澤亞草本茶道與宮廷社交禮節。';
+          note = '由店長萊可親自解說艾歐澤亞草本茶道與舒心茶藝。';
         } else {
           // Fourth or Fifth Friday
           dutyStaffIds = ['kurikuri', 'luko', 'donggua'];
@@ -79,9 +79,9 @@ export function getMonthSchedule(year: number, month: number): DutyScheduleDay[]
         if (weekIndex === 1) {
           // First Saturday
           dutyStaffIds = ['luko', 'kurikuri', 'laiko', 'donggua'];
-          themeTitle = '【星光盛典】全體侍從迎接夜';
+          themeTitle = '【星光盛典】全體女僕迎接夜';
           specialTag = '全員出勤';
-          note = '全體女僕與執事全員到齊，歡聚大廳，熱烈歡迎每位歸來的主人！';
+          note = '全體女僕全員到齊，歡聚大廳，熱烈歡迎每位歸來的主人！';
         } else if (weekIndex === 2) {
           // Second Saturday: Meteor shower theme event
           dutyStaffIds = ['luko', 'kurikuri', 'laiko', 'donggua'];

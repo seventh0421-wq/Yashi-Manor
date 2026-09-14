@@ -178,7 +178,7 @@ export function CalendarSection({
 
           <p className="mt-2 text-xs sm:text-sm text-[#466584] leading-relaxed font-serif-tc font-medium">
             夜蒔館每週五、週六 晚間 <span className="font-bold text-[#1B3E63]">20:30 - 24:00</span> 開館。
-            點選月曆日期，即可查看當日出勤女僕與執事！
+            點選月曆日期，即可查看當日出勤女僕名單！
           </p>
 
           {/* Quick Legend Tags: Simple Open / Closed */}
@@ -448,7 +448,7 @@ export function CalendarSection({
                         <div className="flex items-center gap-1.5">
                           <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
                           <h4 className="text-sm sm:text-base font-bold text-[#15324E] font-serif-tc">
-                            當日值班女僕與執事
+                            當日值班女僕
                           </h4>
                         </div>
                         <span className="text-[11px] font-bold text-[#355D85] bg-[#E8F1F9] px-2 py-0.5 rounded-full">

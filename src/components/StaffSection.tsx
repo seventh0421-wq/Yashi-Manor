@@ -20,6 +20,7 @@ import { STAFF_MEMBERS } from '../data/cafeData';
 import { StaffMember } from '../types';
 import { StaffAvatar } from './StaffAvatars';
 import { StaffPortrait } from './StaffPortrait';
+import { StaffHeartBackground } from './StaffHeartBackground';
 import { playChime, playMagicSpell } from '../utils/audio';
 import { triggerTopProgress } from '../utils/progress';
 
@@ -189,6 +190,12 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
       transition={{ duration: 0.5, ease: 'easeOut' }}
       className="relative min-h-[calc(100vh-60px)] pt-16 sm:pt-20 pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#EAF3FA] via-[#F4F9FD] to-[#DFEDF7] overflow-hidden"
     >
+      {/* Full-bleed Heart Background with Staff Cheer Color Gradient & Left-side prominence */}
+      <StaffHeartBackground
+        cheerColor={currentStaff.themeColor}
+        staffName={currentStaff.name}
+      />
+
       {/* Background Soft Ambient Light & Star Accents */}
       <div className="absolute inset-0 pointer-events-none select-none">
         <div className="absolute top-20 left-1/4 w-[500px] h-[350px] bg-gradient-to-b from-[#CDE2F4]/60 to-transparent rounded-full blur-3xl opacity-70" />
@@ -275,16 +282,30 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                     )}
                   </div>
 
-                  {/* Threads Handle Link */}
-                  <a
-                    href={currentStaff.threadsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-[#204970] font-bold hover:text-[#0C243E] transition-colors underline-offset-2 hover:underline text-stroke-white"
-                  >
-                    <span>{currentStaff.threadsHandle}</span>
-                    <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-                  </a>
+                  <div className="flex items-center gap-3 flex-wrap pt-0.5">
+                    {/* Threads Handle Link */}
+                    <a
+                      href={currentStaff.threadsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-[#204970] font-bold hover:text-[#0C243E] transition-colors underline-offset-2 hover:underline text-stroke-white"
+                    >
+                      <span>{currentStaff.threadsHandle}</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                    </a>
+
+                    {/* Staff Cheer Color Badge */}
+                    <div
+                      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/85 border border-[#C5D8E8] text-[11px] font-bold text-[#1E4366] shadow-2xs backdrop-blur-xs"
+                      title={`${currentStaff.name} 的專屬應援色：${currentStaff.themeColor}`}
+                    >
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-black/15 shadow-2xs shrink-0"
+                        style={{ backgroundColor: currentStaff.themeColor }}
+                      />
+                      <span>應援色 {currentStaff.themeColor}</span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* 1. 店員介紹 (精簡流暢) */}
@@ -412,7 +433,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
           <div className="flex items-center justify-center gap-3 mb-3">
             <span className="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent to-[#8DB5DB]" />
             <span className="text-base sm:text-lg tracking-widest text-[#1B3E63] font-bold font-serif-tc flex items-center gap-2 text-stroke-white">
-              ❤️ 選擇你的女僕與執事 ❤️
+              ❤️ 選擇你的專屬女僕 ❤️
             </span>
             <span className="h-px w-12 sm:w-24 bg-gradient-to-l from-transparent to-[#8DB5DB]" />
           </div>
