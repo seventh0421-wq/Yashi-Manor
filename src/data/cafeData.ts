@@ -3,7 +3,7 @@ import { StaffMember, MenuItem, SpecialEvent, FAQItem } from '../types';
 export const SHOP_INFO = {
   name: '夜蒔館',
   subName: 'Yashi Manor',
-  tagline: '女僕執事咖啡廳・FF14 RP店',
+  tagline: '女僕執事咖啡廳・輕中度 FF14 RP店',
   heroQuote: '當流星劃過夜空，每次的相逢皆如星辰般璀璨，願我們傾心的侍奉，能為您拂去漫長旅途中的疲憊。ご主人様！おかえり。',
   welcomeGreetingJp: 'ご主人様！お嬢様！おかえりなさいませ。',
   server: '利維坦 (Leviathan)',
@@ -12,6 +12,7 @@ export const SHOP_INFO = {
   teleportGuide: '由格里達尼亞以太之光傳送至「薰衣草苗圃」第12分區，搭乘都市內小水晶至「樹陰小區（東南）」，向南步行約30秒即可抵達門牌46號。',
   businessHours: '每週五、週六 晚間 20:30 - 24:00 (台灣時間 GMT+8)',
   entryFee: '入場低消 30,000 Gil（店內餐點飲品以遊戲內金幣 Gil 計算）',
+  rpLevel: '輕～中度 RP（輕鬆沉浸・新手友善）',
   minimumSpend: 30000,
   pricingNotice: '備註：以上價格將於正式營運時再做更動',
 };

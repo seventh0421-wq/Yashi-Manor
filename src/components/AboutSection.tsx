@@ -24,6 +24,26 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
           </p>
         </div>
 
+        {/* RP Degree Notice Banner (店內輕中RP程度提醒) */}
+        <div className="max-w-4xl mx-auto mb-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#F0F6FC] via-[#E8F2FA] to-[#EFF6FC] border-2 border-[#BCD6EA] shadow-xs flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+          <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-[#214972] shrink-0 shadow-xs border border-[#CBDDEB]">
+            <Sparkles className="w-6 h-6 text-[#2A5580]" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center justify-center sm:justify-start gap-2 mb-1 flex-wrap">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#244A72] text-white tracking-wider font-cinzel">
+                RP 程度提醒
+              </span>
+              <h3 className="text-base sm:text-lg font-bold text-[#17324D] font-serif-tc">
+                夜蒔館為「輕～中度 RP」角色扮演風格
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-[#3E5C7A] leading-relaxed">
+              本店侍從將以女僕與執事的身分提供沉浸侍奉與互動。主人們可以隨心所欲地暢聊或扮演您的光之戰士，無論是初次接觸 RP 的新手，或是想放鬆喝茶的冒險者，皆可輕鬆無負擔地享受溫馨氛圍！
+            </p>
+          </div>
+        </div>
+
         {/* Narrative & Concept Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch mb-16">
           {/* Main Story Card */}
@@ -44,7 +64,7 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
               </p>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-[#EDF3F8] grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm text-[#465F77]">
+            <div className="mt-6 pt-6 border-t border-[#EDF3F8] grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs sm:text-sm text-[#465F77]">
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#F4F8FB]">
                 <Clock className="w-4 h-4 text-[#4A729A] shrink-0" />
                 <div>
@@ -57,6 +77,13 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
                 <div>
                   <div className="font-semibold text-[#1F364D]">入場費用</div>
                   <div className="text-xs text-[#637D96]">{SHOP_INFO.entryFee}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-[#EBF3FA] border border-[#BCD4E8]">
+                <Sparkles className="w-4 h-4 text-[#2C5680] shrink-0" />
+                <div>
+                  <div className="font-semibold text-[#1B3E63]">RP 程度</div>
+                  <div className="text-xs font-bold text-[#234A70]">輕～中度 RP（輕鬆沉浸）</div>
                 </div>
               </div>
             </div>
@@ -98,10 +125,10 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
               </div>
               <div>
                 <h4 className="font-bold text-[#1E344A] text-base mb-1">
-                  新手友善・輕鬆沉浸
+                  輕中度 RP・新手友善
                 </h4>
                 <p className="text-xs sm:text-sm text-[#4D657D] leading-relaxed">
-                  即使是第一次接觸 FF14 RP（角色扮演）的主人，侍從們也會親切引導交流，完全無需擔心！
+                  店內採輕中度 RP 沉浸交流，即使是第一次接觸 FF14 RP（角色扮演）的主人，侍從們也會親切引導交流，完全無需擔心！
                 </p>
               </div>
             </div>

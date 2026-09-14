@@ -154,25 +154,27 @@ export function StaffHeartBackground({ cheerColor, staffName }: StaffHeartBackgr
     >
       {/* 1. Dynamic Watercolor Ambient Paper Wash */}
       <div
-        className="absolute inset-0 transition-colors duration-700 ease-out pointer-events-none"
+        className="absolute inset-0 transition-colors duration-700 ease-out pointer-events-none opacity-80"
         style={{
           background: watercolorTheme.ambientWash,
-          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 92%)',
-          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 60%, rgba(0,0,0,0.3) 80%, rgba(0,0,0,0) 92%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 55%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0) 90%)',
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 55%, rgba(0,0,0,0.3) 75%, rgba(0,0,0,0) 90%)',
         }}
       />
 
-      {/* 2. Single-Stroke Watercolor Heart Container */}
-      {/* Strictly bounded to the upper section: height terminates above the rotating arc carousel */}
+      {/* 2. Single-Stroke Watercolor Heart Container (80% opacity, responsive mobile & desktop positioning) */}
+      {/* Mobile: Centered gracefully behind the maid portrait at the top without crowding the carousel */}
+      {/* Desktop: Spans above the rotating arc carousel */}
       <motion.div
         key={staffName}
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="absolute inset-x-0 top-2 sm:top-6 bottom-[260px] sm:bottom-[290px] md:bottom-[320px] flex items-center justify-center pointer-events-none px-4"
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 0.8, scale: 1 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        className="absolute inset-x-0 top-12 sm:top-16 lg:top-4 h-[380px] xs:h-[430px] sm:h-[490px] md:h-[560px] lg:h-auto lg:bottom-[300px] xl:bottom-[310px] flex items-center justify-center pointer-events-none px-2 sm:px-4"
         style={{
-          WebkitMaskImage: `${cssWatercolorMaskDataUri}, radial-gradient(ellipse at 46% 48%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 60%, rgba(0,0,0,0.6) 82%, rgba(0,0,0,0) 100%)`,
-          maskImage: `${cssWatercolorMaskDataUri}, radial-gradient(ellipse at 46% 48%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 60%, rgba(0,0,0,0.6) 82%, rgba(0,0,0,0) 100%)`,
+          opacity: 0.8,
+          WebkitMaskImage: `${cssWatercolorMaskDataUri}, radial-gradient(ellipse at 50% 48%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 60%, rgba(0,0,0,0.6) 84%, rgba(0,0,0,0) 100%)`,
+          maskImage: `${cssWatercolorMaskDataUri}, radial-gradient(ellipse at 50% 48%, rgba(0,0,0,1) 0%, rgba(0,0,0,0.95) 60%, rgba(0,0,0,0.6) 84%, rgba(0,0,0,0) 100%)`,
           WebkitMaskComposite: 'source-over',
           maskComposite: 'add',
         }}
@@ -180,7 +182,7 @@ export function StaffHeartBackground({ cheerColor, staffName }: StaffHeartBackgr
         <svg
           viewBox="0 0 1150 920"
           preserveAspectRatio="xMidYMid meet"
-          className="w-full h-full max-w-[1050px] max-h-full"
+          className="w-full h-full max-w-[350px] xs:max-w-[400px] sm:max-w-[500px] md:max-w-[650px] lg:max-w-[1050px] max-h-full"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>

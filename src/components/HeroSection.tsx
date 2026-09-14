@@ -10,7 +10,8 @@ import {
   ArrowRight,
   Check,
   Star,
-  PartyPopper
+  PartyPopper,
+  Monitor
 } from 'lucide-react';
 import { MeteorBackground } from './MeteorBackground';
 import { SPECIAL_EVENTS } from '../data/cafeData';
@@ -93,9 +94,24 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
         </div>
 
         {/* ========================================================= */}
+        {/* DESKTOP VIEWING RECOMMENDATION (建議使用電腦網頁觀看) */}
+        {/* ========================================================= */}
+        <div className="mt-4 sm:mt-5 flex justify-center">
+          <div
+            id="desktop-view-notice"
+            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-white/85 hover:bg-white/95 border border-[#BBD5EA] shadow-[0_2px_10px_rgba(45,85,130,0.08)] backdrop-blur-xs text-[#204467] text-xs sm:text-sm transition-all"
+          >
+            <Monitor className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#356796] shrink-0" />
+            <span className="font-medium">
+              💡 建議使用<strong className="font-bold text-[#14324F] mx-1 underline decoration-[#8BB5DB] underline-offset-2">電腦網頁</strong>觀看，以獲得最佳視覺與互動體驗
+            </span>
+          </div>
+        </div>
+
+        {/* ========================================================= */}
         {/* SPECIAL EVENTS BADGE (活動訊息按鈕) */}
         {/* ========================================================= */}
-        <div className="mt-6 sm:mt-7 flex justify-center">
+        <div className="mt-4 sm:mt-5 flex justify-center">
           <button
             id="hero-special-events-badge"
             type="button"
