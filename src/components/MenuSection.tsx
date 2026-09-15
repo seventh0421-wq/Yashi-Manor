@@ -192,7 +192,7 @@ export function MenuSection() {
               {/* Atmosphere Beverage Photo */}
               <div className="overflow-hidden bg-[#F0F5FA] border border-[#CBDDEB] rounded-lg aspect-[16/10] mt-2 shadow-2xs">
                 <img
-                  src="https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=700&auto=format&fit=crop&q=80"
+                  src="https://i.meee.com.tw/kMO1yXj.png"
                   alt="夜蒔館精選茶飲"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
@@ -255,7 +255,7 @@ export function MenuSection() {
               {/* 2. Gourmet Cuisine Photo */}
               <div className="overflow-hidden bg-[#F0F5FA] border border-[#CBDDEB] rounded-lg aspect-[16/9] shadow-2xs">
                 <img
-                  src="https://images.unsplash.com/photo-1608039829572-78524f79c4c7?w=700&auto=format&fit=crop&q=80"
+                  src="https://i.meee.com.tw/E5IKs5T.png"
                   alt="夜蒔館精緻主餐"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
@@ -346,6 +346,27 @@ export function MenuSection() {
                         <StaffAvatar seed="donggua" className="w-4 h-4" />
                       </div>
                       <span>胖冬瓜推薦</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      50,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
+
+                {/* 蜂蜜瑪芬 - 薯泥勇者推薦 */}
+                <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      蜂蜜瑪芬
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF5FB] text-[#23466B] border border-[#CBDDEB]">
+                      <div className="w-4 h-4 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
+                        <StaffAvatar seed="potatobrave" className="w-4 h-4" />
+                      </div>
+                      <span>薯泥勇者推薦</span>
                     </span>
                   </div>
                   <div className="flex items-baseline gap-1 shrink-0">

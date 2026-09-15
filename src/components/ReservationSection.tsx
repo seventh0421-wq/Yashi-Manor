@@ -193,6 +193,7 @@ const PRE_ORDER_CATEGORIES = [
       { id: 'spec-2', name: '無花果凍糕', price: 50000, desc: '層次豐富的法式清甜凍糕', tag: '璐可推薦', staffSeed: 'luko' },
       { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅', tag: '栗栗皆辛苦推薦', staffSeed: 'kurikuri' },
       { id: 'spec-4', name: '鮮紅羅蘭莓派', price: 50000, desc: '黑衣森林酸甜飽滿漿果派', tag: '胖冬瓜推薦', staffSeed: 'donggua' },
+      { id: 'spec-5', name: '蜂蜜瑪芬', price: 50000, desc: '融入野花蜂蜜與香醇奶油的鬆軟溫潤瑪芬', tag: '薯泥勇者推薦', staffSeed: 'potatobrave' },
     ],
   },
 ];
@@ -232,6 +233,14 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         photoUrl: 'https://i.meee.com.tw/EmzeSiG.png',
         quote: `「主人 ${name}，預約已妥善收悉。漫長夜色會溫柔包容一切冒險者的故事，若主人不嫌棄，我已備妥私心最愛的鮮紅羅蘭莓派，願能在靜謐的燭光下成為您的傾聽者。」`,
         badgeColor: 'bg-teal-100 text-teal-800 border-teal-200',
+      };
+    case '薯泥勇者':
+      return {
+        speaker: '薯泥勇者（執事）',
+        avatarSeed: 'potatobrave',
+        photoUrl: 'https://i.meee.com.tw/V4AC8Ds.png',
+        quote: `「歡迎回來，我的主人 ${name}。剩下的時間請放心交給我吧。不用急著找到所有問題的答案，我已備好現烤熱騰騰的蜂蜜瑪芬，先陪您嚐點甜的。」`,
+        badgeColor: 'bg-blue-100 text-blue-800 border-blue-200',
       };
     default:
       return {

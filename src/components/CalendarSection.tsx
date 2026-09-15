@@ -451,9 +451,17 @@ export function CalendarSection({
                             當日值班女僕
                           </h4>
                         </div>
-                        <span className="text-[11px] font-bold text-[#355D85] bg-[#E8F1F9] px-2 py-0.5 rounded-full">
-                          {staffOnDuty.length} 位侍從在席
-                        </span>
+                        {onNavigate && (
+                          <button
+                            type="button"
+                            onClick={() => onNavigate('staff')}
+                            className="text-xs font-bold text-[#234568] hover:text-[#122A42] bg-[#E8F1F9] hover:bg-[#D8E8F5] px-2.5 py-0.5 rounded-full border border-[#CBDDEB] transition-all cursor-pointer flex items-center gap-1 shadow-2xs group"
+                            title="查看侍從名冊"
+                          >
+                            <span>查看名冊</span>
+                            <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        )}
                       </div>
 
                       {staffOnDuty.length > 0 ? (
@@ -461,10 +469,10 @@ export function CalendarSection({
                           {staffOnDuty.map((staff) => (
                             <div
                               key={staff.id}
-                              className="group relative p-3 rounded-2xl bg-gradient-to-br from-white to-[#F8FAFC] border border-[#CBDDEB] shadow-2xs hover:border-[#86B4DC] hover:shadow-xs transition-all flex items-start justify-between gap-3"
+                              className="group relative p-3 rounded-2xl bg-gradient-to-br from-white to-[#F8FAFC] border border-[#CBDDEB] shadow-2xs hover:border-[#86B4DC] hover:shadow-xs transition-all flex items-center justify-between gap-3"
                             >
                               {/* Left: Staff Avatar & Basic Info */}
-                              <div className="flex items-start gap-3 min-w-0">
+                              <div className="flex items-center gap-3 min-w-0">
                                 <div className={`w-12 h-12 rounded-full border-2 shadow-2xs overflow-hidden shrink-0 bg-white ring-2 ring-white ${
                                   staff.role === 'butler' ? 'border-slate-300' : 'border-pink-200'
                                 }`}>
@@ -488,17 +496,11 @@ export function CalendarSection({
                                       {staff.role === 'butler' ? '執事 Butler' : '女僕 Maid'}
                                     </span>
                                   </div>
-                                  {staff.recommendedDish && (
-                                    <p className="text-[11px] text-amber-700 font-medium mt-1 flex items-center gap-1">
-                                      <Sparkles className="w-3 h-3 text-amber-500 shrink-0" />
-                                      <span>特調推薦：{staff.recommendedDish}</span>
-                                    </p>
-                                  )}
                                 </div>
                               </div>
 
                               {/* Right: Quick Reserve button for this specific Staff */}
-                              <div className="shrink-0 flex flex-col items-end gap-1.5">
+                              <div className="shrink-0 flex items-center">
                                 <button
                                   type="button"
                                   onClick={() => handleReserveStaff(staff.name)}
@@ -508,15 +510,6 @@ export function CalendarSection({
                                   <span>指名預約</span>
                                   <ArrowRight className="w-3.5 h-3.5" />
                                 </button>
-                                {onNavigate && (
-                                  <button
-                                    type="button"
-                                    onClick={() => onNavigate('staff')}
-                                    className="text-[10px] text-[#4A6E94] hover:text-[#183654] underline transition-colors cursor-pointer"
-                                  >
-                                    查看名冊檔案
-                                  </button>
-                                )}
                               </div>
                             </div>
                           ))}
