@@ -114,7 +114,7 @@ export function AboutSection({ onNavigateToFaq }: AboutSectionProps) {
                   唯美 Gpose 打卡點
                 </h4>
                 <p className="text-xs sm:text-sm text-[#4D657D] leading-relaxed">
-                  館內精心佈置雙人英式下午茶沙發席、星光溫室露台與壁爐琴房，隨處皆是絕美合影景致。
+                  館內精心佈置雙人英式下午茶沙發席、星光溫室露台與精美畫框式櫻花造景，隨處皆是絕美合影景致。
                 </p>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { MapPin, Navigation, Copy, Check, Compass, MessageSquare, Send, Sparkles, Clock } from 'lucide-react';
+import { MapPin, Copy, Check, Compass, MessageSquare, Send, Clock } from 'lucide-react';
 import { SHOP_INFO, STAFF_MEMBERS } from '../data/cafeData';
 import { GuestbookEntry } from '../types';
 import { playChime } from '../utils/audio';
@@ -135,29 +135,6 @@ export function LocationSection() {
     playChime(1.2);
     setTimeout(() => setHasSubmitted(false), 3000);
   };
-
-  const steps = [
-    {
-      step: '01',
-      title: '前往格里達尼亞',
-      desc: '使用以太之光傳送至「格里達尼亞新街」，前往都市傳送網或青翠水路乘船處。',
-    },
-    {
-      step: '02',
-      title: '進入薰衣草苗圃 12區',
-      desc: '選擇居住區住宅區「薰衣草苗圃 (The Lavender Beds)」，點選進入第 12 分區。',
-    },
-    {
-      step: '03',
-      title: '搭乘都市內小水晶',
-      desc: '在苗圃入口點擊以太之光，轉移至「樹陰小區（東南）[Shaded Bower]」。',
-    },
-    {
-      step: '04',
-      title: '南行抵達 46號門牌',
-      desc: '往正南方漫步約 30 秒，即可看見點亮星光路燈與紫藤花花拱的「夜蒔館」大門！',
-    },
-  ];
 
   return (
     <section id="location" className="pt-24 sm:pt-28 pb-20 bg-white">
@@ -308,80 +285,17 @@ export function LocationSection() {
           </div>
         </div>
 
-        {/* Step-by-Step Navigation Map Cards */}
-        <div className="mb-16">
-          <h3 className="text-xl font-bold text-[#1C334A] mb-6 flex items-center gap-2">
-            <Navigation className="w-5 h-5 text-[#4A729A]" />
-            <span>遊戲內前往導航路線</span>
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {steps.map((item, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-2xl bg-[#FAFBFD] border border-[#DCE7F0] hover:border-[#B5CEE3] transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-mono font-bold text-[#3B5F86] bg-[#EAF2F9] px-2.5 py-1 rounded-lg">
-                      STEP {item.step}
-                    </span>
-                    <span className="w-2 h-2 rounded-full bg-[#87A8C8]" />
-                  </div>
-                  <h4 className="font-bold text-[#1E354C] text-sm mb-2 font-serif-tc">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-[#526B82] leading-relaxed">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Visit & Atmosphere Guide + Guestbook */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left: Exterior & Highlights */}
-          <div className="lg:col-span-5 space-y-4">
-            <div className="p-6 rounded-2xl bg-[#FAFBFD] border border-[#DCE7F0]">
-              <h4 className="font-bold text-base text-[#1E344A] mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#4A729A]" />
-                <span>庭園與建築特色地標</span>
+        {/* Interactive Guestbook (冒險者來訪留言本) */}
+        <div className="max-w-4xl mx-auto bg-[#FAFBFD] rounded-3xl border border-[#DCE7F0] p-6 sm:p-8 shadow-xs">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-[#4A729A]" />
+              <h4 className="font-bold text-base sm:text-lg text-[#1E344A] font-serif-tc">
+                夜蒔訪客留言本
               </h4>
-              <ul className="space-y-2.5 text-xs sm:text-sm text-[#4D6780]">
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#6B96C0] mt-1.5 shrink-0" />
-                  <span><strong>星光庭園噴泉：</strong>入夜後會泛起微光的精靈族古風噴泉，水波流動時極為優雅。</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#6B96C0] mt-1.5 shrink-0" />
-                  <span><strong>紫藤花夜蒔拱門：</strong>大門入口垂掛盛開的淡藍紫藤，兩側點綴柔和燭台。</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#6B96C0] mt-1.5 shrink-0" />
-                  <span><strong>一樓主廳與二樓茶座：</strong>寬敞英式沙發長桌、鋼琴演奏席與私密景觀雅座。</span>
-                </li>
-              </ul>
-
-              <div className="mt-5 p-3 rounded-xl bg-[#EFF5FA] border border-[#D5E4F2] text-xs text-[#355474] flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#4A729A] shrink-0" />
-                <span>每週五、六 20:30~24:00，門扉常開，隨時恭迎主人歸來！</span>
-              </div>
             </div>
+            <span className="text-xs text-[#637D97]">已收錄 {entries.length} 則溫馨手札</span>
           </div>
-
-          {/* Right: Interactive Guestbook (冒險者來訪留言本) */}
-          <div className="lg:col-span-7 bg-[#FAFBFD] rounded-2xl border border-[#DCE7F0] p-6 sm:p-7">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-5 h-5 text-[#4A729A]" />
-                <h4 className="font-bold text-base text-[#1E344A] font-serif-tc">
-                  夜蒔訪客留言本
-                </h4>
-              </div>
-              <span className="text-xs text-[#637D97]">已收錄 {entries.length} 則溫馨手札</span>
-            </div>
 
             {/* Leave message form */}
             <form onSubmit={handleAddGuestbook} className="space-y-3 mb-6 p-4 rounded-xl bg-white border border-[#E2EAF2]">
@@ -511,7 +425,6 @@ export function LocationSection() {
             </div>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
+      </section>
+    );
+  }

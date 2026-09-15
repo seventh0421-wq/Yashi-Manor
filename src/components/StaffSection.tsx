@@ -318,38 +318,38 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                 {/* 1. 店員介紹 (精簡流暢) */}
                 <div id="status-strip-intro" className="space-y-1.5 pt-1">
                   <div className="flex items-center gap-2 pb-1 border-b border-[#3A6B94]/30">
-                    <UserCheck className="w-4 h-4 text-[#1B4269]" />
-                    <h4 className="text-stroke-white-title font-bold text-base tracking-wider">
+                    <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-[#1B4269]" />
+                    <h4 className="text-stroke-white-title font-bold text-lg sm:text-xl tracking-wider">
                       店員介紹
                     </h4>
-                    <span className="text-[10px] tracking-widest text-[#224A73] font-bold text-stroke-white uppercase ml-1">
+                    <span className="text-xs tracking-widest text-[#224A73] font-bold text-stroke-white uppercase ml-1">
                       PROFILE
                     </span>
                   </div>
-                  <p className="text-stroke-white text-xs sm:text-sm leading-relaxed font-serif-tc font-bold">
+                  <p className="text-stroke-white text-base sm:text-lg leading-relaxed font-serif-tc font-bold">
                     {currentStaff.intro}
                   </p>
                 </div>
 
                 {/* 1.5 店員推薦 (RECOMMENDATION) */}
                 {currentStaff.recommendedDish && (
-                  <div id="status-strip-recommendation" className="space-y-1 p-2.5 sm:p-3 rounded-xl bg-white/75 border border-[#B8D5ED] shadow-2xs backdrop-blur-xs">
+                  <div id="status-strip-recommendation" className="space-y-1.5 p-3 sm:p-3.5 rounded-xl bg-white/75 border border-[#B8D5ED] shadow-2xs backdrop-blur-xs">
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#1A3D63] font-serif-tc">
-                        <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                      <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-[#1A3D63] font-serif-tc">
+                        <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                         <span>{currentStaff.name}推薦｜{currentStaff.recommendedDish}</span>
                       </div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#20456B] text-white">
+                      <span className="text-[11px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-[#20456B] text-white">
                         RECOMMEND
                       </span>
                     </div>
                     {currentStaff.recommendationQuote && (
-                      <p className="text-xs italic text-[#234568] font-semibold pl-2 border-l-2 border-amber-400 leading-relaxed font-serif-tc">
+                      <p className="text-sm sm:text-base italic text-[#234568] font-semibold pl-2.5 border-l-2 border-amber-400 leading-relaxed font-serif-tc">
                         {currentStaff.recommendationQuote}
                       </p>
                     )}
                     {currentStaff.recommendationNote && (
-                      <p className="text-[11px] text-[#4A6E91] pl-2 font-medium">
+                      <p className="text-xs sm:text-sm text-[#4A6E91] pl-2.5 font-medium">
                         {currentStaff.recommendationNote}
                       </p>
                     )}
@@ -357,23 +357,23 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                 )}
 
                 {/* 2. 服務項目 (精簡俐落) */}
-                <div id="status-strip-services" className="space-y-1.5">
+                <div id="status-strip-services" className="space-y-2">
                   <div className="flex items-center gap-2 pb-1 border-b border-[#3A6B94]/30">
-                    <HeartHandshake className="w-4 h-4 text-[#1B4269]" />
-                    <h4 className="text-stroke-white-title font-bold text-base tracking-wider">
+                    <HeartHandshake className="w-4 h-4 sm:w-5 sm:h-5 text-[#1B4269]" />
+                    <h4 className="text-stroke-white-title font-bold text-lg sm:text-xl tracking-wider">
                       服務項目
                     </h4>
-                    <span className="text-[10px] tracking-widest text-[#224A73] font-bold text-stroke-white uppercase ml-1">
+                    <span className="text-xs tracking-widest text-[#224A73] font-bold text-stroke-white uppercase ml-1">
                       RP SERVICES
                     </span>
                   </div>
-                  <ul className="flex flex-wrap items-center gap-x-5 sm:gap-x-6 gap-y-1.5 text-xs sm:text-[13px]">
+                  <ul className="flex flex-wrap items-center gap-x-6 sm:gap-x-8 gap-y-2 text-sm sm:text-base">
                     {currentStaff.services.map((srv, idx) => (
                       <li
                         key={idx}
                         className="flex items-center gap-1.5 text-stroke-white font-bold"
                       >
-                        <span className="text-[#1E4870] text-xs">✦</span>
+                        <span className="text-[#1E4870] text-sm">✦</span>
                         <span>{srv}</span>
                       </li>
                     ))}
@@ -381,14 +381,14 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                 </div>
 
                 {/* 3. 店員語錄 */}
-                <div id="status-strip-quote" className="space-y-1.5">
+                <div id="status-strip-quote" className="space-y-2">
                   <div className="flex items-center gap-2 pb-1 border-b border-[#3A6B94]/30">
-                    <Quote className="w-4 h-4 text-[#1B4269]" />
-                    <h4 className="text-stroke-white-title font-bold text-base tracking-wider">
+                    <Quote className="w-4 h-4 sm:w-5 sm:h-5 text-[#1B4269]" />
+                    <h4 className="text-stroke-white-title font-bold text-lg sm:text-xl tracking-wider">
                       店員語錄
                     </h4>
                   </div>
-                  <div className="relative pl-3 border-l-2 border-[#244F78] italic text-stroke-white text-xs sm:text-sm font-serif-tc font-bold leading-relaxed">
+                  <div className="relative pl-3.5 border-l-2 border-[#244F78] italic text-stroke-white text-base sm:text-lg font-serif-tc font-bold leading-relaxed">
                     {currentStaff.quote}
                   </div>
                 </div>

@@ -822,20 +822,15 @@ export function ReservationSection({
                           <div
                             key={slot.id}
                             onClick={() => setSelectedTimeSlot(slot.label)}
-                            className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                            className={`py-3 px-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
                               isSelected
                                 ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs'
                                 : 'bg-white hover:bg-[#F3F8FC] text-[#2F5175] border-[#CBDDEB]'
                             }`}
                           >
-                            <div>
-                              <div className="text-sm font-bold font-mono flex items-center gap-2">
-                                <Clock className="w-4 h-4" />
-                                <span>{slot.label}</span>
-                              </div>
-                              <div className={`text-xs mt-0.5 ${isSelected ? 'text-[#BFD8F0]' : 'text-[#6787A5]'}`}>
-                                {slot.note}
-                              </div>
+                            <div className="text-sm font-bold font-mono flex items-center gap-2">
+                              <Clock className="w-4 h-4" />
+                              <span>{slot.label}</span>
                             </div>
                             <div
                               className={`w-5 h-5 rounded-full border flex items-center justify-center ${
@@ -1020,11 +1015,11 @@ export function ReservationSection({
                   {/* Contact Method */}
                   <div>
                     <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel mb-1.5">
-                      聯絡方式 (Discord / Threads / 遊戲內ID) (選填)
+                      聯絡方式 (Discord / 遊戲內ID) (選填)
                     </label>
                     <input
                       type="text"
-                      placeholder="例：Discord: warrior_of_light#1234 或 @threads_user"
+                      placeholder="例：Discord: warrior_of_light#1234 或 遊戲內ID"
                       value={contactMethod}
                       onChange={(e) => setContactMethod(e.target.value)}
                       className="w-full px-4 py-3 rounded-2xl bg-white border border-[#CBDDEB] text-[#1C3A5A] placeholder-[#8BA4BD] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#528AC0] shadow-2xs"
