@@ -69,7 +69,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Home（ホーム）
+                  Home（首頁）
                 </button>
               </li>
               <li>
@@ -80,7 +80,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  About us（当店のご案内）
+                  About us（店內簡介）
                 </button>
               </li>
               <li>
@@ -91,7 +91,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  STAFF（スタッフ紹介）
+                  STAFF（侍從介紹）
                 </button>
               </li>
               <li>
@@ -102,7 +102,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Menu（メニュー）
+                  Menu（精緻菜單）
                 </button>
               </li>
               <li>
@@ -113,7 +113,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Decoration（店舗内装）
+                  Decoration（店內裝潢）
                 </button>
               </li>
               <li>
@@ -124,7 +124,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  Location（アクセス）
+                  Location（交通指南）
                 </button>
               </li>
               <li>
@@ -135,7 +135,7 @@ export function Footer({ onSelectTab }: FooterProps) {
                   }}
                   className="hover:text-white transition-colors cursor-pointer text-left"
                 >
-                  FAQ（よくある質問）
+                  FAQ（常見問題）
                 </button>
               </li>
               <li>

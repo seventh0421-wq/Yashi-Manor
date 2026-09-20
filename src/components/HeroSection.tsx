@@ -11,11 +11,14 @@ import {
   Check,
   Star,
   PartyPopper,
-  Monitor
+  Monitor,
+  MapPin,
+  Copy
 } from 'lucide-react';
 import { MeteorBackground } from './MeteorBackground';
-import { SPECIAL_EVENTS } from '../data/cafeData';
+import { SPECIAL_EVENTS, SHOP_INFO } from '../data/cafeData';
 import { PageTab, SpecialEvent } from '../types';
+import { playChime } from '../utils/audio';
 
 interface HeroSectionProps {
   onNavigate?: (tab: PageTab) => void;
@@ -25,9 +28,18 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
   const [isNoticeOpen, setIsNoticeOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string>(SPECIAL_EVENTS[0]?.id || 'meteor-shower-rp');
   const [hasDismissedFloatingBanner, setHasDismissedFloatingBanner] = useState(false);
+  const [hasDismissedDesktopNotice, setHasDismissedDesktopNotice] = useState(false);
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   const featuredEvent = SPECIAL_EVENTS.find((e) => e.isFeatured) || SPECIAL_EVENTS[0];
   const activeEvent = SPECIAL_EVENTS.find((e) => e.id === selectedEventId) || featuredEvent;
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(SHOP_INFO.fullLocation);
+    setCopiedAddress(true);
+    playChime(1.0);
+    setTimeout(() => setCopiedAddress(false), 2000);
+  };
 
   return (
     <section
@@ -94,111 +106,122 @@ export function HeroSection({ onNavigate }: HeroSectionProps) {
         </div>
 
         {/* ========================================================= */}
-        {/* DESKTOP VIEWING RECOMMENDATION (建議使用電腦網頁觀看) */}
+        {/* STORE ADDRESS WITH ONE-CLICK COPY (店面地址與一鍵複製) */}
         {/* ========================================================= */}
         <div className="mt-4 sm:mt-5 flex justify-center">
           <div
-            id="desktop-view-notice"
-            className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-white/85 hover:bg-white/95 border border-[#BBD5EA] shadow-[0_2px_10px_rgba(45,85,130,0.08)] backdrop-blur-xs text-[#204467] text-xs sm:text-sm transition-all"
+            id="hero-address-badge"
+            className="inline-flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/90 hover:bg-white/95 border border-[#BBD5EA] shadow-[0_3px_12px_rgba(45,85,130,0.08)] backdrop-blur-xs text-[#1D3B5C] text-xs sm:text-sm transition-all"
           >
-            <Monitor className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#356796] shrink-0" />
-            <span className="font-medium">
-              💡 建議使用<strong className="font-bold text-[#14324F] mx-1 underline decoration-[#8BB5DB] underline-offset-2">電腦網頁</strong>觀看，以獲得最佳視覺與互動體驗
+            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2C5882] shrink-0" />
+            <span className="font-serif-tc font-bold tracking-wide text-[#142C44]">
+              {SHOP_INFO.fullLocation}
             </span>
+            <span className="w-px h-3.5 bg-[#CBDDEB] mx-0.5" />
+            <button
+              type="button"
+              onClick={handleCopyAddress}
+              className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-full bg-[#EAF2FA] hover:bg-[#D9EAF7] text-[#214A70] hover:text-[#112A43] transition-all cursor-pointer shadow-2xs active:scale-95"
+              title="一鍵複製門牌地址"
+            >
+              {copiedAddress ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-600" />
+                  <span className="text-emerald-700 font-bold">已複製門牌！</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3" />
+                  <span>複製地址</span>
+                </>
+              )}
+            </button>
           </div>
-        </div>
-
-        {/* ========================================================= */}
-        {/* SPECIAL EVENTS BADGE (活動訊息按鈕) */}
-        {/* ========================================================= */}
-        <div className="mt-4 sm:mt-5 flex justify-center">
-          <button
-            id="hero-special-events-badge"
-            type="button"
-            onClick={() => setIsNoticeOpen(true)}
-            className="group relative inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-gradient-to-r from-white/95 via-[#F3F8FD]/95 to-[#E7F2FC]/95 border border-[#BBD7EE] shadow-[0_3px_14px_rgba(74,124,178,0.14)] hover:shadow-[0_6px_22px_rgba(74,124,178,0.22)] hover:border-[#86B7E2] transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer backdrop-blur-xs"
-          >
-            {/* Sparkle ping accent */}
-            <span className="relative flex h-2.5 w-2.5 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-80" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-gradient-to-r from-amber-400 to-amber-500 shadow-[0_0_8px_#f59e0b]" />
-            </span>
-
-            {/* Event Category Tag */}
-            <span className="px-2 py-0.5 rounded-md text-[10px] sm:text-xs font-bold tracking-wider uppercase bg-[#23466B] text-white shadow-2xs font-cinzel">
-              Special Event
-            </span>
-
-            {/* Event Headline */}
-            <span className="text-xs sm:text-sm font-bold text-[#1D3B5C] group-hover:text-[#11253C] transition-colors flex items-center gap-1.5">
-              <span>{featuredEvent.title}</span>
-              <span className="hidden md:inline-block text-[#5B7E9F] font-normal text-xs">
-                ・{featuredEvent.date}
-              </span>
-            </span>
-
-            {/* Action arrow */}
-            <span className="inline-flex items-center gap-0.5 text-[11px] sm:text-xs font-semibold text-[#305C8A] group-hover:text-[#1B3E63] group-hover:translate-x-0.5 transition-all">
-              <span>活動詳情</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </span>
-          </button>
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* FLOATING MINI NOTICE CARD (頁面右下角微型提示氣泡) */}
+      {/* FLOATING PROMPT BOXES CONTAINER (頁面右下角提示區) */}
       {/* ========================================================= */}
-      {!hasDismissedFloatingBanner && (
-        <motion.aside
-          aria-label="即將登場活動公告"
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ delay: 0.8, duration: 0.4 }}
-          className="fixed bottom-5 sm:bottom-6 right-4 sm:right-6 z-40 max-w-[340px] sm:max-w-[370px] bg-white/95 backdrop-blur-md border border-[#BFD9EF] rounded-2xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgba(30,64,100,0.16)] text-left"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-600 shadow-2xs">
-              <Sparkles className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-500 text-white tracking-wider">
-                  Upcoming
-                </span>
-                <span className="text-[11px] text-[#557697] font-medium">
-                  {featuredEvent.date}
-                </span>
+      <div className="fixed bottom-5 sm:bottom-6 right-4 sm:right-6 z-40 flex flex-col items-end gap-2.5 pointer-events-none">
+        {/* 1. 活動提示框 (活動留右下的那個提示框) */}
+        {!hasDismissedFloatingBanner && (
+          <motion.aside
+            aria-label="即將登場活動公告"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ delay: 0.8, duration: 0.4 }}
+            className="pointer-events-auto max-w-[340px] sm:max-w-[370px] bg-white/95 backdrop-blur-md border border-[#BFD9EF] rounded-2xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgba(30,64,100,0.16)] text-left"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-100 to-amber-50 border border-amber-200 flex items-center justify-center shrink-0 text-amber-600 shadow-2xs">
+                <Sparkles className="w-4 h-4" />
               </div>
-              <h4 className="text-xs sm:text-sm font-bold text-[#16304C] mt-1 truncate">
-                {featuredEvent.title}
-              </h4>
-              <p className="text-[11px] text-[#597591] line-clamp-1 mt-0.5">
-                {featuredEvent.subtitle}
-              </p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-amber-500 text-white tracking-wider">
+                    Upcoming
+                  </span>
+                  <span className="text-[11px] text-[#557697] font-medium">
+                    {featuredEvent.date}
+                  </span>
+                </div>
+                <h4 className="text-xs sm:text-sm font-bold text-[#16304C] mt-1 truncate">
+                  {featuredEvent.title}
+                </h4>
+                <p className="text-[11px] text-[#597591] line-clamp-1 mt-0.5">
+                  {featuredEvent.subtitle}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setHasDismissedFloatingBanner(true)}
+                className="p-1 text-[#84A2BD] hover:text-[#325272] transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
+                title="關閉提示"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
+
+            <div className="mt-3 pt-2.5 border-t border-[#EEF4FA] flex items-center justify-between gap-2">
+              <span className="text-[11px] text-[#718FA9]">全體侍從星光夜話</span>
+              <button
+                type="button"
+                onClick={() => setIsNoticeOpen(true)}
+                className="inline-flex items-center gap-1 text-xs font-bold text-[#23466B] hover:text-[#132A42] cursor-pointer hover:underline"
+              >
+                <span>查看活動詳情</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </motion.aside>
+        )}
+
+        {/* 2. 建議使用電腦網頁觀看 (右下提示框樣式，小小一列字) */}
+        {!hasDismissedDesktopNotice && (
+          <motion.div
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ delay: 1.0, duration: 0.3 }}
+            className="pointer-events-auto inline-flex items-center gap-2 px-3 py-1.5 bg-white/95 backdrop-blur-md border border-[#BFD9EF] rounded-full shadow-[0_4px_20px_rgba(30,64,100,0.12)] text-[11px] sm:text-xs text-[#204467]"
+          >
+            <Monitor className="w-3.5 h-3.5 text-[#356796] shrink-0" />
+            <span className="font-medium whitespace-nowrap">
+              💡 建議使用<strong className="font-bold text-[#14324F] mx-0.5 underline decoration-[#8BB5DB]">電腦網頁</strong>觀看體驗最佳
+            </span>
             <button
-              onClick={() => setHasDismissedFloatingBanner(true)}
-              className="p-1 text-[#84A2BD] hover:text-[#325272] transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
+              type="button"
+              onClick={() => setHasDismissedDesktopNotice(true)}
+              className="p-0.5 text-[#84A2BD] hover:text-[#325272] transition-colors rounded-full hover:bg-slate-100 cursor-pointer ml-0.5"
               title="關閉提示"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3" />
             </button>
-          </div>
-
-          <div className="mt-3 pt-2.5 border-t border-[#EEF4FA] flex items-center justify-between gap-2">
-            <span className="text-[11px] text-[#718FA9]">全體侍從星光夜話</span>
-            <button
-              onClick={() => setIsNoticeOpen(true)}
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#23466B] hover:text-[#132A42] cursor-pointer hover:underline"
-            >
-              <span>查看活動詳情</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </motion.aside>
-      )}
+          </motion.div>
+        )}
+      </div>
 
       {/* ========================================================= */}
       {/* SPECIAL EVENTS DETAIL POPUP MODAL (活動詳情彈出視窗) */}

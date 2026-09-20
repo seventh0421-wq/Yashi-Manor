@@ -8,14 +8,14 @@ interface NavbarProps {
 }
 
 export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
-  const navTabs: { id: PageTab; en: string; jp: string }[] = [
-    { id: 'home', en: 'Home', jp: 'ホーム' },
-    { id: 'about', en: 'About us', jp: '当店のご案内' },
-    { id: 'staff', en: 'STAFF', jp: 'スタッフ紹介' },
-    { id: 'menu', en: 'Menu', jp: 'メニュー' },
-    { id: 'decoration', en: 'Decoration', jp: '店舗内装' },
-    { id: 'location', en: 'Location', jp: 'アクセス' },
-    { id: 'faq', en: 'FAQ', jp: 'よくある質問' },
+  const navTabs: { id: PageTab; en: string; zh: string }[] = [
+    { id: 'home', en: 'Home', zh: '首頁' },
+    { id: 'about', en: 'About us', zh: '店內簡介' },
+    { id: 'staff', en: 'STAFF', zh: '侍從介紹' },
+    { id: 'menu', en: 'Menu', zh: '精緻菜單' },
+    { id: 'decoration', en: 'Decoration', zh: '店內裝潢' },
+    { id: 'location', en: 'Location', zh: '交通指南' },
+    { id: 'faq', en: 'FAQ', zh: '常見問題' },
   ];
 
   const isReservationActive = activeTab === 'reservation';
@@ -70,7 +70,7 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
                         isActive ? 'text-[#C5DCF2]' : 'text-[#6787A9]'
                       }`}
                     >
-                      {tab.jp}
+                      {tab.zh}
                     </span>
                   </div>
                 </button>
@@ -99,7 +99,7 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
                   isReservationActive ? 'text-amber-100' : 'text-amber-200'
                 }`}
               >
-                席予約
+                席位預約
               </span>
             </div>
             <Sparkles className="w-3 h-3 text-amber-300 animate-pulse hidden sm:inline-block shrink-0" />

@@ -31,9 +31,9 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       zoomScale = 'scale-[1.65]';
       transformOrigin = 'origin-[center_16%]';
     } else if (seed === 'kurikuri' || photo.includes('Hneru75')) {
-      objectPos = 'object-[center_13%]';
-      zoomScale = 'scale-[1.6]';
-      transformOrigin = 'origin-[center_14%]';
+      objectPos = 'object-[center_28%]';
+      zoomScale = 'scale-[1.65]';
+      transformOrigin = 'origin-[center_28%]';
     } else if (seed === 'donggua' || photo.includes('EmzeSiG')) {
       objectPos = 'object-[center_19%]';
       zoomScale = 'scale-[1.65]';

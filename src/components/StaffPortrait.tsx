@@ -25,13 +25,13 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
       const isPotatoBrave = staff.id === 'potatobrave' || imageSrc.includes('V4AC8Ds') || imageSrc.includes('potatobrave');
 
       return (
-        <div className="w-full h-full flex items-center justify-center">
+        <div className="w-full flex items-center justify-center">
           <img
             src={imageSrc}
             alt={staff.name}
-            className={`w-auto max-w-full h-auto drop-shadow-[0_20px_40px_rgba(20,40,70,0.24)] max-h-[620px] sm:max-h-[700px] md:max-h-[760px] lg:max-h-[820px] object-contain select-none pointer-events-none ${
+            className={`w-auto max-w-full h-auto drop-shadow-[0_20px_40px_rgba(20,40,70,0.24)] max-h-[500px] sm:max-h-[560px] md:max-h-[620px] lg:max-h-[680px] xl:max-h-[740px] object-contain object-center align-middle block select-none pointer-events-none origin-center ${
               isPotatoBrave
-                ? 'scale-[1.19] origin-bottom'
+                ? 'scale-[1.12]'
                 : ''
             }`}
             referrerPolicy="no-referrer"
@@ -360,9 +360,9 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
   };
 
   return (
-    <div className="relative w-full flex items-center justify-center select-none group">
-      {/* Character Illustration / Photo - Background Free & Scaled to Fit */}
-      <div className="w-full flex items-center justify-center transition-transform duration-500 ease-out">
+    <div className="relative w-full flex items-end justify-center select-none group">
+      {/* Character Illustration / Photo - Bottom Aligned & Scaled to Fit */}
+      <div className="w-full flex items-end justify-center transition-transform duration-500 ease-out">
         {renderCharacterIllustration()}
       </div>
     </div>
