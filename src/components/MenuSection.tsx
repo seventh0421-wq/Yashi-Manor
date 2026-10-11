@@ -125,6 +125,24 @@ export function MenuSection() {
                     <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>
                 </div>
+
+                {/* 炸紅白湯圓 */}
+                <div className="flex items-baseline justify-between gap-2 border-b border-dotted border-[#CBDDEB] pb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      炸紅白湯圓
+                    </span>
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold rounded-sm bg-rose-50 text-rose-700 border border-rose-200">
+                      人氣甜點
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      20,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
               </div>
 
               {/* 3. DRINKS Header */}
@@ -372,6 +390,88 @@ export function MenuSection() {
                   <div className="flex items-baseline gap-1 shrink-0">
                     <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
                       50,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
+
+                {/* 南瓜濃湯 - 陰濕男鬼推薦 */}
+                <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      南瓜濃湯
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF5FB] text-[#23466B] border border-[#CBDDEB]">
+                      <div className="w-4 h-4 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
+                        <StaffAvatar seed="yinshi" className="w-4 h-4" />
+                      </div>
+                      <span>陰濕男鬼推薦</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      50,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
+
+                {/* 章魚燒 - 翹屁嫩兔推薦 */}
+                <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      章魚燒
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF5FB] text-[#23466B] border border-[#CBDDEB]">
+                      <div className="w-4 h-4 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
+                        <StaffAvatar seed="ptowo" className="w-4 h-4" />
+                      </div>
+                      <span>翹屁嫩兔推薦</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      50,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
+
+                {/* 仙子莓茶 - 花鳴威推薦 */}
+                <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      仙子莓茶
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF5FB] text-[#23466B] border border-[#CBDDEB]">
+                      <div className="w-4 h-4 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
+                        <StaffAvatar seed="fuwaway" className="w-4 h-4" />
+                      </div>
+                      <span>花鳴威推薦</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      50,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
+
+                {/* 夜香花套餐 - 莊園尊榮經典套餐 */}
+                <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5 bg-gradient-to-r from-[#F4F8FC]/60 to-transparent -mx-2 px-2 rounded-lg">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      夜香花套餐
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-[#23466B] text-white shadow-2xs">
+                      <Sparkles className="w-3 h-3 text-amber-300" />
+                      <span>莊園尊榮套餐</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      60,000
                     </span>
                     <span className="text-xs font-serif text-[#627D98]">Gil</span>
                   </div>

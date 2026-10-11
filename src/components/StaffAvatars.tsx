@@ -13,14 +13,26 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
     xl: 'w-32 h-32',
   }[size];
 
-  // If a photoUrl is directly supplied, or seed is 'laiko' / 'luko' / 'kurikuri' / 'donggua' / 'potatobrave' with photo
-  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave') {
+  // If a photoUrl is directly supplied, or seed is one of the staff members with photo
+  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway') {
     let defaultPhoto = 'https://i.meee.com.tw/dkSZ6nR.png';
     if (seed === 'luko') defaultPhoto = 'https://i.meee.com.tw/CMH9DxK.png';
     if (seed === 'kurikuri') defaultPhoto = 'https://i.meee.com.tw/Hneru75.png';
     if (seed === 'donggua') defaultPhoto = 'https://i.meee.com.tw/EmzeSiG.png';
-    if (seed === 'potatobrave') defaultPhoto = 'https://i.meee.com.tw/V4AC8Ds.png';
-    const photo = avatarUrl || defaultPhoto;
+    if (seed === 'potatobrave') defaultPhoto = '/staff/potatobrave-avatar.png';
+    if (seed === 'yinshi' || seed === 'error') defaultPhoto = 'https://i.meee.com.tw/E34aApf.png';
+    if (seed === 'ptowo' || seed === 'p2') defaultPhoto = '/staff/ptowo-avatar.png';
+    if (seed === 'fuwaway') defaultPhoto = '/staff/fuwaway-avatar.png';
+    let photo = avatarUrl || defaultPhoto;
+    if (seed === 'potatobrave' || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('V4AC8Ds') || photo.includes('potatobrave')) {
+      photo = '/staff/potatobrave-avatar.png';
+    }
+    if (seed === 'ptowo' || seed === 'p2' || photo.includes('SSZW8MH') || photo.includes('ptowo-avatar')) {
+      photo = '/staff/ptowo-avatar.png';
+    }
+    if (seed === 'fuwaway' || photo.includes('wnRpc0M') || photo.includes('fuwaway-avatar')) {
+      photo = '/staff/fuwaway-avatar.png';
+    }
 
     let objectPos = 'object-[center_17%]';
     let zoomScale = 'scale-[1.65]';
@@ -38,11 +50,25 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       objectPos = 'object-[center_19%]';
       zoomScale = 'scale-[1.65]';
       transformOrigin = 'origin-[center_19%]';
-    } else if (seed === 'potatobrave' || photo.includes('V4AC8Ds') || photo.includes('potatobrave') || photo.includes('JuLHejO')) {
-      // Precise zoom focused on Potato Brave face
-      objectPos = 'object-[45%_25%]';
-      zoomScale = 'scale-[2.4]';
-      transformOrigin = 'origin-[45%_25%]';
+    } else if (seed === 'potatobrave' || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('potatobrave') || photo.includes('V4AC8Ds') || photo.includes('JuLHejO')) {
+      // Dedicated square headshot with warm knight expression
+      objectPos = 'object-center';
+      zoomScale = 'scale-[1.05]';
+      transformOrigin = 'origin-center';
+    } else if (seed === 'ptowo' || seed === 'p2' || photo.includes('ptowo') || photo.includes('SSZW8MH')) {
+      // Dedicated square headshot with glasses, elf ears & gentle smile, moved up by 2px
+      objectPos = 'object-center';
+      zoomScale = 'scale-[1.05] -translate-y-[2px]';
+      transformOrigin = 'origin-center';
+    } else if (seed === 'fuwaway' || photo.includes('fuwaway') || photo.includes('wnRpc0M')) {
+      // Dedicated square headshot with golden blonde hair & gentle shy expression
+      objectPos = 'object-center';
+      zoomScale = 'scale-[1.05]';
+      transformOrigin = 'origin-center';
+    } else if (seed === 'yinshi' || seed === 'error' || photo.includes('E34aApf') || photo.includes('yinshi')) {
+      objectPos = 'object-[center_17%]';
+      zoomScale = 'scale-[1.65]';
+      transformOrigin = 'origin-[center_17%]';
     } else if (seed === 'laiko' || photo.includes('dkSZ6nR')) {
       objectPos = 'object-[center_17%]';
       zoomScale = 'scale-[1.65]';
@@ -57,8 +83,14 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
           className={`w-full h-full object-cover ${zoomScale} ${transformOrigin} ${objectPos}`}
           referrerPolicy="no-referrer"
           onError={(e) => {
-            if (photo.includes('V4AC8Ds')) {
-              e.currentTarget.src = '/staff/potatobrave.png';
+            if (photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('V4AC8Ds') || photo.includes('zyMcfrb') || photo.includes('potatobrave')) {
+              e.currentTarget.src = '/staff/potatobrave-avatar.png';
+            } else if (photo.includes('SSZW8MH')) {
+              e.currentTarget.src = '/staff/ptowo-avatar.png';
+            } else if (photo.includes('E34aApf')) {
+              e.currentTarget.src = '/staff/yinshi.png';
+            } else if (photo.includes('wnRpc0M')) {
+              e.currentTarget.src = '/staff/fuwaway-avatar.png';
             }
           }}
         />

@@ -6,7 +6,6 @@ import { playChime } from '../utils/audio';
 
 export function LocationSection() {
   const [copiedAddress, setCopiedAddress] = useState(false);
-  const [copiedTell, setCopiedTell] = useState(false);
 
   // Guestbook state with default charming FF14 adventurer messages
   const [entries, setEntries] = useState<GuestbookEntry[]>(() => {
@@ -104,14 +103,6 @@ export function LocationSection() {
     setCopiedAddress(true);
     playChime();
     setTimeout(() => setCopiedAddress(false), 2000);
-  };
-
-  const handleCopyTell = () => {
-    const tellText = `/tell Laiko Nocturne@Leviathan 您好，我想預約/詢問夜蒔館的入座！`;
-    navigator.clipboard.writeText(tellText);
-    setCopiedTell(true);
-    playChime();
-    setTimeout(() => setCopiedTell(false), 2000);
   };
 
   const handleAddGuestbook = (e: FormEvent) => {
@@ -260,24 +251,6 @@ export function LocationSection() {
                   <>
                     <Copy className="w-4 h-4" />
                     <span>一鍵複製門牌地址</span>
-                  </>
-                )}
-              </button>
-
-              <button
-                onClick={handleCopyTell}
-                className="px-4 py-3 rounded-xl bg-white hover:bg-[#F3F7FA] text-[#2D4D6F] border border-[#CBDDEB] text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all shadow-2xs"
-                title="複製遊戲內 /tell 詢問指令"
-              >
-                {copiedTell ? (
-                  <>
-                    <Check className="w-4 h-4 text-emerald-500" />
-                    <span>已複製 /tell 宏！</span>
-                  </>
-                ) : (
-                  <>
-                    <MessageSquare className="w-4 h-4 text-[#4A729A]" />
-                    <span>複製遊戲內 /tell 宏</span>
                   </>
                 )}
               </button>

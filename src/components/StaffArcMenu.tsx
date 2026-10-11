@@ -29,18 +29,40 @@ interface ArcNode {
  * - Node 5: 薯泥勇者 (x: 72, y: 628)
  * - Node 6 (Bottom): Next / Celestial Orb (x: 18, y: 746)
  */
-const ARC_NODES: ArcNode[] = [
-  { id: 'arc-nav-prev', type: 'nav-prev', x: 18, y: 18, size: 74 },
-  { id: 'arc-staff-0', type: 'staff', staffIndex: 0, x: 72, y: 136, size: 88 },
-  { id: 'arc-staff-1', type: 'staff', staffIndex: 1, x: 135, y: 258, size: 88 },
-  { id: 'arc-staff-2', type: 'staff', staffIndex: 2, x: 166, y: 382, size: 90 },
-  { id: 'arc-staff-3', type: 'staff', staffIndex: 3, x: 135, y: 506, size: 88 },
-  { id: 'arc-staff-4', type: 'staff', staffIndex: 4, x: 72, y: 628, size: 88 },
-  { id: 'arc-nav-next', type: 'nav-next', x: 18, y: 746, size: 74 },
-];
-
 export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps) {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+
+  // Dynamically calculate smooth crescent arc nodes for any number of staff members
+  const arcNodes: ArcNode[] = React.useMemo(() => {
+    const nodes: ArcNode[] = [];
+    const count = STAFF_MEMBERS.length;
+    const topY = 16;
+    const bottomY = 770;
+    const navSize = 68;
+    const staffSize = count >= 7 ? 78 : count > 5 ? 84 : 88;
+
+    // Top Prev Orb
+    nodes.push({ id: 'arc-nav-prev', type: 'nav-prev', x: 18, y: topY, size: navSize });
+
+    // Staff nodes evenly curved along the crescent
+    for (let i = 0; i < count; i++) {
+      const t = (i + 1) / (count + 1);
+      const y = Math.round(topY + t * (bottomY - topY));
+      const x = Math.round(18 + Math.sin(t * Math.PI) * 148);
+      nodes.push({
+        id: `arc-staff-${i}`,
+        type: 'staff',
+        staffIndex: i,
+        x,
+        y,
+        size: staffSize,
+      });
+    }
+
+    // Bottom Next Orb
+    nodes.push({ id: 'arc-nav-next', type: 'nav-next', x: 18, y: bottomY, size: navSize });
+    return nodes;
+  }, []);
 
   const handleSelect = (idx: number) => {
     if (idx === selectedIndex) return;
@@ -99,7 +121,7 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
 
             {/* Glowing outer aura track */}
             <path
-              d="M 55 55 Q 230 425 55 785"
+              d="M 53 51 Q 235 420 53 800"
               stroke="url(#arcTrackGradient)"
               strokeWidth="3.2"
               strokeDasharray="6 8"
@@ -109,14 +131,15 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
             />
 
             {/* Starlight Constellation Dots along the track */}
-            <circle cx="98" cy="195" r="2.5" fill="#4B7BAA" opacity="0.65" />
-            <circle cx="152" cy="318" r="3" fill="#4B7BAA" opacity="0.75" />
-            <circle cx="152" cy="445" r="3" fill="#4B7BAA" opacity="0.75" />
-            <circle cx="98" cy="568" r="2.5" fill="#4B7BAA" opacity="0.65" />
+            <circle cx="88" cy="175" r="2.5" fill="#4B7BAA" opacity="0.65" />
+            <circle cx="148" cy="285" r="3" fill="#4B7BAA" opacity="0.75" />
+            <circle cx="168" cy="420" r="3" fill="#4B7BAA" opacity="0.8" />
+            <circle cx="148" cy="555" r="3" fill="#4B7BAA" opacity="0.75" />
+            <circle cx="88" cy="665" r="2.5" fill="#4B7BAA" opacity="0.65" />
           </svg>
 
-          {/* 7 Circular Nodes along the arc */}
-          {ARC_NODES.map((node) => {
+          {/* Circular Nodes along the arc */}
+          {arcNodes.map((node) => {
             // 1. TOP NAV PREV ORB
             if (node.type === 'nav-prev') {
               return (
@@ -230,7 +253,7 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                     >
                       <StaffAvatar
                         seed={staff.avatarSeed}
-                        avatarUrl={staff.photoUrl}
+                        avatarUrl={staff.avatarUrl || staff.photoUrl}
                         size="lg"
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-108"
                       />
@@ -330,7 +353,7 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                 >
                   <StaffAvatar
                     seed={staff.avatarSeed}
-                    avatarUrl={staff.photoUrl}
+                    avatarUrl={staff.avatarUrl || staff.photoUrl}
                     size="md"
                     className="w-full h-full object-cover"
                   />

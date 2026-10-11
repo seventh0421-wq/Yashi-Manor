@@ -22,7 +22,7 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
   // Render real photo if provided (e.g. 萊可 photo), otherwise bespoke detailed character illustration
   const renderCharacterIllustration = () => {
     if (imageSrc) {
-      const isPotatoBrave = staff.id === 'potatobrave' || imageSrc.includes('V4AC8Ds') || imageSrc.includes('potatobrave');
+      const isPotatoBrave = staff.id === 'potatobrave' || imageSrc.includes('QH6ChFc') || imageSrc.includes('r22y8YXn') || imageSrc.includes('GQQPYyrg') || imageSrc.includes('zyMcfrb') || imageSrc.includes('V4AC8Ds') || imageSrc.includes('potatobrave');
 
       return (
         <div className="w-full flex items-center justify-center">
@@ -36,9 +36,15 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
             }`}
             referrerPolicy="no-referrer"
             onError={() => {
-              // If remote URL fails for potato brave, fallback to local cached copy
+              // If remote URL fails, fallback to local cached copy
               if (staff.id === 'potatobrave' && !imageSrc.includes('potatobrave.png')) {
                 setImageSrc('/staff/potatobrave.png');
+              } else if (staff.id === 'yinshi' && !imageSrc.includes('yinshi.png')) {
+                setImageSrc('/staff/yinshi.png');
+              } else if (staff.id === 'ptowo' && !imageSrc.includes('ptowo.png')) {
+                setImageSrc('/staff/ptowo.png');
+              } else if (staff.id === 'fuwaway' && !imageSrc.includes('fuwaway.png')) {
+                setImageSrc('/staff/fuwaway.png');
               }
             }}
             onLoad={() => completeTopProgress()}

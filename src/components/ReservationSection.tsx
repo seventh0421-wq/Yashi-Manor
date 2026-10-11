@@ -175,6 +175,7 @@ const PRE_ORDER_CATEGORIES = [
     items: [
       { id: 'dessert-1', name: '巧克力奶油蛋糕', price: 20000, desc: '濃郁絲滑黑巧克力佐手打鮮奶油' },
       { id: 'dessert-2', name: '無花果餅乾', price: 20000, desc: '低溫烘烤手作香酥無花果碎餅乾' },
+      { id: 'dessert-3', name: '炸紅白湯圓', price: 20000, desc: '金黃香酥軟糯紅白雙色湯圓，佐花生糖粉' },
     ],
   },
   {
@@ -187,13 +188,17 @@ const PRE_ORDER_CATEGORIES = [
     ],
   },
   {
-    category: 'SPECIALTIES・特色餐點',
+    category: 'SPECIALTIES・特色餐點與尊榮套餐',
     items: [
       { id: 'spec-1', name: '開心汁', price: 50000, desc: '夢幻微醺氣泡特調飲品', tag: '萊可推薦', staffSeed: 'laiko' },
       { id: 'spec-2', name: '無花果凍糕', price: 50000, desc: '層次豐富的法式清甜凍糕', tag: '璐可推薦', staffSeed: 'luko' },
       { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅', tag: '栗栗皆辛苦推薦', staffSeed: 'kurikuri' },
       { id: 'spec-4', name: '鮮紅羅蘭莓派', price: 50000, desc: '黑衣森林酸甜飽滿漿果派', tag: '胖冬瓜推薦', staffSeed: 'donggua' },
       { id: 'spec-5', name: '蜂蜜瑪芬', price: 50000, desc: '融入野花蜂蜜與香醇奶油的鬆軟溫潤瑪芬', tag: '薯泥勇者推薦', staffSeed: 'potatobrave' },
+      { id: 'spec-soup', name: '南瓜濃湯', price: 50000, desc: '本人慢火熬煮的暖胃南瓜濃湯，口感綿密溫厚', tag: '陰濕男鬼推薦', staffSeed: 'yinshi' },
+      { id: 'spec-takoyaki', name: '章魚燒', price: 50000, desc: '圓滾滾的金黃章魚燒，煩惱也會跟著滾走', tag: '翹屁嫩兔推薦', staffSeed: 'ptowo' },
+      { id: 'spec-berry-tea', name: '仙子莓茶', price: 50000, desc: '酸甜莓果香氣伴隨薄荷甘草清韻，撫平一天疲憊', tag: '花鳴威推薦', staffSeed: 'fuwaway' },
+      { id: 'spec-6', name: '夜香花套餐', price: 60000, desc: '莊園尊榮經典套餐・前菜、主餐、夜香茶飲與特製甜點全套饗宴', tag: '尊榮套餐' },
     ],
   },
 ];
@@ -238,9 +243,33 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
       return {
         speaker: '薯泥勇者（執事）',
         avatarSeed: 'potatobrave',
-        photoUrl: 'https://i.meee.com.tw/V4AC8Ds.png',
+        photoUrl: 'https://i.meee.com.tw/QH6ChFc.png',
         quote: `「歡迎回來，我的主人 ${name}。剩下的時間請放心交給我吧。不用急著找到所有問題的答案，我已備好現烤熱騰騰的蜂蜜瑪芬，先陪您嚐點甜的。」`,
         badgeColor: 'bg-blue-100 text-blue-800 border-blue-200',
+      };
+    case '陰濕男鬼':
+      return {
+        speaker: '陰濕男鬼（執事）',
+        avatarSeed: 'yinshi',
+        photoUrl: 'https://i.meee.com.tw/E34aApf.png',
+        quote: `「很不高興為主人 ${name} 服務……席位與時段已登記妥當。我熬了一鍋南瓜濃湯，您若賞臉就喝一碗吧，本店是不會催促您的步調的。」`,
+        badgeColor: 'bg-purple-100 text-purple-800 border-purple-200',
+      };
+    case '翹屁嫩兔':
+      return {
+        speaker: '翹屁嫩兔（執事）',
+        avatarSeed: 'ptowo',
+        photoUrl: '/staff/ptowo-avatar.png',
+        quote: `「⋯⋯歡、歡迎回來，主人 ${name}。預約已為您確認好了⋯⋯請、請不用太在意我緊張⋯⋯剛烤好的章魚燒很香，我會安靜地在您身邊陪伴您的。」`,
+        badgeColor: 'bg-lime-100 text-lime-800 border-lime-200',
+      };
+    case '花鳴威':
+      return {
+        speaker: '花鳴威（執事）',
+        avatarSeed: 'fuwaway',
+        photoUrl: '/staff/fuwaway-avatar.png',
+        quote: `「主、主人 ${name} 晚上好，歡迎回來⋯⋯預約已經記錄下來了。我幫您備好了溫暖的茶點與特調仙子莓茶，一起放鬆一下，好嗎？」`,
+        badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
       };
     default:
       return {

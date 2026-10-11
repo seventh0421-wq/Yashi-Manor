@@ -159,6 +159,12 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                         {currentStaff.jpName}
                       </span>
                     )}
+
+                    {currentStaff.nickname && (
+                      <span className="text-xs sm:text-sm font-bold px-2 py-0.5 rounded-md bg-white/85 border border-[#B0CBE2] text-[#244A72] shadow-2xs">
+                        暱稱：{currentStaff.nickname}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3 flex-wrap pt-0.5">

@@ -47,11 +47,11 @@ export function getMonthSchedule(year: number, month: number): DutyScheduleDay[]
       // Regular open days: Friday and Saturday standard duty rosters
       if (isFriday) {
         // Friday roster: maids & butlers
-        dutyStaffIds = ['luko', 'laiko', 'donggua'];
+        dutyStaffIds = ['luko', 'laiko', 'donggua', 'yinshi', 'fuwaway', 'ptowo'];
         note = '週五常規開館夜，歡迎主人歸來小憩品茶。';
       } else if (isSaturday) {
-        // Saturday roster: weekend roster
-        dutyStaffIds = ['luko', 'kurikuri', 'laiko', 'donggua'];
+        // Saturday roster: weekend roster with all staff
+        dutyStaffIds = ['luko', 'kurikuri', 'laiko', 'donggua', 'potatobrave', 'yinshi', 'ptowo', 'fuwaway'];
         note = '週六常規開館夜，侍從全員候命侍奉。';
       }
     } else {

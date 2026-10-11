@@ -27,6 +27,7 @@ export interface StaffMember {
   id: string;
   name: string;
   jpName?: string;
+  nickname?: string;
   role: 'maid' | 'butler';
   title?: string;
   threadsHandle: string;
@@ -42,6 +43,7 @@ export interface StaffMember {
   recommendationNote?: string;
   avatarSeed: string;
   photoUrl?: string;
+  avatarUrl?: string;
   themeColor: string;
   greetingVoiceLine: string;
   tags: string[];
@@ -52,7 +54,7 @@ export interface MenuItem {
   id: string;
   name: string;
   jpName?: string;
-  category: 'signature' | 'entree' | 'beverage' | 'dessert' | 'salad' | 'service';
+  category: 'signature' | 'entree' | 'beverage' | 'dessert' | 'salad' | 'set' | 'service';
   price: number; // in Gil
   description: string;
   rpFeature: string; // RP 特色
