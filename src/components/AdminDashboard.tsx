@@ -140,13 +140,24 @@ export function AdminDashboard() {
   }, [currentUser]);
 
   // Google Sign-in Handler
+  const [unauthorizedDomain, setUnauthorizedDomain] = useState<string | null>(null);
+
   const handleGoogleLogin = async () => {
     setErrorMsg(null);
+    setUnauthorizedDomain(null);
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (err: any) {
       console.error('Login error:', err);
-      setErrorMsg(err.message || '登入失敗，請重試。');
+      if (err?.code === 'auth/unauthorized-domain' || err?.message?.includes('unauthorized-domain')) {
+        const currentDomain = window.location.hostname;
+        setUnauthorizedDomain(currentDomain);
+        setErrorMsg(
+          `目前網域（${currentDomain}）尚未加入 Firebase 授權網域 (Authorized Domains)。請前往 Firebase Console 將此網域新增至「Authentication > Settings > Authorized domains」即可正常登入。`
+        );
+      } else {
+        setErrorMsg(err.message || '登入失敗，請重試。');
+      }
     }
   };
 
@@ -369,9 +380,43 @@ export function AdminDashboard() {
           </h2>
 
           {errorMsg && (
-            <div className="mb-6 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs text-left flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>{errorMsg}</span>
+            <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs text-left space-y-2.5">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+                <span className="font-bold text-rose-900">
+                  {unauthorizedDomain ? '尚未授權此網域進行 Google 登入' : '登入發生錯誤'}
+                </span>
+              </div>
+              <p className="text-rose-700 leading-relaxed text-[11px]">
+                {errorMsg}
+              </p>
+              {unauthorizedDomain && (
+                <div className="pt-2 border-t border-rose-200/80 space-y-2">
+                  <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-xl border border-rose-200 text-[11px] font-mono">
+                    <span className="truncate max-w-[200px]">{unauthorizedDomain}</span>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(unauthorizedDomain);
+                        setActionSuccess('網域已複製到剪貼簿');
+                        setTimeout(() => setActionSuccess(null), 2500);
+                      }}
+                      className="text-rose-700 hover:text-rose-900 font-sans font-bold flex items-center gap-1 cursor-pointer shrink-0"
+                    >
+                      <Copy className="w-3 h-3" />
+                      <span>複製網域</span>
+                    </button>
+                  </div>
+                  <a
+                    href="https://console.firebase.google.com/project/commission-app-484109/authentication/settings"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#23466B] hover:underline"
+                  >
+                    <span>開啟 Firebase Console 授權網域設定頁</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
             </div>
           )}
 
