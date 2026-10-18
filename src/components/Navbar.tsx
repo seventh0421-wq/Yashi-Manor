@@ -1,4 +1,4 @@
-import { Sparkles, Calendar } from 'lucide-react';
+import { Sparkles, Calendar, ShieldCheck } from 'lucide-react';
 import { PageTab } from '../types';
 import { SHOP_INFO } from '../data/cafeData';
 
@@ -19,6 +19,7 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
   ];
 
   const isReservationActive = activeTab === 'reservation';
+  const isAdminActive = activeTab === 'admin';
 
   return (
     <header
@@ -103,6 +104,21 @@ export function Navbar({ activeTab, onSelectTab }: NavbarProps) {
               </span>
             </div>
             <Sparkles className="w-3 h-3 text-amber-300 animate-pulse hidden sm:inline-block shrink-0" />
+          </button>
+
+          {/* Admin Backoffice Button: Shield Icon Only */}
+          <button
+            id="navbar-admin-button"
+            onClick={() => onSelectTab('admin')}
+            className={`group relative inline-flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-xl transition-all duration-200 cursor-pointer border ${
+              isAdminActive
+                ? 'bg-[#15324E] text-amber-300 border-[#3A648F] shadow-[0_2px_10px_rgba(21,50,78,0.4)] ring-1 ring-amber-300/40'
+                : 'bg-white/80 hover:bg-white text-[#2B4E73] hover:text-[#15324E] border-[#CBDDEB] shadow-2xs backdrop-blur-xs hover:border-[#97B8D8]'
+            }`}
+            title="管理後台"
+            aria-label="管理後台"
+          >
+            <ShieldCheck className={`w-4 h-4 transition-transform group-hover:scale-110 ${isAdminActive ? 'text-amber-300' : 'text-[#3E658F]'}`} />
           </button>
         </div>
       </div>

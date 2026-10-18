@@ -32,6 +32,9 @@ import { STAFF_MEMBERS } from '../data/cafeData';
 import { ReservationData, PreOrderItem } from '../types';
 import { playChime, playMagicSpell } from '../utils/audio';
 import { StaffAvatar } from './StaffAvatars';
+import { db } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { handleFirestoreError, OperationType } from '../lib/firestoreError';
 
 interface ReservationSectionProps {
   initialStaffName?: string;
@@ -58,100 +61,6 @@ const SERVERS = [
   '奧汀 (Odin)',
   '泰坦 (Titan)',
 ];
-
-const DISCORD_WEBHOOK_URL =
-  'https://discord.com/api/webhooks/1548170544594292787/EFRJd3SvLWE8_oOz_gKkuOXnbAr4A-QKj9hYh3UNTqvfOIhavcDbWwuxTddX9hNCa3Ag';
-
-/**
- * Sends a structured rich embed reservation notification to Discord Webhook
- */
-async function sendReservationToDiscord(reservation: ReservationData): Promise<boolean> {
-  try {
-    const dishesList =
-      reservation.selectedDishes && reservation.selectedDishes.length > 0
-        ? reservation.selectedDishes
-            .map((d) => `• **${d.name}** × ${d.quantity}（${(d.price * d.quantity).toLocaleString()} Gil）`)
-            .join('\n')
-        : '未預選（入席後現場向女僕點餐）';
-
-    const totalDishGil =
-      reservation.selectedDishes && reservation.selectedDishes.length > 0
-        ? reservation.selectedDishes.reduce((sum, d) => sum + d.price * d.quantity, 0)
-        : 0;
-
-    const payload = {
-      username: '夜蒔館 預約管家',
-      avatar_url: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=200&fit=crop&q=80',
-      content: `✨ **【夜蒔館】收到新的主人入席預約！** 請值班女僕與執事確認留位 ✨`,
-      embeds: [
-        {
-          title: `✦ 預約通知單：${reservation.id}`,
-          description: `主人 **${reservation.customerName}** 已在官方網站完成預約登記！`,
-          color: 0x23466b, // Elegant Nocturne Navy Blue
-          fields: [
-            {
-              name: '📅 預約日期與時段',
-              value: `**${reservation.date}**\n${reservation.timeSlot}`,
-              inline: true,
-            },
-            {
-              name: '🎀 指定侍奉侍從',
-              value: `**${reservation.staffName}**`,
-              inline: true,
-            },
-            {
-              name: '👥 入席人數',
-              value: `${reservation.guestCount} 位主人`,
-              inline: true,
-            },
-            {
-              name: '👤 主人尊稱 (角色名)',
-              value: `**${reservation.customerName}**`,
-              inline: true,
-            },
-            {
-              name: '🌐 所屬伺服器',
-              value: `${reservation.worldServer}`,
-              inline: true,
-            },
-            {
-              name: '💬 遊戲內聯絡方式',
-              value: `${reservation.contactMethod || '未填寫'}`,
-              inline: true,
-            },
-            {
-              name: '🍽️ 預選餐點清單',
-              value: `${dishesList}\n${totalDishGil > 0 ? `**餐點預估合計：${totalDishGil.toLocaleString()} Gil**` : ''}`,
-              inline: false,
-            },
-            {
-              name: '📝 特別備註與需求',
-              value: reservation.specialRequests ? `> ${reservation.specialRequests}` : '無特別備註',
-              inline: false,
-            },
-          ],
-          footer: {
-            text: '夜蒔館・女僕執事咖啡廳 (Leviathan 12-46) ｜ 官網預約系統即時傳送',
-          },
-          timestamp: new Date().toISOString(),
-        },
-      ],
-    };
-
-    const res = await fetch(DISCORD_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    return res.ok;
-  } catch (err) {
-    console.error('Failed to notify Discord webhook:', err);
-    return false;
-  }
-}
 
 // Menu items for pre-ordering
 const PRE_ORDER_CATEGORIES = [
@@ -313,9 +222,8 @@ export function ReservationSection({
   const [confirmedReservation, setConfirmedReservation] = useState<ReservationData | null>(null);
   // Thank-you dialog modal & success celebration state
   const [showThankYouModal, setShowThankYouModal] = useState<boolean>(false);
-  // Webhook submission state
+  // Submission state
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [webhookSentSuccess, setWebhookSentSuccess] = useState<boolean>(false);
 
   // Validation errors
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -479,6 +387,7 @@ export function ReservationSection({
       contactMethod: contactMethod.trim(),
       selectedDishes,
       specialRequests: specialRequests.trim(),
+      status: 'pending',
       createdAt: new Date().toISOString(),
     };
 
@@ -489,12 +398,31 @@ export function ReservationSection({
       // Ignore
     }
 
-    // Transmit to Discord Webhook asynchronously
+    // Persist to Firebase Firestore database
+    const pathForReservation = `reservations/${bookingId}`;
     try {
-      const success = await sendReservationToDiscord(reservation);
-      setWebhookSentSuccess(success);
-    } catch {
-      setWebhookSentSuccess(false);
+      await setDoc(doc(db, 'reservations', bookingId), {
+        id: reservation.id,
+        date: reservation.date,
+        timeSlot: reservation.timeSlot,
+        staffName: reservation.staffName,
+        guestCount: reservation.guestCount,
+        customerName: reservation.customerName,
+        worldServer: reservation.worldServer,
+        contactMethod: reservation.contactMethod || '',
+        selectedDishes: reservation.selectedDishes || [],
+        specialRequests: reservation.specialRequests || '',
+        status: 'pending',
+        adminNotes: '',
+        createdAt: reservation.createdAt,
+      });
+    } catch (err) {
+      console.error('Failed to write reservation to Firestore:', err);
+      try {
+        handleFirestoreError(err, OperationType.WRITE, pathForReservation);
+      } catch {
+        // Logged and handled
+      }
     } finally {
       setIsSubmitting(false);
       setShowThankYouModal(true);
@@ -506,7 +434,6 @@ export function ReservationSection({
     playChime(1.0);
     setConfirmedReservation(null);
     setShowThankYouModal(false);
-    setWebhookSentSuccess(false);
     try {
       localStorage.removeItem('nocturne_active_reservation');
     } catch {

@@ -149,6 +149,18 @@ export function Footer({ onSelectTab }: FooterProps) {
                   <span>✦ 我要預約</span>
                 </button>
               </li>
+              <li className="pt-1 border-t border-[#2A3E54]">
+                <button
+                  onClick={() => {
+                    onSelectTab?.('admin');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="text-[#7FA2C7] hover:text-white transition-colors cursor-pointer text-left flex items-center gap-1.5 text-[11px]"
+                >
+                  <span className="opacity-70">🛡️</span>
+                  <span>管理後台</span>
+                </button>
+              </li>
             </ul>
           </div>
 

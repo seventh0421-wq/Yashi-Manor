@@ -237,9 +237,9 @@ export const STAFF_MEMBERS: StaffMember[] = [
     ff14Job: '茶藝執事 / 調飲學者',
     favoriteDrink: '仙子莓茶',
     avatarSeed: 'fuwaway',
-    themeColor: '#DCA662',
+    themeColor: '#40E0D0',
     greetingVoiceLine: '「主、主人晚上好，歡迎回來..我幫您備好了茶點，放鬆一下，好嗎？」',
-    tags: ['執事・Butler', '金髮執事', '暱稱花花', '內向害羞', '茶與花香', '招牌仙子莓茶', '蜜金花茶色'],
+    tags: ['執事・Butler', '金髮執事', '暱稱花花', '內向害羞', '茶與花香', '招牌仙子莓茶', '綠松石藍'],
     shiftStatus: 'available',
   },
 ];

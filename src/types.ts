@@ -1,4 +1,6 @@
-export type PageTab = 'home' | 'about' | 'staff' | 'menu' | 'decoration' | 'location' | 'faq' | 'reservation';
+export type PageTab = 'home' | 'about' | 'staff' | 'menu' | 'decoration' | 'location' | 'faq' | 'reservation' | 'admin';
+
+export type ReservationStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
 
 export interface PreOrderItem {
   name: string;
@@ -18,6 +20,9 @@ export interface ReservationData {
   selectedDishes?: PreOrderItem[];
   specialRequests?: string;
   createdAt: string;
+  updatedAt?: string;
+  status?: ReservationStatus;
+  adminNotes?: string;
   isFirstVisit?: boolean;
   interactionStyle?: 'immersive_rp' | 'casual_chat' | 'quiet_reading';
   welcomeDrink?: string;

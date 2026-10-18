@@ -10,6 +10,7 @@ import { DecorationSection } from './components/DecorationSection';
 import { LocationSection } from './components/LocationSection';
 import { FaqSection } from './components/FaqSection';
 import { ReservationSection } from './components/ReservationSection';
+import { AdminDashboard } from './components/AdminDashboard';
 import { Footer } from './components/Footer';
 import { PageTab } from './types';
 
@@ -85,6 +86,8 @@ export default function App() {
             onNavigateToFaq={() => handleTabChange('faq')}
           />
         )}
+
+        {activeTab === 'admin' && <AdminDashboard />}
       </main>
 
       {/* Footer with page switching navigation */}

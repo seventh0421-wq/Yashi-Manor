@@ -1,0 +1,115 @@
+{
+  "entities": {
+    "Reservation": {
+      "title": "Reservation",
+      "description": "Guest dining reservation submitted by cafe patrons",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique reservation code (e.g. 20261018-01)",
+          "maxLength": 64
+        },
+        "date": {
+          "type": "string",
+          "description": "Reservation date in YYYY-MM-DD or formatted string",
+          "maxLength": 32
+        },
+        "timeSlot": {
+          "type": "string",
+          "description": "Dining time slot (e.g. 20:30 - 21:50)",
+          "maxLength": 32
+        },
+        "staffName": {
+          "type": "string",
+          "description": "Designated maid or butler name",
+          "maxLength": 64
+        },
+        "guestCount": {
+          "type": "number",
+          "description": "Number of guests"
+        },
+        "customerName": {
+          "type": "string",
+          "description": "Patron character name in FF14",
+          "maxLength": 64
+        },
+        "worldServer": {
+          "type": "string",
+          "description": "FF14 World Server",
+          "maxLength": 64
+        },
+        "contactMethod": {
+          "type": "string",
+          "description": "In-game tell / discord / contact method",
+          "maxLength": 128
+        },
+        "selectedDishes": {
+          "type": "array",
+          "description": "Pre-ordered dish items with quantity and price"
+        },
+        "specialRequests": {
+          "type": "string",
+          "description": "Special request or notes from patron",
+          "maxLength": 1000
+        },
+        "status": {
+          "type": "string",
+          "description": "Reservation status (pending, confirmed, completed, cancelled)",
+          "enum": ["pending", "confirmed", "completed", "cancelled"]
+        },
+        "adminNotes": {
+          "type": "string",
+          "description": "Internal notes for maids & butlers",
+          "maxLength": 1000
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update"
+        }
+      },
+      "required": ["id", "date", "timeSlot", "staffName", "guestCount", "customerName", "worldServer", "status", "createdAt"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Administrator authorized to manage reservations and cafe operations",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID"
+        },
+        "email": {
+          "type": "string",
+          "description": "Admin email address"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "staff"]
+        },
+        "displayName": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": ["uid", "email", "role"]
+    }
+  },
+  "firestore": {
+    "/reservations/{reservationId}": {
+      "schema": "Reservation",
+      "description": "Stores guest dining reservations for the cafe"
+    },
+    "/admins/{adminUid}": {
+      "schema": "AdminUser",
+      "description": "Authorized administrators list"
+    }
+  }
+}

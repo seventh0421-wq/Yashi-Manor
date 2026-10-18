@@ -1,0 +1,66 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        request.auth.token.email == 'seventh0421@gmail.com' ||
+        request.auth.token.email == 'laka7425888@gmail.com'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Admins collection
+    match /admins/{adminUid} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // Reservations collection
+    match /reservations/{reservationId} {
+      // Patrons can create reservations without logging in
+      allow create: if isValidId(reservationId)
+        && request.resource.data.id is string
+        && request.resource.data.id.size() <= 64
+        && request.resource.data.customerName is string
+        && request.resource.data.customerName.size() > 0
+        && request.resource.data.customerName.size() <= 64
+        && request.resource.data.date is string
+        && request.resource.data.date.size() <= 32
+        && request.resource.data.timeSlot is string
+        && request.resource.data.timeSlot.size() <= 32
+        && request.resource.data.staffName is string
+        && request.resource.data.staffName.size() <= 64
+        && request.resource.data.worldServer is string
+        && request.resource.data.worldServer.size() <= 64
+        && request.resource.data.guestCount is number
+        && request.resource.data.guestCount >= 1
+        && request.resource.data.guestCount <= 20
+        && request.resource.data.status in ['pending', 'confirmed', 'completed', 'cancelled']
+        && request.resource.data.createdAt is string
+        && request.resource.data.createdAt.size() <= 64;
+
+      // Public can query a specific reservation code with get
+      allow get: if true;
+
+      // Staff and Admin can view all reservations
+      allow list: if isAdmin();
+
+      // Only Admin or Staff can update reservation status / notes or delete
+      allow update, delete: if isAdmin();
+    }
+  }
+}
