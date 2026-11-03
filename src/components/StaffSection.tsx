@@ -169,15 +169,21 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
 
                   <div className="flex items-center gap-3 flex-wrap pt-0.5">
                     {/* Threads Handle Link */}
-                    <a
-                      href={currentStaff.threadsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-[#204970] font-bold hover:text-[#0C243E] transition-colors underline-offset-2 hover:underline text-stroke-white"
-                    >
-                      <span>{currentStaff.threadsHandle}</span>
-                      <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-                    </a>
+                    {currentStaff.threadsUrl ? (
+                      <a
+                        href={currentStaff.threadsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-[#204970] font-bold hover:text-[#0C243E] transition-colors underline-offset-2 hover:underline text-stroke-white"
+                      >
+                        <span>{currentStaff.threadsHandle}</span>
+                        <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                      </a>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 text-xs text-[#204970]/85 font-bold text-stroke-white">
+                        <span>Threads：{currentStaff.threadsHandle || '即將公開'}</span>
+                      </span>
+                    )}
 
                     {/* Staff Cheer Color Badge */}
                     <div

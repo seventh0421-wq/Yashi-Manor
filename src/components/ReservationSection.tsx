@@ -107,6 +107,7 @@ const PRE_ORDER_CATEGORIES = [
       { id: 'spec-soup', name: '南瓜濃湯', price: 50000, desc: '本人慢火熬煮的暖胃南瓜濃湯，口感綿密溫厚', tag: '陰濕男鬼推薦', staffSeed: 'yinshi' },
       { id: 'spec-takoyaki', name: '章魚燒', price: 50000, desc: '圓滾滾的金黃章魚燒，煩惱也會跟著滾走', tag: '翹屁嫩兔推薦', staffSeed: 'ptowo' },
       { id: 'spec-berry-tea', name: '仙子莓茶', price: 50000, desc: '酸甜莓果香氣伴隨薄荷甘草清韻，撫平一天疲憊', tag: '花鳴威推薦', staffSeed: 'fuwaway' },
+      { id: 'spec-masala-chai', name: '馬薩拉奶茶', price: 50000, desc: '濃郁茶香伴隨著琥珀丁香甘甜暖胃，讓人欲罷不能的特色奶茶', tag: '安海瑟薇大力推薦', staffSeed: 'anne' },
       { id: 'spec-6', name: '夜香花套餐', price: 60000, desc: '莊園尊榮經典套餐・前菜、主餐、夜香茶飲與特製甜點全套饗宴', tag: '尊榮套餐' },
     ],
   },
@@ -128,7 +129,7 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
       return {
         speaker: '璐可',
         avatarSeed: 'luko',
-        photoUrl: 'https://i.meee.com.tw/CMH9DxK.png',
+        photoUrl: '/staff/luko-avatar.png',
         quote: `「主人 ${name}，歡迎回來。您的席位已精心登記妥當。今夜就請放慢腳步，放下旅途所有風塵與疲憊，璐可會為您沏上一壺溫熱甘甜的茶，靜候您的歸來。」`,
         badgeColor: 'bg-sky-100 text-sky-800 border-sky-200',
       };
@@ -179,6 +180,14 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         photoUrl: '/staff/fuwaway-avatar.png',
         quote: `「主、主人 ${name} 晚上好，歡迎回來⋯⋯預約已經記錄下來了。我幫您備好了溫暖的茶點與特調仙子莓茶，一起放鬆一下，好嗎？」`,
         badgeColor: 'bg-amber-100 text-amber-800 border-amber-200',
+      };
+    case '安海瑟薇大力':
+      return {
+        speaker: '安海瑟薇大力（女僕）',
+        avatarSeed: 'anne',
+        photoUrl: '/staff/anne-avatar.png',
+        quote: `「主人 ${name} 終於回來了！歡迎歸宅～能夠見到您，瞬間又充滿活力了，嘻嘻☆ 天冷的時候就該來喝杯暖呼呼的馬薩拉奶茶，小安已經幫您備好了喔！」`,
+        badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
       };
     default:
       return {

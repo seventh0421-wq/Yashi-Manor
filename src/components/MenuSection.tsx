@@ -458,6 +458,27 @@ export function MenuSection() {
                   </div>
                 </div>
 
+                {/* 馬薩拉奶茶 - 小安推薦 */}
+                <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      馬薩拉奶茶
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF5FB] text-[#23466B] border border-[#CBDDEB]">
+                      <div className="w-4 h-4 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
+                        <StaffAvatar seed="anne" className="w-4 h-4" />
+                      </div>
+                      <span>小安推薦</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      50,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
+
                 {/* 夜香花套餐 - 莊園尊榮經典套餐 */}
                 <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5 bg-gradient-to-r from-[#F4F8FC]/60 to-transparent -mx-2 px-2 rounded-lg">
                   <div className="flex items-center gap-2 flex-wrap">

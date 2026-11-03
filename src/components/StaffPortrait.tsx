@@ -45,6 +45,10 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
                 setImageSrc('/staff/ptowo.png');
               } else if (staff.id === 'fuwaway' && !imageSrc.includes('fuwaway.png')) {
                 setImageSrc('/staff/fuwaway.png');
+              } else if (staff.id === 'anne' && !imageSrc.includes('anne.png')) {
+                setImageSrc('/staff/anne.png');
+              } else if (staff.id === 'luko' && !imageSrc.includes('luko.png')) {
+                setImageSrc('/staff/luko.png');
               }
             }}
             onLoad={() => completeTopProgress()}

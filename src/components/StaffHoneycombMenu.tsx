@@ -54,9 +54,14 @@ const HONEYCOMB_CELLS: HexCellConfig[] = [
   { id: 'staff-fuwaway', col: 2, row: 4, staffId: 'fuwaway' },
   { id: 'hex-right-fuwaway', col: 3, row: 4, accentSymbol: '✧' },
 
-  // Bottom halo (below 翹屁嫩兔 & 花鳴威)
-  { id: 'hex-bottom-ptowo', col: 1, row: 5, accentSymbol: '✦' },
-  { id: 'hex-bottom-fuwaway', col: 2, row: 5, accentSymbol: '✧' },
+  // Lower row 3 (Anne)
+  { id: 'hex-left-anne', col: 0, row: 5, accentSymbol: '✦' },
+  { id: 'staff-anne', col: 1, row: 5, staffId: 'anne' },
+  { id: 'hex-right-anne', col: 2, row: 5, accentSymbol: '✧' },
+
+  // Bottom halo (below Anne)
+  { id: 'hex-bottom-anne', col: 1, row: 6, accentSymbol: '✦' },
+  { id: 'hex-bottom-right-anne', col: 2, row: 6, accentSymbol: '✧' },
 ];
 
 // Hexagon geometric constants (150px wide)
@@ -67,9 +72,9 @@ const DX = HEX_W * 0.75 + GAP; // 118.5px
 const DY = HEX_H + GAP; // 135.9px
 const STAGGER_OFFSET = DY / 2; // 67.95px
 
-// Grid container dimensions (4 columns: 0..3, 6 rows: 0..5)
+// Grid container dimensions (4 columns: 0..3, 7 rows: 0..6)
 const CONTAINER_WIDTH = 3 * DX + HEX_W; // ~505.5px
-const CONTAINER_HEIGHT = 5 * DY + HEX_H; // ~809.4px
+const CONTAINER_HEIGHT = 6 * DY + HEX_H; // ~945.3px
 
 export function StaffHoneycombMenu({
   selectedIndex,

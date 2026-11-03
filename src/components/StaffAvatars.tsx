@@ -14,16 +14,20 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
   }[size];
 
   // If a photoUrl is directly supplied, or seed is one of the staff members with photo
-  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway') {
+  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway' || seed === 'anne') {
     let defaultPhoto = 'https://i.meee.com.tw/dkSZ6nR.png';
-    if (seed === 'luko') defaultPhoto = 'https://i.meee.com.tw/CMH9DxK.png';
+    if (seed === 'luko') defaultPhoto = '/staff/luko-avatar.png';
     if (seed === 'kurikuri') defaultPhoto = 'https://i.meee.com.tw/Hneru75.png';
     if (seed === 'donggua') defaultPhoto = 'https://i.meee.com.tw/EmzeSiG.png';
     if (seed === 'potatobrave') defaultPhoto = '/staff/potatobrave-avatar.png';
     if (seed === 'yinshi' || seed === 'error') defaultPhoto = 'https://i.meee.com.tw/E34aApf.png';
     if (seed === 'ptowo' || seed === 'p2') defaultPhoto = '/staff/ptowo-avatar.png';
     if (seed === 'fuwaway') defaultPhoto = '/staff/fuwaway-avatar.png';
+    if (seed === 'anne') defaultPhoto = '/staff/anne-avatar.png';
     let photo = avatarUrl || defaultPhoto;
+    if (seed === 'luko' || photo.includes('t9yeCbC') || photo.includes('luko-avatar') || photo.includes('CMH9DxK')) {
+      photo = '/staff/luko-avatar.png';
+    }
     if (seed === 'potatobrave' || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('V4AC8Ds') || photo.includes('potatobrave')) {
       photo = '/staff/potatobrave-avatar.png';
     }
@@ -33,15 +37,19 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
     if (seed === 'fuwaway' || photo.includes('wnRpc0M') || photo.includes('fuwaway-avatar')) {
       photo = '/staff/fuwaway-avatar.png';
     }
+    if (seed === 'anne' || photo.includes('5HLWDru') || photo.includes('anne-avatar') || photo.includes('anne')) {
+      photo = '/staff/anne-avatar.png';
+    }
 
     let objectPos = 'object-[center_17%]';
     let zoomScale = 'scale-[1.65]';
     let transformOrigin = 'origin-[center_18%]';
 
-    if (seed === 'luko' || photo.includes('CMH9DxK') || photo.includes('DVxcLxG')) {
-      objectPos = 'object-[center_15%]';
-      zoomScale = 'scale-[1.65]';
-      transformOrigin = 'origin-[center_16%]';
+    if (seed === 'luko' || photo.includes('t9yeCbC') || photo.includes('luko') || photo.includes('CMH9DxK') || photo.includes('DVxcLxG')) {
+      // Dedicated square headshot with elegant gentle expression
+      objectPos = 'object-center';
+      zoomScale = 'scale-[1.05]';
+      transformOrigin = 'origin-center';
     } else if (seed === 'kurikuri' || photo.includes('Hneru75')) {
       objectPos = 'object-[center_28%]';
       zoomScale = 'scale-[1.65]';
@@ -64,6 +72,11 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       // Dedicated square headshot with golden blonde hair & gentle shy expression
       objectPos = 'object-center';
       zoomScale = 'scale-[1.05]';
+      transformOrigin = 'origin-center';
+    } else if (seed === 'anne' || photo.includes('anne') || photo.includes('5HLWDru')) {
+      // Dedicated square headshot with joyful smile & cute maid ribbon
+      objectPos = 'object-center';
+      zoomScale = 'scale-100';
       transformOrigin = 'origin-center';
     } else if (seed === 'yinshi' || seed === 'error' || photo.includes('E34aApf') || photo.includes('yinshi')) {
       objectPos = 'object-[center_17%]';
@@ -91,6 +104,10 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
               e.currentTarget.src = '/staff/yinshi.png';
             } else if (photo.includes('wnRpc0M')) {
               e.currentTarget.src = '/staff/fuwaway-avatar.png';
+            } else if (photo.includes('5HLWDru') || photo.includes('anne')) {
+              e.currentTarget.src = '/staff/anne-avatar.png';
+            } else if (photo.includes('t9yeCbC') || photo.includes('luko') || photo.includes('CMH9DxK')) {
+              e.currentTarget.src = '/staff/luko-avatar.png';
             }
           }}
         />
