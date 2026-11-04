@@ -1,12 +1,74 @@
 import 'dotenv/config';
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import firebaseConfig from '../firebase-applet-config.json';
+import fs from 'node:fs';
+import path from 'node:path';
+
+interface FirebaseConfig {
+  projectId: string;
+  appId: string;
+  apiKey: string;
+  authDomain: string;
+  firestoreDatabaseId: string;
+  storageBucket: string;
+  messagingSenderId: string;
+  measurementId?: string;
+  oAuthClientId?: string;
+  recaptchaSiteKey?: string;
+}
+
+const DEFAULT_FIREBASE_CONFIG: FirebaseConfig = {
+  projectId: 'commission-app-484109',
+  appId: '1:383791327956:web:3a503cc621ebc68da66941',
+  apiKey: 'AIzaSyAeR8-vP2o6ZH3_FqUIitTgDCOuiST1_Kc',
+  authDomain: 'commission-app-484109.firebaseapp.com',
+  firestoreDatabaseId: 'ai-studio-ff14-f124879a-6271-44c8-8bcd-ef8384a862a9',
+  storageBucket: 'commission-app-484109.firebasestorage.app',
+  messagingSenderId: '383791327956',
+};
+
+function getFirebaseConfig(): FirebaseConfig {
+  // 1. Allow full JSON override via server environment variable
+  if (process.env.FIREBASE_CONFIG) {
+    try {
+      const parsed = JSON.parse(process.env.FIREBASE_CONFIG);
+      return { ...DEFAULT_FIREBASE_CONFIG, ...parsed };
+    } catch {
+      // Continue to next resolution strategy
+    }
+  }
+
+  // 2. Safe file read without ESM import attributes to prevent ERR_IMPORT_ATTRIBUTE_MISSING
+  try {
+    const candidatePaths = [
+      path.resolve(process.cwd(), 'firebase-applet-config.json'),
+      path.resolve(process.cwd(), '../firebase-applet-config.json'),
+    ];
+
+    for (const filePath of candidatePaths) {
+      if (fs.existsSync(filePath)) {
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        return { ...DEFAULT_FIREBASE_CONFIG, ...JSON.parse(fileContent) };
+      }
+    }
+  } catch {
+    // Graceful fallback if filesystem tracing is restricted on serverless runtimes
+  }
+
+  // 3. Fallback to built-in project configuration
+  return DEFAULT_FIREBASE_CONFIG;
+}
+
+const firebaseConfig = getFirebaseConfig();
+const firestoreDbId =
+  process.env.FIRESTORE_DATABASE_ID ||
+  firebaseConfig.firestoreDatabaseId ||
+  'ai-studio-ff14-f124879a-6271-44c8-8bcd-ef8384a862a9';
 
 // Initialize Firebase App instance for serverless runtime
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 // Connect explicitly to the designated named Firestore database
-const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const db = getFirestore(app, firestoreDbId);
 
 // In-memory rate-limiter: max 5 submissions per 10 minutes per IP
 const ipRateMap = new Map<string, { count: number; expiresAt: number }>();
