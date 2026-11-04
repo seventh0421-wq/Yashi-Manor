@@ -113,23 +113,31 @@ export function CalendarSection({
     return getStaffMembersByIds(activeDay.dutyStaffIds);
   }, [activeDay]);
 
-  // Format date header nicely
+  // Format date header with explicit YYYY/MM/DD format
   const formattedActiveDate = useMemo(() => {
     if (!activeDay) return '';
     const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
     const weekday = weekdays[activeDay.dayOfWeek];
-    return `${activeDay.year}年${activeDay.month}月${activeDay.day}日 (${weekday})`;
+    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+    return `${activeDay.year}/${pad(activeDay.month)}/${pad(activeDay.day)} (${weekday})`;
+  }, [activeDay]);
+
+  const activeYMDDateString = useMemo(() => {
+    if (!activeDay) return undefined;
+    const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
+    const weekday = activeDay.dayOfWeek === 5 ? '週五' : '週六';
+    return `${activeDay.year}/${pad(activeDay.month)}/${pad(activeDay.day)} (${weekday})`;
   }, [activeDay]);
 
   const handleReserveStaff = (staffName: string) => {
     if (onSelectStaffForReservation) {
-      onSelectStaffForReservation(staffName, activeDay?.date);
+      onSelectStaffForReservation(staffName, activeYMDDateString);
     }
   };
 
   const handleGeneralReservation = () => {
     if (onSelectStaffForReservation) {
-      onSelectStaffForReservation('不指名', activeDay?.date);
+      onSelectStaffForReservation('不指名', activeYMDDateString);
     }
   };
 
@@ -250,10 +258,10 @@ export function CalendarSection({
                   >
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className={`text-base font-bold font-serif-tc ${
+                        <span className={`text-base font-bold font-serif-tc font-mono ${
                           isSelected ? 'text-[#122F4C]' : 'text-[#204060]'
                         }`}>
-                          {dayItem.month}月{dayItem.day}日 ({weekdayText})
+                          {dayItem.year}/{dayItem.month < 10 ? `0${dayItem.month}` : dayItem.month}/{dayItem.day < 10 ? `0${dayItem.day}` : dayItem.day} ({weekdayText})
                         </span>
 
                         {isToday && (
@@ -441,7 +449,7 @@ export function CalendarSection({
                       className="w-full py-2.5 rounded-2xl bg-gradient-to-r from-[#21456A] via-[#2F5A85] to-[#21456A] hover:from-[#183654] hover:to-[#22486E] text-white text-xs sm:text-sm font-bold shadow-[0_4px_16px_rgba(35,70,107,0.28)] transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99]"
                     >
                       <CalendarDays className="w-4 h-4 text-amber-300" />
-                      <span>預約此日席位 ({activeDay.date})</span>
+                      <span>預約此日席位 ({activeYMDDateString || activeDay.date})</span>
                     </button>
                   </div>
                 </div>

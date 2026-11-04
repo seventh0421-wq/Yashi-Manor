@@ -324,7 +324,11 @@ export function AdminDashboard() {
         if (staffFilter !== 'all' && r.staffName !== staffFilter) return false;
 
         // Date
-        if (dateFilter && !r.date.includes(dateFilter)) return false;
+        if (dateFilter) {
+          const filterNorm = dateFilter.replace(/-/g, '/');
+          const dateNorm = r.date.replace(/-/g, '/');
+          if (!dateNorm.includes(filterNorm) && !r.date.includes(dateFilter)) return false;
+        }
 
         return true;
       })
@@ -647,10 +651,10 @@ export function AdminDashboard() {
             {/* Date Search */}
             <input
               type="text"
-              placeholder="預約日期篩選 (例: 09/12)"
+              placeholder="預約日期 (例: 2026/11/06)"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="px-3 py-1.5 rounded-xl bg-[#F0F5FA] border border-[#CBDDEB] text-[#1E3B5C] placeholder:text-[#88A4C0] font-medium focus:outline-none max-w-[180px]"
+              className="px-3 py-1.5 rounded-xl bg-[#F0F5FA] border border-[#CBDDEB] text-[#1E3B5C] placeholder:text-[#88A4C0] font-medium focus:outline-none max-w-[190px]"
             />
 
             {(searchTerm || statusFilter !== 'all' || staffFilter !== 'all' || dateFilter) && (

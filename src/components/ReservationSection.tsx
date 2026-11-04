@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Calendar,
@@ -35,6 +35,10 @@ import { StaffAvatar } from './StaffAvatars';
 import { db } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { handleFirestoreError, OperationType } from '../lib/firestoreError';
+import {
+  getUpcomingCafeOpenDates,
+  formatToYMDWithWeekday,
+} from '../utils/dateUtils';
 
 interface ReservationSectionProps {
   initialStaffName?: string;
@@ -212,8 +216,16 @@ export function ReservationSection({
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [hasCopiedCode, setHasCopiedCode] = useState(false);
 
+  // Dynamic upcoming open dates with explicit YYYY/MM/DD
+  const upcomingOpenDates = useMemo(() => getUpcomingCafeOpenDates(8), []);
+
   // Form Fields - Step 1
-  const [selectedDate, setSelectedDate] = useState<string>(initialDate || '本週五 (20:30起)');
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    if (initialDate) return formatToYMDWithWeekday(initialDate);
+    return upcomingOpenDates[0]?.value || '2026/11/06 (週五)';
+  });
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState<boolean>(false);
+  const [customDateInput, setCustomDateInput] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('21:30 - 22:30');
   const [selectedStaff, setSelectedStaff] = useState<string>(initialStaffName || '不指名');
   const [guestCount, setGuestCount] = useState<number>(1);
@@ -248,7 +260,7 @@ export function ReservationSection({
   // Sync initial date if prop changes
   useEffect(() => {
     if (initialDate) {
-      setSelectedDate(initialDate);
+      setSelectedDate(formatToYMDWithWeekday(initialDate));
     }
   }, [initialDate]);
 
@@ -595,9 +607,9 @@ export function ReservationSection({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 py-6 border-b border-white/15">
                   <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10">
                     <span className="text-xs text-[#A8C8E6] flex items-center gap-1.5 mb-1">
-                      <Calendar className="w-3.5 h-3.5" /> 預約日期
+                      <Calendar className="w-3.5 h-3.5" /> 預約日期 (YYYY/MM/DD)
                     </span>
-                    <span className="text-base font-bold text-white font-serif-tc">
+                    <span className="text-base font-bold text-white font-serif-tc font-mono">
                       {confirmedReservation.date}
                     </span>
                   </div>
@@ -792,36 +804,155 @@ export function ReservationSection({
                   transition={{ duration: 0.25 }}
                   className="space-y-7"
                 >
-                  {/* 1.1 Date selection */}
+                  {/* 1.1 Date selection with explicit YYYY/MM/DD */}
                   <div>
-                    <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel mb-2.5">
-                      1. 選擇預約日期 (Reservation Date)
-                    </label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel">
+                        1. 選擇預約日期 (Reservation Date・YYYY/MM/DD)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowCustomDatePicker(!showCustomDatePicker)}
+                        className="text-xs text-[#285078] hover:text-[#18395C] font-bold flex items-center gap-1 cursor-pointer hover:underline"
+                      >
+                        <Calendar className="w-3.5 h-3.5 text-[#3E658E]" />
+                        <span>{showCustomDatePicker ? '收合日曆' : '挑選其他日期 (YYYY/MM/DD)'}</span>
+                      </button>
+                    </div>
+
+                    <p className="text-[11px] text-[#55789B] mb-2.5">
+                      夜蒔館常規開館日為每週五、週六 20:30 - 24:00。以下為最接近之實際西元開館日期（YYYY/MM/DD）：
+                    </p>
+
+                    {/* Quick Date Options with explicit YYYY/MM/DD */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      {[
-                        '本週五 (20:30起)',
-                        '本週六 (20:30起)',
-                        '下週五 (20:30起)',
-                        '下週六 (20:30起)',
-                      ].map((dateOption) => {
-                        const isSelected = selectedDate === dateOption;
+                      {upcomingOpenDates.slice(0, 4).map((dateOption) => {
+                        const isSelected = selectedDate === dateOption.value;
                         return (
                           <button
-                            key={dateOption}
+                            key={dateOption.value}
                             type="button"
-                            onClick={() => setSelectedDate(dateOption)}
-                            className={`p-3.5 rounded-2xl text-xs sm:text-sm font-bold text-center border transition-all cursor-pointer ${
+                            onClick={() => {
+                              playChime(1.1);
+                              setSelectedDate(dateOption.value);
+                              setValidationError(null);
+                            }}
+                            className={`p-3 sm:p-3.5 rounded-2xl text-center border transition-all cursor-pointer flex flex-col items-center justify-between min-h-[76px] ${
                               isSelected
-                                ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs'
+                                ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs ring-2 ring-[#70A6D6]'
                                 : 'bg-white hover:bg-[#F3F8FC] text-[#2F5175] border-[#CBDDEB]'
                             }`}
                           >
-                            <Calendar className="w-4 h-4 mx-auto mb-1 opacity-80" />
-                            <span>{dateOption}</span>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <Calendar className={`w-3.5 h-3.5 ${isSelected ? 'text-amber-300' : 'text-[#4A729A]'}`} />
+                              <span className="font-mono text-xs sm:text-sm font-bold tracking-tight">
+                                {dateOption.dateYMD}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-[#1D3C5C]'}`}>
+                                ({dateOption.weekday})
+                              </span>
+                              <span
+                                className={`text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${
+                                  isSelected
+                                    ? 'bg-white/20 text-amber-200'
+                                    : 'bg-[#EBF3FA] text-[#486B8F]'
+                                }`}
+                              >
+                                {dateOption.relativeLabel}
+                              </span>
+                            </div>
                           </button>
                         );
                       })}
                     </div>
+
+                    {/* If selectedDate is not among the top 4 (e.g. chosen via custom picker or CalendarSection) */}
+                    {!upcomingOpenDates.slice(0, 4).some((d) => d.value === selectedDate) && selectedDate && (
+                      <div className="mt-2.5 p-3 rounded-2xl bg-[#EEF5FB] border border-[#BBD5EB] flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                          <span className="text-xs text-[#204368] font-medium">目前已指定預約日期：</span>
+                          <span className="text-xs sm:text-sm font-bold font-mono text-[#143252] bg-white px-2.5 py-0.5 rounded-lg border border-[#CBDDEB]">
+                            {selectedDate}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                          已選定
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Custom Date Picker Accordion */}
+                    <AnimatePresence>
+                      {showCustomDatePicker && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3 p-4 rounded-2xl bg-white border border-[#CBDDEB] shadow-2xs space-y-3"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                              <label className="block text-xs font-bold text-[#23466B] mb-1">
+                                輸入自選預約日期 (西元年月日 YYYY/MM/DD)
+                              </label>
+                              <p className="text-[11px] text-[#6384A2]">
+                                挑選日曆或直接填寫，系統將自動解析為正式 YYYY/MM/DD 格式。
+                              </p>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="date"
+                                value={customDateInput}
+                                min={upcomingOpenDates[0]?.rawDate || new Date().toISOString().split('T')[0]}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setCustomDateInput(val);
+                                  if (val) {
+                                    const formatted = formatToYMDWithWeekday(val);
+                                    setSelectedDate(formatted);
+                                    setValidationError(null);
+                                  }
+                                }}
+                                className="px-3 py-2 rounded-xl border border-[#CBDDEB] text-xs font-bold font-mono text-[#18395B] focus:ring-2 focus:ring-[#4878A8] focus:outline-none cursor-pointer bg-[#F8FAFD]"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Extended upcoming open days quick chips */}
+                          {upcomingOpenDates.length > 4 && (
+                            <div className="pt-2 border-t border-[#E5EEF5]">
+                              <span className="text-[11px] text-[#55789B] font-bold block mb-1.5">
+                                更多後續開館日快選：
+                              </span>
+                              <div className="flex flex-wrap gap-2">
+                                {upcomingOpenDates.slice(4).map((d) => (
+                                  <button
+                                    key={d.value}
+                                    type="button"
+                                    onClick={() => {
+                                      playChime(1.1);
+                                      setSelectedDate(d.value);
+                                      setValidationError(null);
+                                    }}
+                                    className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold border transition-colors cursor-pointer ${
+                                      selectedDate === d.value
+                                        ? 'bg-[#23466B] text-white border-[#1B3654]'
+                                        : 'bg-[#F2F6FA] hover:bg-[#E2EDF7] text-[#294B6F] border-[#CBDDEB]'
+                                    }`}
+                                  >
+                                    {d.dateYMD} ({d.weekday})
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* 1.2 Time Slot selection */}
@@ -1225,9 +1356,12 @@ export function ReservationSection({
                   <div className="p-6 rounded-3xl bg-gradient-to-br from-[#F5F9FD] via-white to-[#EAF2F8] border border-[#BFD6E8] shadow-2xs space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#D8E6F2]">
                       <div>
-                        <span className="text-xs text-[#5D7E9F]">預約日期與時段：</span>
-                        <div className="text-base font-bold text-[#1A3858] font-serif-tc mt-0.5">
-                          {selectedDate} {selectedTimeSlot}
+                        <span className="text-xs text-[#5D7E9F]">預約日期與時段 (YYYY/MM/DD)：</span>
+                        <div className="text-base font-bold text-[#1A3858] font-serif-tc mt-0.5 flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-[#193A5C] bg-[#EEF5FB] px-2 py-0.5 rounded-lg border border-[#CBDDEB] text-sm">
+                            {selectedDate}
+                          </span>
+                          <span className="font-mono text-sm">{selectedTimeSlot}</span>
                         </div>
                       </div>
 
