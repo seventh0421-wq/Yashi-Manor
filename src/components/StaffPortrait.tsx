@@ -230,7 +230,7 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
         );
 
       case 'kurikuri':
-        // 栗栗皆辛苦: Diligent energetic maid with cheerful smile, auburn hair, cat ear charm
+        // 栗栗: Diligent energetic maid with cheerful smile, auburn hair, cat ear charm
         return (
           <svg viewBox="0 0 400 520" className="w-auto max-w-full h-auto max-h-[620px] sm:max-h-[700px] md:max-h-[760px] lg:max-h-[820px] object-contain drop-shadow-[0_20px_40px_rgba(20,40,70,0.22)]">
             <defs>

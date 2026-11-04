@@ -196,7 +196,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       );
 
     case 'kurikuri':
-      // 栗栗皆辛苦: Energetic, diligent, cat-eared / lalafell cute vibe, sweat drop of hard work, charming sparkle
+      // 栗栗: Energetic, diligent, cat-eared / lalafell cute vibe, sweat drop of hard work, charming sparkle
       return (
         <div className={`${sizeClasses} w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center relative ${className}`}>
           <svg viewBox="0 0 100 100" className="w-full h-full scale-105">

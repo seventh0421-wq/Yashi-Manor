@@ -21,7 +21,7 @@ interface HexCellConfig {
  * Staff members:
  * - 萊可: Col 1, Row 1 (top-left apex)
  * - 璐可: Col 2, Row 1 (upper-right)
- * - 栗栗皆辛苦: Col 1, Row 2 (mid-left)
+ * - 栗栗: Col 1, Row 2 (mid-left)
  * - 胖冬瓜: Col 2, Row 2 (mid-right)
  * - 薯泥勇者: Col 1, Row 3 (lower-left)
  *

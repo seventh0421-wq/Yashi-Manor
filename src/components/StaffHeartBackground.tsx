@@ -66,7 +66,7 @@ export function StaffHeartBackground({ cheerColor, staffName }: StaffHeartBackgr
     }
 
     if (isKurikuri) {
-      // 栗栗皆辛苦: Celadon mint / seafoam tea watercolor (#96BDB9)
+      // 栗栗: Celadon mint / seafoam tea watercolor (#96BDB9)
       return {
         strokeMain: '#619B96',
         strokeCore: '#467B76',

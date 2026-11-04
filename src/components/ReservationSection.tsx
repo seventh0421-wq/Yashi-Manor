@@ -101,7 +101,7 @@ const PRE_ORDER_CATEGORIES = [
     items: [
       { id: 'spec-1', name: '開心汁', price: 50000, desc: '夢幻微醺氣泡特調飲品', tag: '萊可推薦', staffSeed: 'laiko' },
       { id: 'spec-2', name: '無花果凍糕', price: 50000, desc: '層次豐富的法式清甜凍糕', tag: '璐可推薦', staffSeed: 'luko' },
-      { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅', tag: '栗栗皆辛苦推薦', staffSeed: 'kurikuri' },
+      { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅', tag: '栗栗推薦', staffSeed: 'kurikuri' },
       { id: 'spec-4', name: '鮮紅羅蘭莓派', price: 50000, desc: '黑衣森林酸甜飽滿漿果派', tag: '胖冬瓜推薦', staffSeed: 'donggua' },
       { id: 'spec-5', name: '蜂蜜瑪芬', price: 50000, desc: '融入野花蜂蜜與香醇奶油的鬆軟溫潤瑪芬', tag: '薯泥勇者推薦', staffSeed: 'potatobrave' },
       { id: 'spec-soup', name: '南瓜濃湯', price: 50000, desc: '本人慢火熬煮的暖胃南瓜濃湯，口感綿密溫厚', tag: '陰濕男鬼推薦', staffSeed: 'yinshi' },
@@ -133,9 +133,10 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         quote: `「主人 ${name}，歡迎回來。您的席位已精心登記妥當。今夜就請放慢腳步，放下旅途所有風塵與疲憊，璐可會為您沏上一壺溫熱甘甜的茶，靜候您的歸來。」`,
         badgeColor: 'bg-sky-100 text-sky-800 border-sky-200',
       };
+    case '栗栗':
     case '栗栗皆辛苦':
       return {
-        speaker: '栗栗皆辛苦',
+        speaker: '栗栗',
         avatarSeed: 'kurikuri',
         photoUrl: 'https://i.meee.com.tw/Hneru75.png',
         quote: `「哼哼～主人 ${name}！小公主才、才沒有在時鐘前倒數等著你來呢！……不過既然你都特地指名本公主了，那天我就勉為其難好好陪你聊聊天、吃好吃的瑪黛茶餅乾吧，可絕對不能遲到喔！」`,
@@ -400,42 +401,81 @@ export function ReservationSection({
       createdAt: new Date().toISOString(),
     };
 
-    setConfirmedReservation(reservation);
+    let savedSuccessfully = false;
+
+    // 1. Primary: Call secure Vercel backend to validate, save to named Firestore, and notify Purin Bot
     try {
-      localStorage.setItem('nocturne_active_reservation', JSON.stringify(reservation));
-    } catch {
-      // Ignore
+      const response = await fetch('/api/create-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: reservation.id,
+          date: reservation.date,
+          timeSlot: reservation.timeSlot,
+          staffName: reservation.staffName,
+          guestCount: reservation.guestCount,
+          customerName: reservation.customerName,
+          worldServer: reservation.worldServer,
+          contactMethod: reservation.contactMethod || '',
+          selectedDishes: reservation.selectedDishes || [],
+          specialRequests: reservation.specialRequests || '',
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          savedSuccessfully = true;
+        }
+      }
+    } catch (apiErr) {
+      console.warn('Backend /api/create-reservation call error, attempting direct Firestore save:', apiErr);
     }
 
-    // Persist to Firebase Firestore database
-    const pathForReservation = `reservations/${bookingId}`;
-    try {
-      await setDoc(doc(db, 'reservations', bookingId), {
-        id: reservation.id,
-        date: reservation.date,
-        timeSlot: reservation.timeSlot,
-        staffName: reservation.staffName,
-        guestCount: reservation.guestCount,
-        customerName: reservation.customerName,
-        worldServer: reservation.worldServer,
-        contactMethod: reservation.contactMethod || '',
-        selectedDishes: reservation.selectedDishes || [],
-        specialRequests: reservation.specialRequests || '',
-        status: 'pending',
-        adminNotes: '',
-        createdAt: reservation.createdAt,
-      });
-    } catch (err) {
-      console.error('Failed to write reservation to Firestore:', err);
+    // 2. Direct Firestore fallback (in case API route is unreachable on static host)
+    if (!savedSuccessfully) {
+      const pathForReservation = `reservations/${bookingId}`;
       try {
-        handleFirestoreError(err, OperationType.WRITE, pathForReservation);
-      } catch {
-        // Logged and handled
+        await setDoc(doc(db, 'reservations', bookingId), {
+          id: reservation.id,
+          date: reservation.date,
+          timeSlot: reservation.timeSlot,
+          staffName: reservation.staffName,
+          guestCount: reservation.guestCount,
+          customerName: reservation.customerName,
+          worldServer: reservation.worldServer,
+          contactMethod: reservation.contactMethod || '',
+          selectedDishes: reservation.selectedDishes || [],
+          specialRequests: reservation.specialRequests || '',
+          status: 'pending',
+          adminNotes: '',
+          createdAt: reservation.createdAt,
+        });
+        savedSuccessfully = true;
+      } catch (err) {
+        console.error('Failed to write reservation to Firestore:', err);
+        try {
+          handleFirestoreError(err, OperationType.WRITE, pathForReservation);
+        } catch {
+          // Handled and logged
+        }
       }
-    } finally {
-      setIsSubmitting(false);
+    }
+
+    setIsSubmitting(false);
+
+    // 3. ONLY display reservation success modal if Firestore save was confirmed!
+    if (savedSuccessfully) {
+      setConfirmedReservation(reservation);
+      try {
+        localStorage.setItem('nocturne_active_reservation', JSON.stringify(reservation));
+      } catch {
+        // Ignore
+      }
       setShowThankYouModal(true);
       window.scrollTo({ top: 80, behavior: 'smooth' });
+    } else {
+      setValidationError('預約傳送失敗，請確認網路連線或稍候重試。');
     }
   };
 

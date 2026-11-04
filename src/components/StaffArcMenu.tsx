@@ -24,7 +24,7 @@ interface ArcNode {
  * - Node 0 (Top): Prev / Celestial Orb (x: 18, y: 18)
  * - Node 1: 萊可 (x: 72, y: 136)
  * - Node 2: 璐可 (x: 135, y: 258)
- * - Node 3 (Peak Apex): 栗栗皆辛苦 (x: 166, y: 382)
+ * - Node 3 (Peak Apex): 栗栗 (x: 166, y: 382)
  * - Node 4: 胖冬瓜 (x: 135, y: 506)
  * - Node 5: 薯泥勇者 (x: 72, y: 628)
  * - Node 6 (Bottom): Next / Celestial Orb (x: 18, y: 746)

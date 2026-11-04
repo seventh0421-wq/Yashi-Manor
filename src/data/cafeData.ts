@@ -75,7 +75,7 @@ export const STAFF_MEMBERS: StaffMember[] = [
   },
   {
     id: 'kurikuri',
-    name: '栗栗皆辛苦',
+    name: '栗栗',
     jpName: 'Kuri Kuri',
     role: 'maid',
     threadsHandle: '@zzissotired',
@@ -439,8 +439,8 @@ export const MENU_ITEMS: MenuItem[] = [
     category: 'signature',
     price: 50000,
     description: '小公主烤出來的完美餅乾！以南美芳香瑪黛茶葉揉入香醇發酵奶油，每一片都有著金黃酥脆的極致口感。',
-    rpFeature: '栗栗皆辛苦推薦甜點｜「哼哼，最完美的餅乾，當然要給小公主最喜歡的主人。」小公主烤出來的完美餅乾！',
-    recommendedStaff: '栗栗皆辛苦',
+    rpFeature: '栗栗推薦甜點｜「哼哼，最完美的餅乾，當然要給小公主最喜歡的主人。」小公主烤出來的完美餅乾！',
+    recommendedStaff: '栗栗',
     imageIcon: 'Cookie',
   },
   {

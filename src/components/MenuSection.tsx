@@ -332,7 +332,7 @@ export function MenuSection() {
                   </div>
                 </div>
 
-                {/* 瑪黛茶餅乾 - 栗栗皆辛苦推薦 */}
+                {/* 瑪黛茶餅乾 - 栗栗推薦 */}
                 <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
@@ -342,7 +342,7 @@ export function MenuSection() {
                       <div className="w-4 h-4 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
                         <StaffAvatar seed="kurikuri" className="w-4 h-4" />
                       </div>
-                      <span>栗栗皆辛苦推薦</span>
+                      <span>栗栗推薦</span>
                     </span>
                   </div>
                   <div className="flex items-baseline gap-1 shrink-0">
