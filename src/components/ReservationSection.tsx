@@ -158,9 +158,9 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
       return {
         speaker: '薯泥勇者（執事）',
         avatarSeed: 'potatobrave',
-        photoUrl: 'https://i.meee.com.tw/QH6ChFc.png',
+        photoUrl: 'https://i.meee.com.tw/0ca30OC.png',
         quote: `「歡迎回來，我的主人 ${name}。剩下的時間請放心交給我吧。不用急著找到所有問題的答案，我已備好現烤熱騰騰的蜂蜜瑪芬，先陪您嚐點甜的。」`,
-        badgeColor: 'bg-blue-100 text-blue-800 border-blue-200',
+        badgeColor: 'bg-amber-950/10 text-[#30211B] border-[#30211B]/30',
       };
     case '陰濕男鬼':
       return {

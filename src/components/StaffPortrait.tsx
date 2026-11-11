@@ -22,7 +22,7 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
   // Render real photo if provided (e.g. 萊可 photo), otherwise bespoke detailed character illustration
   const renderCharacterIllustration = () => {
     if (imageSrc) {
-      const isPotatoBrave = staff.id === 'potatobrave' || imageSrc.includes('QH6ChFc') || imageSrc.includes('r22y8YXn') || imageSrc.includes('GQQPYyrg') || imageSrc.includes('zyMcfrb') || imageSrc.includes('V4AC8Ds') || imageSrc.includes('potatobrave');
+      const isPotatoBrave = staff.id === 'potatobrave' || imageSrc.includes('0ca30OC') || imageSrc.includes('QH6ChFc') || imageSrc.includes('r22y8YXn') || imageSrc.includes('GQQPYyrg') || imageSrc.includes('zyMcfrb') || imageSrc.includes('V4AC8Ds') || imageSrc.includes('potatobrave');
 
       return (
         <div className="w-full flex items-center justify-center">

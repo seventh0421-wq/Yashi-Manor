@@ -28,7 +28,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
     if (seed === 'luko' || photo.includes('t9yeCbC') || photo.includes('luko-avatar') || photo.includes('CMH9DxK')) {
       photo = '/staff/luko-avatar.png';
     }
-    if (seed === 'potatobrave' || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('V4AC8Ds') || photo.includes('potatobrave')) {
+    if (seed === 'potatobrave' || photo.includes('0ca30OC') || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('V4AC8Ds') || photo.includes('potatobrave')) {
       photo = '/staff/potatobrave-avatar.png';
     }
     if (seed === 'ptowo' || seed === 'p2' || photo.includes('SSZW8MH') || photo.includes('ptowo-avatar')) {
@@ -58,7 +58,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       objectPos = 'object-[center_19%]';
       zoomScale = 'scale-[1.65]';
       transformOrigin = 'origin-[center_19%]';
-    } else if (seed === 'potatobrave' || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('potatobrave') || photo.includes('V4AC8Ds') || photo.includes('JuLHejO')) {
+    } else if (seed === 'potatobrave' || photo.includes('0ca30OC') || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('potatobrave') || photo.includes('V4AC8Ds') || photo.includes('JuLHejO')) {
       // Dedicated square headshot with warm knight expression
       objectPos = 'object-center';
       zoomScale = 'scale-[1.05]';
@@ -96,7 +96,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
           className={`w-full h-full object-cover ${zoomScale} ${transformOrigin} ${objectPos}`}
           referrerPolicy="no-referrer"
           onError={(e) => {
-            if (photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('V4AC8Ds') || photo.includes('zyMcfrb') || photo.includes('potatobrave')) {
+            if (photo.includes('0ca30OC') || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('V4AC8Ds') || photo.includes('zyMcfrb') || photo.includes('potatobrave')) {
               e.currentTarget.src = '/staff/potatobrave-avatar.png';
             } else if (photo.includes('SSZW8MH')) {
               e.currentTarget.src = '/staff/ptowo-avatar.png';
