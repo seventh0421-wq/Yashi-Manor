@@ -4,7 +4,7 @@ import {
   handleApiError,
   parseJsonBody,
   verifyAdminRequest,
-} from '../_lib/firebaseAdmin';
+} from '../_lib/firebaseAdmin.js';
 
 const COLLECTION_MESSAGES = 'guestbookMessages';
 const DEFAULT_ADMIN_LIMIT = 30;

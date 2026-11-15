@@ -10,7 +10,7 @@ import {
   parseJsonBody,
   sanitizeText,
   verifyOptionalAppCheck,
-} from './_lib/firebaseAdmin';
+} from './_lib/firebaseAdmin.js';
 
 const COLLECTION_MESSAGES = 'guestbookMessages';
 const COLLECTION_RATE_LIMITS = 'guestbookRateLimits';

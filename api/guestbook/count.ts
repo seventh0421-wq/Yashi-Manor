@@ -1,4 +1,4 @@
-import { getAdminFirestore, handleApiError } from '../_lib/firebaseAdmin';
+import { getAdminFirestore, handleApiError } from '../_lib/firebaseAdmin.js';
 
 const COLLECTION_MESSAGES = 'guestbookMessages';
 
