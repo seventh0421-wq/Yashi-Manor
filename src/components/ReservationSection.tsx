@@ -112,7 +112,14 @@ const PRE_ORDER_CATEGORIES = [
       { id: 'spec-takoyaki', name: '章魚燒', price: 50000, desc: '圓滾滾的金黃章魚燒，煩惱也會跟著滾走', tag: '翹屁嫩兔推薦', staffSeed: 'ptowo' },
       { id: 'spec-berry-tea', name: '仙子莓茶', price: 50000, desc: '酸甜莓果香氣伴隨薄荷甘草清韻，撫平一天疲憊', tag: '花鳴威推薦', staffSeed: 'fuwaway' },
       { id: 'spec-masala-chai', name: '馬薩拉奶茶', price: 50000, desc: '濃郁茶香伴隨著琥珀丁香甘甜暖胃，讓人欲罷不能的特色奶茶', tag: '安海瑟薇大力推薦', staffSeed: 'anne' },
+      { id: 'spec-apple-tart', name: '蘋果塔', price: 50000, desc: '庫爾扎斯仙女蘋果烘烤出的香氣蘋果塔，吃了準沒錯(ゝ∀・)b', tag: '焚楓推薦', staffSeed: 'maple' },
       { id: 'spec-6', name: '夜香花套餐', price: 60000, desc: '莊園尊榮經典套餐・前菜、主餐、夜香茶飲與特製甜點全套饗宴', tag: '尊榮套餐' },
+    ],
+  },
+  {
+    category: 'SPECIAL SERVICES・特別侍奉服務',
+    items: [
+      { id: 'srv-omurice-magic', name: '蛋包飯魔法', price: 20000, desc: '桌邊施放專屬美味魔法咒語與手繪互動（本項目不包含在低消內）', tag: '不包含在低消內' },
     ],
   },
 ];
@@ -194,6 +201,14 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         quote: `「主人 ${name} 終於回來了！歡迎歸宅～能夠見到您，瞬間又充滿活力了，嘻嘻☆ 天冷的時候就該來喝杯暖呼呼的馬薩拉奶茶，小安已經幫您備好了喔！」`,
         badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
       };
+    case '焚楓':
+      return {
+        speaker: '焚楓（女僕）',
+        avatarSeed: 'maple',
+        photoUrl: '/staff/maple-avatar.png',
+        quote: `「今天也辛苦了！努力生活的主人 ${name} 今日依舊耀眼！小楓已經把您的席位記下來囉～快來夜蒔館好好休息，我也會為您準備庫爾扎斯仙女蘋果烤出的最香蘋果塔(ゝ∀・)b」`,
+        badgeColor: 'bg-red-100 text-red-900 border-red-200',
+      };
     default:
       return {
         speaker: '夜蒔館全體女僕與執事',
@@ -227,7 +242,16 @@ export function ReservationSection({
   const [showCustomDatePicker, setShowCustomDatePicker] = useState<boolean>(false);
   const [customDateInput, setCustomDateInput] = useState<string>('');
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('21:30 - 22:30');
-  const [selectedStaff, setSelectedStaff] = useState<string>(initialStaffName || '不指名');
+  const [selectedStaff, setSelectedStaff] = useState<string>(() => {
+    if (initialStaffName) {
+      const matched = STAFF_MEMBERS.find((s) => s.name === initialStaffName);
+      if (matched && matched.shiftStatus === 'off_duty') {
+        return '不指名';
+      }
+      return initialStaffName;
+    }
+    return '不指名';
+  });
   const [guestCount, setGuestCount] = useState<number>(1);
 
   // Form Fields - Step 2
@@ -250,10 +274,15 @@ export function ReservationSection({
   // Validation errors
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Sync initial staff name if prop changes
+  // Sync initial staff name if prop changes (skip off-duty staff)
   useEffect(() => {
     if (initialStaffName) {
-      setSelectedStaff(initialStaffName);
+      const matched = STAFF_MEMBERS.find((s) => s.name === initialStaffName);
+      if (matched && matched.shiftStatus === 'off_duty') {
+        setSelectedStaff('不指名');
+      } else {
+        setSelectedStaff(initialStaffName);
+      }
     }
   }, [initialStaffName]);
 
@@ -332,6 +361,13 @@ export function ReservationSection({
     if (currentStep === 1) {
       if (!selectedDate || !selectedTimeSlot || !selectedStaff) {
         setValidationError('請完整選擇預約日期、時段與指名侍從選項');
+        return;
+      }
+      const isSelectedStaffOffDuty = STAFF_MEMBERS.some(
+        (s) => s.name === selectedStaff && s.shiftStatus === 'off_duty'
+      );
+      if (isSelectedStaffOffDuty) {
+        setValidationError(`${selectedStaff} 目前未值勤，請改選其他侍從或不指名`);
         return;
       }
       playChime(1.1);
@@ -1045,15 +1081,29 @@ export function ReservationSection({
 
                       {/* Maid Options */}
                       {STAFF_MEMBERS.map((staff) => {
-                        const isSelected = selectedStaff === staff.name;
+                        const isOffDuty = staff.shiftStatus === 'off_duty';
+                        const isSelected = !isOffDuty && selectedStaff === staff.name;
                         return (
                           <div
                             key={staff.id}
-                            onClick={() => setSelectedStaff(staff.name)}
-                            className={`relative p-3.5 sm:p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between ${
-                              isSelected
-                                ? 'bg-gradient-to-b from-[#1E3B5C] to-[#2B527E] text-white border-[#193452] shadow-xs ring-2 ring-[#70A6D6]'
-                                : 'bg-white hover:bg-[#F4F9FD] text-[#2A4C70] border-[#CBDDEB]'
+                            role="button"
+                            aria-disabled={isOffDuty}
+                            onClick={() => {
+                              if (!isOffDuty) {
+                                setSelectedStaff(staff.name);
+                              }
+                            }}
+                            title={
+                              isOffDuty
+                                ? `${staff.name} 目前未值勤，暫不開放點選預約`
+                                : `指名 ${staff.name}`
+                            }
+                            className={`relative p-3.5 sm:p-4 rounded-2xl border text-center transition-all flex flex-col items-center justify-between ${
+                              isOffDuty
+                                ? 'bg-slate-50/90 text-slate-400 border-slate-200 opacity-75 cursor-not-allowed select-none'
+                                : isSelected
+                                ? 'bg-gradient-to-b from-[#1E3B5C] to-[#2B527E] text-white border-[#193452] shadow-xs ring-2 ring-[#70A6D6] cursor-pointer'
+                                : 'bg-white hover:bg-[#F4F9FD] text-[#2A4C70] border-[#CBDDEB] cursor-pointer'
                             }`}
                           >
                             {isSelected && (
@@ -1063,7 +1113,11 @@ export function ReservationSection({
                             )}
 
                             {/* Staff Avatar */}
-                            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full overflow-hidden mb-2 border-2 border-white shadow-xs bg-white flex items-center justify-center">
+                            <div
+                              className={`w-16 h-16 sm:w-18 sm:h-18 rounded-full overflow-hidden mb-2 border-2 border-white shadow-xs bg-white flex items-center justify-center ${
+                                isOffDuty ? 'grayscale opacity-75' : ''
+                              }`}
+                            >
                               <StaffAvatar seed={staff.avatarSeed} avatarUrl={staff.photoUrl} size="lg" className="w-full h-full" />
                             </div>
 
@@ -1071,6 +1125,11 @@ export function ReservationSection({
                               <span className="font-bold text-sm sm:text-base font-serif-tc block">
                                 {staff.name}
                               </span>
+                              {isOffDuty && (
+                                <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600 border border-slate-300">
+                                  未值勤
+                                </span>
+                              )}
                             </div>
                           </div>
                         );
@@ -1251,7 +1310,13 @@ export function ReservationSection({
                                       {item.name}
                                     </span>
                                     {item.tag && (
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EEF5FB] text-[#23466B] border border-[#CBDDEB]">
+                                      <span
+                                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                          item.tag === '不包含在低消內'
+                                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                            : 'bg-[#EEF5FB] text-[#23466B] border-[#CBDDEB]'
+                                        }`}
+                                      >
                                         {item.staffSeed && (
                                           <div className="w-3.5 h-3.5 rounded-full overflow-hidden shrink-0 border border-white">
                                             <StaffAvatar seed={item.staffSeed} className="w-3.5 h-3.5" />
@@ -1261,7 +1326,7 @@ export function ReservationSection({
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-[11px] text-[#6484A2] mt-0.5 truncate">
+                                  <p className="text-[11px] text-[#6484A2] mt-0.5 line-clamp-2">
                                     {item.desc}
                                   </p>
                                   <div className="flex items-baseline gap-1 mt-1">
@@ -1408,6 +1473,11 @@ export function ReservationSection({
                                 <span className="text-[11px] text-[#23466B]">
                                   ({(dish.price * dish.quantity).toLocaleString()} Gil)
                                 </span>
+                                {dish.name === '蛋包飯魔法' && (
+                                  <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
+                                    不包含在低消內
+                                  </span>
+                                )}
                               </span>
                             ))}
                           </div>

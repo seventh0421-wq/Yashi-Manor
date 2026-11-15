@@ -125,7 +125,7 @@ export const STAFF_MEMBERS: StaffMember[] = [
     themeColor: '#234172',
     greetingVoiceLine: '「黑夜會包容一切故事，若主人不介意，我願意成為您的傾聽者。」',
     tags: ['清冷端莊', '優雅有禮', '心事傾聽', '私心甜點控'],
-    shiftStatus: 'available',
+    shiftStatus: 'off_duty',
   },
   {
     id: 'potatobrave',
@@ -271,6 +271,36 @@ export const STAFF_MEMBERS: StaffMember[] = [
     themeColor: '#ffdbcf',
     greetingVoiceLine: '「主人終於回來了！歡迎歸宅～能夠見到您，瞬間又充滿活力了，嘻嘻☆」',
     tags: ['女僕・Maid', '樂天女僕', '暱稱小安', '散播笑容', '元氣滿滿', '招牌馬薩拉奶茶', '杏粉・#ffdbcf'],
+    shiftStatus: 'available',
+  },
+  {
+    id: 'maple',
+    name: '焚楓',
+    jpName: 'Maple',
+    nickname: '小楓',
+    role: 'maid',
+    title: '女僕・Maid',
+    threadsHandle: '@coralrosa0512',
+    threadsUrl: 'https://www.threads.net/@coralrosa0512',
+    photoUrl: 'https://i.meee.com.tw/MODdkw3.webp',
+    avatarUrl: '/staff/maple-avatar.png',
+    quote: '「今天也辛苦了！努力生活的主人今日依舊耀眼！」',
+    personality: '每天帶著太陽般的溫暖笑容迎接主人歸宅並期待主人分享各種故事，是個不錯的傾聽者，也能和你聊聊各種大小事。對於記錄各個重要瞬間與美麗風景很有興趣，尤其是每個人開心的美麗面貌。希望來到夜蒔館的主人能好好休息，帶著滿滿能量往下一個旅途出發。',
+    intro: '每天帶著太陽般的溫暖笑容迎接主人歸宅並期待主人分享各種故事，是個不錯的傾聽者，也能和你聊聊各種大小事。\n\n對於記錄各個重要瞬間與美麗風景很有興趣，尤其是每個人開心的美麗面貌。希望來到夜蒔館的主人能好好休息，帶著滿滿能量往下一個旅途出發。',
+    recommendedDish: '蘋果塔',
+    recommendationQuote: '「只有庫爾扎斯出產的仙女蘋果才能烤出最香的蘋果塔！」',
+    recommendationNote: '想變成仙人或仙女嗎？吃了準沒錯(ゝ∀・)b',
+    services: [
+      '指名陪伴',
+      '拍立得',
+      '簽繪',
+    ],
+    ff14Job: '太陽女僕 / 旅途記錄者',
+    favoriteDrink: '蘋果塔',
+    avatarSeed: 'maple',
+    themeColor: '#C21F30',
+    greetingVoiceLine: '「今天也辛苦了！努力生活的主人今日依舊耀眼！」',
+    tags: ['女僕・Maid', '太陽般溫暖笑容', '暱稱小楓', '故事傾聽者', '招牌蘋果塔', '楓紅・#C21F30'],
     shiftStatus: 'available',
   },
 ];
@@ -512,6 +542,18 @@ export const MENU_ITEMS: MenuItem[] = [
     isCold: false,
     imageIcon: 'Coffee',
   },
+  {
+    id: 'fairy-apple-tart',
+    name: '蘋果塔',
+    jpName: 'フェアリーアップルタルト・小楓特製',
+    category: 'signature',
+    price: 50000,
+    description: '嚴選庫爾扎斯出產的仙女蘋果細火烘焙，散發令人幸福洋溢的馥郁果香。「只有庫爾扎斯出產的仙女蘋果才能烤出最香的蘋果塔！」想變成仙人或仙女嗎？吃了準沒錯(ゝ∀・)b',
+    rpFeature: '焚楓推薦甜點｜「只有庫爾扎斯出產的仙女蘋果才能烤出最香的蘋果塔！」想變成仙人或仙女嗎？吃了準沒錯(ゝ∀・)b',
+    recommendedStaff: '焚楓',
+    isCold: false,
+    imageIcon: 'Cake',
+  },
 
   // 奢華經典套餐
   {
@@ -523,6 +565,17 @@ export const MENU_ITEMS: MenuItem[] = [
     description: '夜蒔館典藏尊榮套餐。結合主廚特製鮮美前菜、精選主餐、夜蒔花香特調茶飲與手工夜香甜點，盛裝於古典銀盤呈獻，讓您沉浸於莊園最高規格的夜晚時光。',
     rpFeature: '全席尊榮儀式侍奉，專屬侍從依序開蓋並介紹每道夜香風味，享受至高饗宴。',
     imageIcon: 'Sparkles',
+  },
+  // 特別侍奉服務
+  {
+    id: 'omurice-magic',
+    name: '蛋包飯魔法',
+    jpName: 'オムライスのおまじない',
+    category: 'service',
+    price: 20000,
+    description: '由侍從在桌邊施放「美味變好吃魔法咒語」並搭配萌系手繪互動，為您呈上最療癒的心動儀式！（備註：本服務不包含在低消內）',
+    rpFeature: '桌邊專屬美味魔法吟唱互動：「注入滿滿愛與元氣～おいしくなぁれ！」（※ 不包含在低消內）',
+    imageIcon: 'Wand2',
   },
 ];
 
@@ -556,6 +609,13 @@ export const CAFE_INTERACTION_SERVICES: CafeServiceItem[] = [
     name: '簽繪',
     price: 200000,
     description: '女僕親筆手繪簽名板或桌邊手繪紀念圖，包含專屬客製留言與角色可愛插圖。',
+  },
+  {
+    id: 'omurice-magic',
+    name: '蛋包飯魔法',
+    price: 20000,
+    limitNote: '不包含在低消內',
+    description: '由女僕或執事於桌邊施放專屬美味魔法咒語並進行手繪互動，為餐點注入滿滿元氣與笑容！（※ 本項目不包含在低消內）',
   },
 ];
 
@@ -673,9 +733,9 @@ export const FAQ_ITEMS: FAQItem[] = [
   {
     id: 'faq-spd-3',
     category: 'spend',
-    question: '「指名聊天服務」、「純拍照留影」或「簽繪」是包含在低消裡嗎？',
-    answer: '特別侍奉服務（如指名聊天 20w/節、拍照 10w、簽繪 20w）屬於專屬互動加購服務，各項費用獨立計算，不包含在店內餐點低消內。聊天服務每席最多加點兩節（共40分鐘）。',
-    highlight: '屬加購服務獨立計算，不計入店內餐點低消',
+    question: '「指名聊天服務」、「純拍照留影」、「簽繪」或「蛋包飯魔法」是包含在低消裡嗎？',
+    answer: '特別侍奉服務（如指名聊天 20w/節、拍照 10w、簽繪 20w、蛋包飯魔法 2w）屬於專屬互動加購服務，各項費用獨立計算，皆不包含在店內餐點低消內。聊天服務每席最多加點兩節（共40分鐘）。',
+    highlight: '特別侍奉服務皆獨立計算，不包含在店內餐點低消內',
   },
   {
     id: 'faq-spd-4',

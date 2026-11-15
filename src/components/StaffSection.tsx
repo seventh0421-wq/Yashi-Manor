@@ -26,6 +26,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
   const [confirmedNotice, setConfirmedNotice] = useState(false);
 
   const currentStaff = STAFF_MEMBERS[selectedIndex] || STAFF_MEMBERS[0];
+  const isOffDuty = currentStaff.shiftStatus === 'off_duty';
 
   const handleSelectStaff = (targetIndex: number) => {
     if (targetIndex === selectedIndex) return;
@@ -35,6 +36,7 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
   };
 
   const handleConfirm = () => {
+    if (isOffDuty) return;
     playMagicSpell();
     setConfirmedNotice(true);
     if (onSelectStaffForReservation) {
@@ -126,13 +128,21 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                         backgroundColor:
                           currentStaff.shiftStatus === 'available'
                             ? 'rgba(236, 253, 245, 0.92)'
+                            : currentStaff.shiftStatus === 'off_duty'
+                            ? 'rgba(241, 245, 249, 0.95)'
                             : 'rgba(241, 245, 249, 0.92)',
                         borderColor:
                           currentStaff.shiftStatus === 'available'
                             ? 'rgba(110, 231, 183, 0.8)'
+                            : currentStaff.shiftStatus === 'off_duty'
+                            ? 'rgba(148, 163, 184, 0.7)'
                             : 'rgba(203, 213, 225, 0.8)',
                         color:
-                          currentStaff.shiftStatus === 'available' ? '#065F46' : '#475569',
+                          currentStaff.shiftStatus === 'available'
+                            ? '#065F46'
+                            : currentStaff.shiftStatus === 'off_duty'
+                            ? '#475569'
+                            : '#475569',
                       }}
                     >
                       <span className="relative flex h-2 w-2">
@@ -150,6 +160,8 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
                       <span className="text-[11px] font-sans">
                         {currentStaff.shiftStatus === 'available'
                           ? '值班中・Available'
+                          : currentStaff.shiftStatus === 'off_duty'
+                          ? '未值勤・Off Duty'
                           : '忙碌中・Busy'}
                       </span>
                     </div>
@@ -302,12 +314,20 @@ export function StaffSection({ onSelectStaffForReservation, onBack }: StaffSecti
               {/* CONFIRM BUTTON */}
               <button
                 id="staff-confirm-button"
+                type="button"
                 onClick={handleConfirm}
-                className="group px-7 py-2 rounded-full bg-gradient-to-r from-[#21456A] to-[#366795] hover:from-[#183452] hover:to-[#285177] text-white text-xs sm:text-sm font-bold tracking-wider transition-all duration-300 border-2 border-white hover:shadow-[0_0_22px_rgba(54,103,149,0.7)] hover:scale-[1.03] active:scale-[0.98] cursor-pointer flex items-center gap-2 shadow-xs"
-                title="確認指名並前往預約頁面"
+                disabled={isOffDuty}
+                className={`group px-7 py-2 rounded-full text-xs sm:text-sm font-bold tracking-wider transition-all duration-300 border-2 flex items-center gap-2 shadow-xs ${
+                  isOffDuty
+                    ? 'bg-slate-200/90 text-slate-500 border-slate-300 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#21456A] to-[#366795] hover:from-[#183452] hover:to-[#285177] text-white border-white hover:shadow-[0_0_22px_rgba(54,103,149,0.7)] hover:scale-[1.03] active:scale-[0.98] cursor-pointer'
+                }`}
+                title={isOffDuty ? `${currentStaff.name} 目前未值勤，暫不開放預約指名` : '確認指名並前往預約頁面'}
               >
-                <span>CONFIRM 預約侍從</span>
-                <ArrowRight className="w-4 h-4 text-[#C1DEF5] group-hover:translate-x-1 transition-transform" />
+                <span>{isOffDuty ? '未值勤・暫停預約' : 'CONFIRM 預約侍從'}</span>
+                {!isOffDuty && (
+                  <ArrowRight className="w-4 h-4 text-[#C1DEF5] group-hover:translate-x-1 transition-transform" />
+                )}
               </button>
             </div>
 

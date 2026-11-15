@@ -1,6 +1,6 @@
 import { StaffAvatar } from './StaffAvatars';
 import { CAFE_INTERACTION_SERVICES } from '../data/cafeData';
-import { Sparkles, MessageCircle, Camera, PenTool, AlertCircle } from 'lucide-react';
+import { Sparkles, MessageCircle, Camera, PenTool, AlertCircle, Wand2 } from 'lucide-react';
 
 export function MenuSection() {
   return (
@@ -479,6 +479,27 @@ export function MenuSection() {
                   </div>
                 </div>
 
+                {/* 蘋果塔 - 焚楓推薦 */}
+                <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-serif-tc font-bold text-[#1A2E42] text-base sm:text-lg tracking-wide">
+                      蘋果塔
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#EEF5FB] text-[#23466B] border border-[#CBDDEB]">
+                      <div className="w-4 h-4 rounded-full overflow-hidden shrink-0 border border-white shadow-2xs">
+                        <StaffAvatar seed="maple" className="w-4 h-4" />
+                      </div>
+                      <span>焚楓推薦</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="font-serif text-xl sm:text-2xl font-bold text-[#23466B]">
+                      50,000
+                    </span>
+                    <span className="text-xs font-serif text-[#627D98]">Gil</span>
+                  </div>
+                </div>
+
                 {/* 夜香花套餐 - 莊園尊榮經典套餐 */}
                 <div className="flex items-center justify-between gap-3 border-b border-dotted border-[#CBDDEB] pb-2.5 bg-gradient-to-r from-[#F4F8FC]/60 to-transparent -mx-2 px-2 rounded-lg">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -511,18 +532,19 @@ export function MenuSection() {
               </h3>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {CAFE_INTERACTION_SERVICES.map((srv) => {
                 const getIcon = () => {
                   if (srv.id === 'designated-chat') return <MessageCircle className="w-5 h-5 text-[#23466B]" />;
                   if (srv.id === 'photo-session') return <Camera className="w-5 h-5 text-[#23466B]" />;
+                  if (srv.id === 'omurice-magic') return <Wand2 className="w-5 h-5 text-[#23466B]" />;
                   return <PenTool className="w-5 h-5 text-[#23466B]" />;
                 };
 
                 return (
                   <div
                     key={srv.id}
-                    className="p-5 rounded-xl border border-[#CBDDEB] bg-gradient-to-b from-white to-[#F8FAFC] shadow-2xs flex flex-col justify-between"
+                    className="p-4 sm:p-5 lg:p-4 rounded-xl border border-[#CBDDEB] bg-gradient-to-b from-white to-[#F8FAFC] shadow-2xs flex flex-col justify-between min-w-0"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2 mb-2">
@@ -555,11 +577,11 @@ export function MenuSection() {
                       <div className="text-xs sm:text-sm text-[#71879D] font-medium tracking-wide mb-1.5">
                         侍奉費用
                       </div>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="font-serif text-2xl sm:text-3xl font-bold text-[#23466B]">
+                      <div className="flex items-baseline gap-1 flex-wrap">
+                        <span className="font-serif text-xl sm:text-2xl lg:text-xl font-bold text-[#23466B] leading-tight">
                           {srv.price.toLocaleString()}
                         </span>
-                        <span className="text-xs sm:text-sm font-serif text-[#627D98]">
+                        <span className="text-xs font-serif text-[#627D98]">
                           Gil
                         </span>
                       </div>

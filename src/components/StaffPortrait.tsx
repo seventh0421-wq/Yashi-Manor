@@ -10,7 +10,11 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
   const [imageSrc, setImageSrc] = useState<string>(() => staff.photoUrl || '');
 
   useEffect(() => {
-    setImageSrc(staff.photoUrl || '');
+    if (staff.id === 'maple') {
+      setImageSrc('/staff/maple.png');
+    } else {
+      setImageSrc(staff.photoUrl || '');
+    }
   }, [staff.id, staff.photoUrl]);
 
   useEffect(() => {
@@ -47,6 +51,8 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
                 setImageSrc('/staff/fuwaway.png');
               } else if (staff.id === 'anne' && !imageSrc.includes('anne.png')) {
                 setImageSrc('/staff/anne.png');
+              } else if (staff.id === 'maple' && !imageSrc.includes('maple.png')) {
+                setImageSrc('/staff/maple.png');
               } else if (staff.id === 'luko' && !imageSrc.includes('luko.png')) {
                 setImageSrc('/staff/luko.png');
               }

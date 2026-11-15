@@ -421,15 +421,21 @@ export function CalendarSection({
 
                             {/* Right: Quick Reserve button for this specific Staff */}
                             <div className="shrink-0 flex items-center">
-                              <button
-                                type="button"
-                                onClick={() => handleReserveStaff(staff.name)}
-                                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#21456A] to-[#34628E] hover:from-[#163350] hover:to-[#254A6F] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
-                                title={`指名 ${staff.name} 預約此日席位`}
-                              >
-                                <span>指名預約</span>
-                                <ArrowRight className="w-3.5 h-3.5" />
-                              </button>
+                              {staff.shiftStatus === 'off_duty' ? (
+                                <span className="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-500 border border-slate-200 text-xs font-bold cursor-not-allowed">
+                                  未值勤
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleReserveStaff(staff.name)}
+                                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#21456A] to-[#34628E] hover:from-[#163350] hover:to-[#254A6F] text-white text-xs font-bold shadow-2xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+                                  title={`指名 ${staff.name} 預約此日席位`}
+                                >
+                                  <span>指名預約</span>
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                             </div>
                           </div>
                         ))}

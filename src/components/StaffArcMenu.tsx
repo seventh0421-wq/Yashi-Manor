@@ -39,7 +39,7 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
     const topY = 16;
     const bottomY = 770;
     const navSize = 68;
-    const staffSize = count >= 7 ? 78 : count > 5 ? 84 : 88;
+    const staffSize = count >= 10 ? 64 : count >= 7 ? 78 : count > 5 ? 84 : 88;
 
     // Top Prev Orb
     nodes.push({ id: 'arc-nav-prev', type: 'nav-prev', x: 18, y: topY, size: navSize });
@@ -228,7 +228,7 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                         ? 'scale-105 shadow-[0_10px_28px_rgba(20,50,85,0.28)]'
                         : 'hover:scale-108 shadow-[0_6px_18px_rgba(30,60,95,0.16)] hover:shadow-[0_8px_24px_rgba(20,50,85,0.22)]'
                     }`}
-                    title={`${staff.name}（${staff.role === 'butler' ? '執事' : '女僕'}）- 點選切換`}
+                    title={`${staff.name}（${staff.role === 'butler' ? '執事' : '女僕'}${staff.shiftStatus === 'off_duty' ? '・未值勤' : ''}）- 點選切換`}
                   >
                     {/* Outer Pulsing Aura Ring on Selection */}
                     {isSelected && (
@@ -255,7 +255,9 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                         seed={staff.avatarSeed}
                         avatarUrl={staff.avatarUrl || staff.photoUrl}
                         size="lg"
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-108"
+                        className={`w-full h-full object-cover transition-transform duration-300 group-hover:scale-108 ${
+                          staff.shiftStatus === 'off_duty' ? 'grayscale-[45%] opacity-80' : ''
+                        }`}
                       />
 
                       {/* Frosted Glass Overlay with Staff Name on Hover or Active Selection */}
@@ -270,7 +272,11 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                           {staff.name}
                         </span>
                         <span className="text-[10px] font-semibold text-[#D2E7F8] tracking-widest drop-shadow-xs mt-0.5 opacity-90">
-                          {staff.role === 'butler' ? '執事' : '女僕'}
+                          {staff.shiftStatus === 'off_duty'
+                            ? '未值勤'
+                            : staff.role === 'butler'
+                            ? '執事'
+                            : '女僕'}
                         </span>
                       </div>
                     </div>
@@ -301,6 +307,11 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                       >
                         {isSelected && <Sparkles className="w-3 h-3 text-[#E8C570] shrink-0" />}
                         <span>{staff.name}</span>
+                        {staff.shiftStatus === 'off_duty' && (
+                          <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                            未值勤
+                          </span>
+                        )}
                         <span
                           className="w-1.5 h-1.5 rounded-full"
                           style={{ backgroundColor: staff.themeColor }}
@@ -355,7 +366,9 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                     seed={staff.avatarSeed}
                     avatarUrl={staff.avatarUrl || staff.photoUrl}
                     size="md"
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover ${
+                      staff.shiftStatus === 'off_duty' ? 'grayscale-[45%] opacity-80' : ''
+                    }`}
                   />
                 </div>
                 <span
@@ -366,6 +379,7 @@ export function StaffArcMenu({ selectedIndex, onSelectStaff }: StaffArcMenuProps
                   }`}
                 >
                   {staff.name}
+                  {staff.shiftStatus === 'off_duty' ? ' (未值勤)' : ''}
                 </span>
               </button>
             );

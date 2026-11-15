@@ -14,7 +14,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
   }[size];
 
   // If a photoUrl is directly supplied, or seed is one of the staff members with photo
-  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway' || seed === 'anne') {
+  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway' || seed === 'anne' || seed === 'maple') {
     let defaultPhoto = 'https://i.meee.com.tw/dkSZ6nR.png';
     if (seed === 'luko') defaultPhoto = '/staff/luko-avatar.png';
     if (seed === 'kurikuri') defaultPhoto = 'https://i.meee.com.tw/Hneru75.png';
@@ -24,6 +24,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
     if (seed === 'ptowo' || seed === 'p2') defaultPhoto = '/staff/ptowo-avatar.png';
     if (seed === 'fuwaway') defaultPhoto = '/staff/fuwaway-avatar.png';
     if (seed === 'anne') defaultPhoto = '/staff/anne-avatar.png';
+    if (seed === 'maple') defaultPhoto = '/staff/maple-avatar.png';
     let photo = avatarUrl || defaultPhoto;
     if (seed === 'luko' || photo.includes('t9yeCbC') || photo.includes('luko-avatar') || photo.includes('CMH9DxK')) {
       photo = '/staff/luko-avatar.png';
@@ -39,6 +40,9 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
     }
     if (seed === 'anne' || photo.includes('5HLWDru') || photo.includes('anne-avatar') || photo.includes('anne')) {
       photo = '/staff/anne-avatar.png';
+    }
+    if (seed === 'maple' || photo.includes('MODdkw3') || photo.includes('maple-avatar') || photo.includes('maple')) {
+      photo = '/staff/maple-avatar.png';
     }
 
     let objectPos = 'object-[center_17%]';
@@ -78,6 +82,11 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       objectPos = 'object-center';
       zoomScale = 'scale-100';
       transformOrigin = 'origin-center';
+    } else if (seed === 'maple' || photo.includes('maple') || photo.includes('MODdkw3')) {
+      // Dedicated square headshot with Miqo'te cat ears & warm smile
+      objectPos = 'object-center';
+      zoomScale = 'scale-100';
+      transformOrigin = 'origin-center';
     } else if (seed === 'yinshi' || seed === 'error' || photo.includes('E34aApf') || photo.includes('yinshi')) {
       objectPos = 'object-[center_17%]';
       zoomScale = 'scale-[1.65]';
@@ -106,6 +115,8 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
               e.currentTarget.src = '/staff/fuwaway-avatar.png';
             } else if (photo.includes('5HLWDru') || photo.includes('anne')) {
               e.currentTarget.src = '/staff/anne-avatar.png';
+            } else if (photo.includes('MODdkw3') || photo.includes('maple')) {
+              e.currentTarget.src = '/staff/maple-avatar.png';
             } else if (photo.includes('t9yeCbC') || photo.includes('luko') || photo.includes('CMH9DxK')) {
               e.currentTarget.src = '/staff/luko-avatar.png';
             }

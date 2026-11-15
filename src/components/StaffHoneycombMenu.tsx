@@ -54,14 +54,15 @@ const HONEYCOMB_CELLS: HexCellConfig[] = [
   { id: 'staff-fuwaway', col: 2, row: 4, staffId: 'fuwaway' },
   { id: 'hex-right-fuwaway', col: 3, row: 4, accentSymbol: '✧' },
 
-  // Lower row 3 (Anne)
+  // Lower row 3 (Anne & Maple)
   { id: 'hex-left-anne', col: 0, row: 5, accentSymbol: '✦' },
   { id: 'staff-anne', col: 1, row: 5, staffId: 'anne' },
-  { id: 'hex-right-anne', col: 2, row: 5, accentSymbol: '✧' },
+  { id: 'staff-maple', col: 2, row: 5, staffId: 'maple' },
+  { id: 'hex-right-maple', col: 3, row: 5, accentSymbol: '✧' },
 
-  // Bottom halo (below Anne)
+  // Bottom halo (below Anne & Maple)
   { id: 'hex-bottom-anne', col: 1, row: 6, accentSymbol: '✦' },
-  { id: 'hex-bottom-right-anne', col: 2, row: 6, accentSymbol: '✧' },
+  { id: 'hex-bottom-maple', col: 2, row: 6, accentSymbol: '✧' },
 ];
 
 // Hexagon geometric constants (150px wide)

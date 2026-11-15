@@ -100,6 +100,104 @@
         }
       },
       "required": ["uid", "email", "role"]
+    },
+    "GuestbookMessage": {
+      "title": "GuestbookMessage",
+      "description": "Public visitor guestbook message moderated by admins and created via trusted backend",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Firestore document ID",
+          "maxLength": 64
+        },
+        "characterName": {
+          "type": "string",
+          "description": "Patron character name",
+          "minLength": 2,
+          "maxLength": 40
+        },
+        "server": {
+          "type": "string",
+          "description": "FF14 World Server",
+          "minLength": 1,
+          "maxLength": 32
+        },
+        "favoriteMaid": {
+          "type": "string",
+          "description": "Optional favorite maid or butler name",
+          "maxLength": 40
+        },
+        "badge": {
+          "type": "string",
+          "description": "Selected sticker badge",
+          "enum": ["✨", "☕", "🍰", "🌸", "🐾"]
+        },
+        "message": {
+          "type": "string",
+          "description": "Plain-text guestbook message",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Server-generated ISO-8601 timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO-8601 timestamp of last admin moderation"
+        },
+        "status": {
+          "type": "string",
+          "description": "Visibility status controlled by backend and admins",
+          "enum": ["published", "hidden"]
+        },
+        "sourceHash": {
+          "type": "string",
+          "description": "Internal HMAC hash of visitor IP (never exposed publicly)",
+          "maxLength": 64
+        },
+        "moderatedBy": {
+          "type": "string",
+          "description": "Admin email or UID who last changed visibility",
+          "maxLength": 128
+        }
+      },
+      "required": ["id", "characterName", "server", "badge", "message", "createdAt", "status"]
+    },
+    "GuestbookRateLimit": {
+      "title": "GuestbookRateLimit",
+      "description": "Persistent cross-instance rate-limiting & deduplication tracking keyed by hashed source IP",
+      "type": "object",
+      "properties": {
+        "lastSuccessAt": {
+          "type": "number",
+          "description": "Epoch ms of last successful guestbook post"
+        },
+        "hourlyTimestamps": {
+          "type": "array",
+          "description": "Recent post epoch timestamps within the last 1 hour"
+        },
+        "lastContentHash": {
+          "type": "string",
+          "description": "Hash of the last submitted message content",
+          "maxLength": 64
+        },
+        "lastContentAt": {
+          "type": "number",
+          "description": "Epoch ms of last content hash"
+        },
+        "lastRequestId": {
+          "type": "string",
+          "description": "Last idempotency requestId",
+          "maxLength": 64
+        },
+        "updatedAt": {
+          "type": "number",
+          "description": "Epoch ms of last update"
+        }
+      },
+      "required": ["lastSuccessAt", "hourlyTimestamps", "updatedAt"]
     }
   },
   "firestore": {
@@ -110,6 +208,14 @@
     "/admins/{adminUid}": {
       "schema": "AdminUser",
       "description": "Authorized administrators list"
+    },
+    "/guestbookMessages/{messageId}": {
+      "schema": "GuestbookMessage",
+      "description": "Guestbook entries accessed strictly via backend APIs"
+    },
+    "/guestbookRateLimits/{sourceHash}": {
+      "schema": "GuestbookRateLimit",
+      "description": "Server-only rate limiting state for guestbook submissions"
     }
   }
 }

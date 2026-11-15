@@ -62,5 +62,17 @@ service cloud.firestore {
       // Only Admin or Staff can update reservation status / notes or delete
       allow update, delete: if isAdmin();
     }
+
+    // Guestbook Messages collection:
+    // All public reads, validated writes, and admin moderation go through Serverless APIs (Firebase Admin SDK).
+    // Direct Client SDK access is strictly denied so hidden messages & internal source hashes cannot be exposed.
+    match /guestbookMessages/{messageId} {
+      allow read, write: if false;
+    }
+
+    // Guestbook persistent rate-limiting collection (server-only via Firebase Admin SDK)
+    match /guestbookRateLimits/{sourceHash} {
+      allow read, write: if false;
+    }
   }
 }

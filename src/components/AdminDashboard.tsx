@@ -47,8 +47,10 @@ import { db, auth, googleProvider, signInWithPopup, signOut, AUTHORIZED_ADMIN_EM
 import { handleFirestoreError, OperationType } from '../lib/firestoreError';
 import { ReservationData, ReservationStatus } from '../types';
 import { STAFF_MEMBERS } from '../data/cafeData';
+import { AdminGuestbookPanel } from './AdminGuestbookPanel';
 
 export function AdminDashboard() {
+  const [adminTab, setAdminTab] = useState<'reservations' | 'guestbook'>('reservations');
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [authLoading, setAuthLoading] = useState<boolean>(true);
   const [reservations, setReservations] = useState<ReservationData[]>([]);
@@ -453,6 +455,32 @@ export function AdminDashboard() {
     );
   }
 
+  // Signed in, but email is not in authorized admin list
+  if (!isAdmin) {
+    return (
+      <div className="min-h-[calc(100vh-80px)] pt-24 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#F2F7FB] via-[#FAFBFD] to-[#EEF5FB] flex items-center justify-center">
+        <div className="max-w-md w-full bg-white/95 rounded-3xl border border-rose-200 shadow-lg p-8 text-center space-y-4">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center">
+            <ShieldAlert className="w-7 h-7" />
+          </div>
+          <h2 className="text-xl font-bold font-serif-tc text-[#15324E]">
+            無管理員存取權限
+          </h2>
+          <p className="text-xs text-[#526D88] leading-relaxed">
+            目前登入帳號（{currentUser.email || currentUser.uid}）不在夜蒔館授權管理員名單中。請切換為授權管理員帳號後再試。
+          </p>
+          <button
+            onClick={handleSignOut}
+            className="w-full py-2.5 px-5 rounded-2xl bg-[#23466B] hover:bg-[#183654] text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>登出此帳號</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[calc(100vh-80px)] pt-20 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#F2F7FB] via-[#FAFBFD] to-[#EEF5FB] text-[#223B55]">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -529,6 +557,38 @@ export function AdminDashboard() {
           )}
         </AnimatePresence>
 
+        {/* Admin Sub-Navigation Tabs (預約管理 / 訪客留言管理) */}
+        <div className="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/90 border border-[#CBDDEB] shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setAdminTab('reservations')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              adminTab === 'reservations'
+                ? 'bg-[#23466B] text-white shadow-xs'
+                : 'text-[#35587E] hover:bg-[#EEF5FB]'
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            <span>預約訂單管理</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setAdminTab('guestbook')}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition-all cursor-pointer ${
+              adminTab === 'guestbook'
+                ? 'bg-[#23466B] text-white shadow-xs'
+                : 'text-[#35587E] hover:bg-[#EEF5FB]'
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>訪客留言管理</span>
+          </button>
+        </div>
+
+        {adminTab === 'guestbook' ? (
+          <AdminGuestbookPanel currentUser={currentUser} onShowToast={showToast} />
+        ) : (
+          <>
         {/* ========================================================= */}
         {/* STATS OVERVIEW CARDS */}
         {/* ========================================================= */}
@@ -1031,6 +1091,8 @@ export function AdminDashboard() {
             )}
           </div>
         </div>
+          </>
+        )}
       </div>
     </div>
   );

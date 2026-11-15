@@ -52,7 +52,7 @@ export interface StaffMember {
   themeColor: string;
   greetingVoiceLine: string;
   tags: string[];
-  shiftStatus?: 'available' | 'busy';
+  shiftStatus?: 'available' | 'busy' | 'off_duty';
 }
 
 export interface MenuItem {
@@ -69,14 +69,19 @@ export interface MenuItem {
   imageIcon: string;
 }
 
+export type GuestbookStatus = 'published' | 'hidden';
+
 export interface GuestbookEntry {
   id: string;
   characterName: string;
   server: string;
+  favoriteMaid: string;
+  badge: string;
   message: string;
-  favoriteStaff: string;
-  date: string;
-  stamp: string;
+  createdAt: string;
+  status: GuestbookStatus;
+  updatedAt?: string;
+  moderatedBy?: string;
 }
 
 export interface SpecialEvent {
