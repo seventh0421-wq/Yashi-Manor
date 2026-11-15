@@ -80,7 +80,7 @@ export const STAFF_MEMBERS: StaffMember[] = [
     role: 'maid',
     threadsHandle: '@zzissotired',
     threadsUrl: 'https://www.threads.com/@zzissotired',
-    photoUrl: 'https://i.meee.com.tw/Hneru75.png',
+    photoUrl: 'https://i.meee.com.tw/BM36fwZ.webp',
     quote: '「我、我才沒有在等主人呢！不過⋯⋯既然主人都來了，小公主就負責陪主人聊聊天吧！」',
     personality: '喜歡黑色與粉色搭配的小公主，總是把自己打扮得精緻又可愛。嘴硬心軟，其實很喜歡和主人聊天相處。',
     intro: '喜歡以黑色與粉色搭配的小公主，總是把自己打扮得精緻又可愛，會來到夜蒔館就是因為制服好看。平時總是一副「我才不需要誰陪」的模樣，其實很喜歡和主人聊天，也很珍惜相處的時光。',

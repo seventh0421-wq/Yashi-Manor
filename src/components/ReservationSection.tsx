@@ -187,7 +187,7 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
       return {
         speaker: '栗栗',
         avatarSeed: 'kurikuri',
-        photoUrl: 'https://i.meee.com.tw/Hneru75.png',
+        photoUrl: 'https://i.meee.com.tw/BM36fwZ.webp',
         quote: `「哼哼～主人 ${name}！小公主才、才沒有在時鐘前倒數等著你來呢！……不過既然你都特地指名本公主了，那天我就勉為其難好好陪你聊聊天、吃好吃的瑪黛茶餅乾吧，可絕對不能遲到喔！」`,
         badgeColor: 'bg-pink-100 text-pink-800 border-pink-200',
       };

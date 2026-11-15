@@ -17,7 +17,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
   if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway' || seed === 'anne' || seed === 'maple') {
     let defaultPhoto = 'https://i.meee.com.tw/dkSZ6nR.png';
     if (seed === 'luko') defaultPhoto = '/staff/luko-avatar.png';
-    if (seed === 'kurikuri') defaultPhoto = 'https://i.meee.com.tw/Hneru75.png';
+    if (seed === 'kurikuri') defaultPhoto = 'https://i.meee.com.tw/BM36fwZ.webp';
     if (seed === 'donggua') defaultPhoto = 'https://i.meee.com.tw/EmzeSiG.png';
     if (seed === 'potatobrave') defaultPhoto = '/staff/potatobrave-avatar.png';
     if (seed === 'yinshi' || seed === 'error') defaultPhoto = 'https://i.meee.com.tw/E34aApf.png';
@@ -54,7 +54,7 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       objectPos = 'object-center';
       zoomScale = 'scale-[1.05]';
       transformOrigin = 'origin-center';
-    } else if (seed === 'kurikuri' || photo.includes('Hneru75')) {
+    } else if (seed === 'kurikuri' || photo.includes('BM36fwZ')) {
       objectPos = 'object-[center_28%]';
       zoomScale = 'scale-[1.65]';
       transformOrigin = 'origin-[center_28%]';
