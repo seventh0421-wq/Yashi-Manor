@@ -124,6 +124,44 @@ export function HeroSection({ onNavigate: _onNavigate }: HeroSectionProps) {
             </button>
           </div>
         </div>
+
+        {/* ========================================================= */}
+        {/* OFFICIAL COMMUNITY LINKS (Discord & Threads SVG 超連結)    */}
+        {/* ========================================================= */}
+        <div
+          id="hero-social-links"
+          className="mt-3.5 sm:mt-4 flex items-center justify-center gap-3.5"
+        >
+          <a
+            href="https://discord.gg/UHsJP8zjJD"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="夜蒔館官方 Discord"
+            title="加入夜蒔館官方 Discord"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white border border-[#BBD5EA] hover:border-[#7BA7CE] shadow-[0_3px_12px_rgba(45,85,130,0.1)] hover:shadow-[0_6px_18px_rgba(30,64,100,0.18)] backdrop-blur-xs flex items-center justify-center transition-all duration-200 hover:scale-108 active:scale-95"
+          >
+            <img
+              src="/assets/aistudio/discord-filled_c352ae1d.svg"
+              alt="Discord"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain select-none"
+            />
+          </a>
+
+          <a
+            href="https://www.threads.com/@yashi_manor"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="夜蒔館官方 Threads"
+            title="追蹤夜蒔館官方 Threads (@yashi_manor)"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/90 hover:bg-white border border-[#BBD5EA] hover:border-[#7BA7CE] shadow-[0_3px_12px_rgba(45,85,130,0.1)] hover:shadow-[0_6px_18px_rgba(30,64,100,0.18)] backdrop-blur-xs flex items-center justify-center transition-all duration-200 hover:scale-108 active:scale-95"
+          >
+            <img
+              src="/assets/aistudio/threads-line_c09119bc.svg"
+              alt="Threads"
+              className="w-5 h-5 sm:w-6 sm:h-6 object-contain select-none"
+            />
+          </a>
+        </div>
       </div>
 
       {/* ========================================================= */}

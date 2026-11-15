@@ -48,13 +48,6 @@ interface ReservationSectionProps {
   onNavigateToFaq?: () => void;
 }
 
-const TIME_SLOTS = [
-  { id: 'slot-1', label: '20:30 - 21:30', note: '星夜開館首場（氣氛熱烈）' },
-  { id: 'slot-2', label: '21:30 - 22:30', note: '黃金夜話場（推薦預約）' },
-  { id: 'slot-3', label: '22:30 - 23:30', note: '深夜靜謐場（舒心談心）' },
-  { id: 'slot-4', label: '23:30 - 24:00', note: '星末閉館送別場' },
-];
-
 // 7 Specified FF14 Servers
 const SERVERS = [
   '鳳凰 (Phoenix)',
@@ -66,8 +59,55 @@ const SERVERS = [
   '泰坦 (Titan)',
 ];
 
+interface PreOrderCategoryItem {
+  id: string;
+  name: string;
+  price: number;
+  desc: string;
+  tag?: string;
+  staffSeed?: string;
+  minQty?: number;
+  maxQty?: number;
+}
+
+interface PreOrderCategory {
+  category: string;
+  items: PreOrderCategoryItem[];
+}
+
+const SPECIAL_SERVICE_ITEMS: PreOrderCategoryItem[] = [
+  {
+    id: 'srv-designated-chat',
+    name: '指名聊天服務',
+    price: 200000,
+    desc: '一節 20 分鐘・最多兩節（由專屬指名侍從與您單獨互動談心，必選至少一節）',
+    tag: '必選至少一節・一節 20 分鐘・最多兩節',
+    minQty: 1,
+    maxQty: 2,
+  },
+  {
+    id: 'srv-photo-session',
+    name: '純拍照留影',
+    price: 100000,
+    desc: '與心儀的女僕或執事於店內特色角落合影紀念（Gpose / 拍立得動作）',
+  },
+  {
+    id: 'srv-signature-drawing',
+    name: '簽繪',
+    price: 200000,
+    desc: '親筆手繪簽名板或桌邊手繪紀念圖，含專屬客製留言與角色可愛插圖',
+  },
+  {
+    id: 'srv-omurice-magic',
+    name: '蛋包飯魔法',
+    price: 20000,
+    desc: '桌邊施放專屬美味魔法咒語與手繪互動（本項目不包含在低消內）',
+    tag: '不包含在低消內',
+  },
+];
+
 // Menu items for pre-ordering
-const PRE_ORDER_CATEGORIES = [
+const PRE_ORDER_CATEGORIES: PreOrderCategory[] = [
   {
     category: 'SALAD・沙拉輕食',
     items: [
@@ -118,9 +158,7 @@ const PRE_ORDER_CATEGORIES = [
   },
   {
     category: 'SPECIAL SERVICES・特別侍奉服務',
-    items: [
-      { id: 'srv-omurice-magic', name: '蛋包飯魔法', price: 20000, desc: '桌邊施放專屬美味魔法咒語與手繪互動（本項目不包含在低消內）', tag: '不包含在低消內' },
-    ],
+    items: SPECIAL_SERVICE_ITEMS,
   },
 ];
 
@@ -241,7 +279,7 @@ export function ReservationSection({
   });
   const [showCustomDatePicker, setShowCustomDatePicker] = useState<boolean>(false);
   const [customDateInput, setCustomDateInput] = useState<string>('');
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('21:30 - 22:30');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
   const [selectedStaff, setSelectedStaff] = useState<string>(() => {
     if (initialStaffName) {
       const matched = STAFF_MEMBERS.find((s) => s.name === initialStaffName);
@@ -259,9 +297,11 @@ export function ReservationSection({
   const [worldServer, setWorldServer] = useState<string>('鳳凰 (Phoenix)');
   const [contactMethod, setContactMethod] = useState<string>('');
 
-  // Form Fields - Step 3: Pre-order Menu Selection (Optional)
+  // Form Fields - Step 3: Pre-order Menu Selection (Optional) + Mandatory Designated Chat Service (min 1 session)
   // Store dish name -> quantity
-  const [selectedDishCounts, setSelectedDishCounts] = useState<Record<string, number>>({});
+  const [selectedDishCounts, setSelectedDishCounts] = useState<Record<string, number>>({
+    指名聊天服務: 1,
+  });
   const [specialRequests, setSpecialRequests] = useState<string>('');
 
   // Confirmed booking state
@@ -306,18 +346,40 @@ export function ReservationSection({
   }, []);
 
   // Dish quantity handlers
-  const handleAddDish = (dishName: string) => {
+  const handleAddDish = (dishName: string, maxQty?: number) => {
     playChime(1.2);
-    setSelectedDishCounts((prev) => ({
-      ...prev,
-      [dishName]: (prev[dishName] || 0) + 1,
-    }));
+    setSelectedDishCounts((prev) => {
+      const current = prev[dishName] || 0;
+      if (typeof maxQty === 'number' && current >= maxQty) {
+        return prev;
+      }
+      return {
+        ...prev,
+        [dishName]: current + 1,
+      };
+    });
   };
 
-  const handleRemoveDish = (dishName: string) => {
+  const handleSetDishQuantity = (dishName: string, quantity: number) => {
+    playChime(quantity > 0 ? 1.15 : 0.9);
+    setValidationError(null);
+    setSelectedDishCounts((prev) => {
+      if (quantity <= 0) {
+        const next = { ...prev };
+        delete next[dishName];
+        return next;
+      }
+      return { ...prev, [dishName]: quantity };
+    });
+  };
+
+  const handleRemoveDish = (dishName: string, minQty?: number) => {
     playChime(0.9);
     setSelectedDishCounts((prev) => {
       const count = prev[dishName] || 0;
+      if (typeof minQty === 'number' && count <= minQty) {
+        return prev;
+      }
       if (count <= 1) {
         const next = { ...prev };
         delete next[dishName];
@@ -329,7 +391,9 @@ export function ReservationSection({
 
   const handleClearDishes = () => {
     playChime(0.85);
-    setSelectedDishCounts({});
+    setSelectedDishCounts((prev) => ({
+      指名聊天服務: Math.max(1, prev['指名聊天服務'] || 1),
+    }));
   };
 
   // Convert selected map to PreOrderItem array
@@ -359,8 +423,20 @@ export function ReservationSection({
 
     // Validate Step 1
     if (currentStep === 1) {
-      if (!selectedDate || !selectedTimeSlot || !selectedStaff) {
-        setValidationError('請完整選擇預約日期、時段與指名侍從選項');
+      if (!selectedDate) {
+        setValidationError('請選擇預約日期');
+        return;
+      }
+      if (!selectedTimeSlot.trim()) {
+        setValidationError('請自行填寫預計入席時段（當日營業時間 23:00~01:00）');
+        return;
+      }
+      if (selectedTimeSlot.trim().length > 32) {
+        setValidationError('入席時段請精簡填寫於 32 字元以內');
+        return;
+      }
+      if (!selectedStaff) {
+        setValidationError('請選擇專屬指名侍從或不指名選項');
         return;
       }
       const isSelectedStaffOffDuty = STAFF_MEMBERS.some(
@@ -368,6 +444,10 @@ export function ReservationSection({
       );
       if (isSelectedStaffOffDuty) {
         setValidationError(`${selectedStaff} 目前未值勤，請改選其他侍從或不指名`);
+        return;
+      }
+      if ((selectedDishCounts['指名聊天服務'] || 0) < 1) {
+        setValidationError('指名聊天服務需至少選擇 1 節');
         return;
       }
       playChime(1.1);
@@ -437,7 +517,7 @@ export function ReservationSection({
     const reservation: ReservationData = {
       id: bookingId,
       date: selectedDate,
-      timeSlot: selectedTimeSlot,
+      timeSlot: selectedTimeSlot.trim(),
       staffName: selectedStaff,
       guestCount,
       customerName: customerName.trim(),
@@ -537,8 +617,9 @@ export function ReservationSection({
       // Ignore
     }
     setCurrentStep(1);
+    setSelectedTimeSlot('');
     setCustomerName('');
-    setSelectedDishCounts({});
+    setSelectedDishCounts({ 指名聊天服務: 1 });
     setSpecialRequests('');
   };
 
@@ -687,7 +768,7 @@ export function ReservationSection({
                   </p>
 
                   <div>
-                    <strong className="text-white">預選餐點：</strong>{' '}
+                    <strong className="text-white">預選餐點／特別服務：</strong>{' '}
                     {confirmedReservation.selectedDishes && confirmedReservation.selectedDishes.length > 0 ? (
                       <span className="text-amber-200">
                         {confirmedReservation.selectedDishes
@@ -857,7 +938,7 @@ export function ReservationSection({
                     </div>
 
                     <p className="text-[11px] text-[#55789B] mb-2.5">
-                      夜蒔館常規開館日為每週五、週六 20:30 - 24:00。以下為最接近之實際西元開館日期（YYYY/MM/DD）：
+                      夜蒔館常規開館日為每週五、週六。以下為最接近之實際西元開館日期（YYYY/MM/DD）：
                     </p>
 
                     {/* Quick Date Options with explicit YYYY/MM/DD */}
@@ -991,46 +1072,73 @@ export function ReservationSection({
                     </AnimatePresence>
                   </div>
 
-                  {/* 1.2 Time Slot selection */}
+                  {/* 1.2 Time Slot manual input */}
+                  <div>
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                      <label
+                        htmlFor="reservation-time-slot"
+                        className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel"
+                      >
+                        2. 填寫入席時段 (Time Slot) <span className="text-rose-500">*</span>
+                      </label>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EEF5FB] border border-[#CBDDEB] text-xs font-bold text-[#23466B]">
+                        <Clock className="w-3.5 h-3.5 text-[#3B648D]" />
+                        <span>當日營業時間 23:00~01:00</span>
+                      </span>
+                    </div>
+
+                    <div className="relative">
+                      <Clock className="w-4 h-4 text-[#4A729A] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <input
+                        id="reservation-time-slot"
+                        type="text"
+                        maxLength={32}
+                        placeholder="請自行填寫預計入席時段（例：23:00、23:30 - 00:30）"
+                        value={selectedTimeSlot}
+                        onChange={(e) => {
+                          setSelectedTimeSlot(e.target.value);
+                          setValidationError(null);
+                        }}
+                        className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white border border-[#CBDDEB] text-[#1C3A5A] placeholder-[#8BA4BD] text-sm font-bold font-mono focus:outline-none focus:ring-2 focus:ring-[#528AC0] shadow-2xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 1.3 Guest Count (先選入席人數) */}
                   <div>
                     <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel mb-2.5">
-                      2. 選擇入席時段 (Time Slot)
+                      3. 入席人數 (Party Size)
                     </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {TIME_SLOTS.map((slot) => {
-                        const isSelected = selectedTimeSlot === slot.label;
+                    <div className="grid grid-cols-4 gap-2.5 max-w-md">
+                      {[1, 2, 3, 4].map((count) => {
+                        const isSelected = guestCount === count;
                         return (
-                          <div
-                            key={slot.id}
-                            onClick={() => setSelectedTimeSlot(slot.label)}
-                            className={`py-3 px-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
+                          <button
+                            key={count}
+                            type="button"
+                            onClick={() => {
+                              playChime(1.05);
+                              setGuestCount(count);
+                            }}
+                            className={`p-3 rounded-2xl text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                               isSelected
                                 ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs'
-                                : 'bg-white hover:bg-[#F3F8FC] text-[#2F5175] border-[#CBDDEB]'
+                                : 'bg-white hover:bg-[#F3F8FC] text-[#2E5074] border-[#CBDDEB]'
                             }`}
                           >
-                            <div className="text-sm font-bold font-mono flex items-center gap-2">
-                              <Clock className="w-4 h-4" />
-                              <span>{slot.label}</span>
-                            </div>
-                            <div
-                              className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                                isSelected ? 'border-white bg-white/20 text-white' : 'border-[#CBDDEB]'
-                              }`}
-                            >
-                              {isSelected && <Check className="w-3 h-3" />}
-                            </div>
-                          </div>
+                            <Users className="w-4 h-4" />
+                            <span>{count} 位</span>
+                          </button>
                         );
                       })}
                     </div>
                   </div>
 
-                  {/* 1.3 Preferred Staff selection (專屬指名侍從) */}
+                  {/* 1.4 Preferred Staff selection (再選專屬指名) */}
                   <div>
                     <div className="flex items-center justify-between mb-2.5">
                       <label className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel">
-                        3. 專屬指名女僕 (Preferred Staff)
+                        4. 專屬指名侍從 (Preferred Staff)
                       </label>
                       {onNavigateToStaff && (
                         <button
@@ -1044,11 +1152,14 @@ export function ReservationSection({
                       )}
                     </div>
 
-                    {/* Options Grid: 1 "不指名" Option + 4 Maid Members */}
+                    {/* Options Grid: 1 "不指名" Option + Staff Members */}
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                       {/* Option 1: 不指名 */}
                       <div
-                        onClick={() => setSelectedStaff('不指名')}
+                        onClick={() => {
+                          setSelectedStaff('不指名');
+                          setValidationError(null);
+                        }}
                         className={`relative p-3.5 sm:p-4 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-between ${
                           selectedStaff === '不指名'
                             ? 'bg-gradient-to-b from-[#1E3B5C] to-[#2B527E] text-white border-[#193452] shadow-xs ring-2 ring-[#70A6D6]'
@@ -1079,7 +1190,7 @@ export function ReservationSection({
                         </div>
                       </div>
 
-                      {/* Maid Options */}
+                      {/* Staff Options */}
                       {STAFF_MEMBERS.map((staff) => {
                         const isOffDuty = staff.shiftStatus === 'off_duty';
                         const isSelected = !isOffDuty && selectedStaff === staff.name;
@@ -1091,6 +1202,7 @@ export function ReservationSection({
                             onClick={() => {
                               if (!isOffDuty) {
                                 setSelectedStaff(staff.name);
+                                setValidationError(null);
                               }
                             }}
                             title={
@@ -1137,30 +1249,169 @@ export function ReservationSection({
                     </div>
                   </div>
 
-                  {/* 1.4 Guest Count */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel mb-2.5">
-                      4. 入席人數 (Party Size)
-                    </label>
-                    <div className="grid grid-cols-4 gap-2.5 max-w-md">
-                      {[1, 2, 3, 4].map((count) => {
-                        const isSelected = guestCount === count;
-                        return (
-                          <button
-                            key={count}
-                            type="button"
-                            onClick={() => setGuestCount(count)}
-                            className={`p-3 rounded-2xl text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                              isSelected
-                                ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs'
-                                : 'bg-white hover:bg-[#F3F8FC] text-[#2E5074] border-[#CBDDEB]'
-                            }`}
-                          >
-                            <Users className="w-4 h-4" />
-                            <span>{count} 位</span>
-                          </button>
-                        );
-                      })}
+                  {/* 1.5 Designated Service & Special Services */}
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <label className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel">
+                        5. 指名服務與特別侍奉服務 (Special Services)
+                      </label>
+                      <span className="text-[11px] font-semibold text-[#55789B]">
+                        指名聊天服務必選至少一節・其餘服務可依需求自由加選
+                      </span>
+                    </div>
+
+                    {/* Sub-block A: 指名聊天服務 (顯示金額與節數・必選至少 1 節) */}
+                    {(() => {
+                      const chatSessions = Math.max(1, selectedDishCounts['指名聊天服務'] || 1);
+                      const chatUnitPrice = 200000;
+                      const isUnassigned = selectedStaff === '不指名';
+                      return (
+                        <div className="p-4 sm:p-5 rounded-2xl bg-[#F4F8FC] border border-[#C6DAEC] space-y-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-bold text-sm sm:text-base text-[#173554] font-serif-tc">
+                                  指名服務｜指名聊天服務
+                                </span>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                                  必選至少一節
+                                </span>
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-[#23466B] border border-[#CBDDEB]">
+                                  一節 20 分鐘・最多兩節
+                                </span>
+                              </div>
+                              <p className="text-xs text-[#55789B] mt-1">
+                                由您的專屬侍從於席間單獨互動談心，請選擇預約節數（至少 1 節）。
+                              </p>
+                            </div>
+                            <div className="shrink-0 text-left sm:text-right">
+                              <span className="font-serif font-bold text-base sm:text-lg text-[#1F4164]">
+                                {chatUnitPrice.toLocaleString()}
+                              </span>
+                              <span className="text-xs font-serif text-[#5C7E9F] ml-1">Gil / 節</span>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            {[
+                              { qty: 1, label: '1 節', sub: '20 分鐘・200,000 Gil' },
+                              { qty: 2, label: '2 節', sub: '40 分鐘・400,000 Gil' },
+                            ].map((opt) => {
+                              const isSelected = chatSessions === opt.qty;
+                              return (
+                                <button
+                                  key={opt.qty}
+                                  type="button"
+                                  onClick={() => handleSetDishQuantity('指名聊天服務', opt.qty)}
+                                  className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                                    isSelected
+                                      ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs ring-2 ring-[#70A6D6]'
+                                      : 'bg-white hover:bg-[#EDF4FB] text-[#2B4E72] border-[#CBDDEB]'
+                                  }`}
+                                >
+                                  <span className="text-xs sm:text-sm font-bold">{opt.label}</span>
+                                  <span
+                                    className={`text-[10px] sm:text-[11px] mt-0.5 font-mono ${
+                                      isSelected ? 'text-amber-200' : 'text-[#5C7E9F]'
+                                    }`}
+                                  >
+                                    {opt.sub}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {isUnassigned && (
+                            <p className="text-[11px] font-medium text-[#476787] bg-white/80 border border-[#D4E3F0] rounded-xl px-3 py-2">
+                              ※ 若上方第 4 欄選擇「不指名」，入席時將由館內現場為您安排值勤侍從提供服務。
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Sub-block B: 其他特別侍奉服務 */}
+                    <div className="space-y-2">
+                      <span className="block text-xs font-bold text-[#35587E]">
+                        其他特別侍奉服務（選填・可複選或調整數量）
+                      </span>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        {SPECIAL_SERVICE_ITEMS.filter((s) => s.id !== 'srv-designated-chat').map((service) => {
+                          const count = selectedDishCounts[service.name] || 0;
+                          const isAdded = count > 0;
+                          return (
+                            <div
+                              key={service.id}
+                              className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
+                                isAdded
+                                  ? 'bg-[#F2F7FB] border-[#23466B] shadow-2xs ring-1 ring-[#23466B]/20'
+                                  : 'bg-white hover:bg-[#FAFBFD] border-[#CBDDEB]'
+                              }`}
+                            >
+                              <div>
+                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                  <span className="font-bold text-sm text-[#193552] font-serif-tc">
+                                    {service.name}
+                                  </span>
+                                  {service.tag && (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                      {service.tag}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-[#6484A2] mt-1 leading-relaxed">
+                                  {service.desc}
+                                </p>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#E6EFF7]">
+                                <div className="flex items-baseline gap-1">
+                                  <span className="font-serif font-bold text-sm sm:text-base text-[#23466B]">
+                                    {service.price.toLocaleString()}
+                                  </span>
+                                  <span className="text-[10px] font-serif text-[#64748B]">Gil</span>
+                                </div>
+
+                                <div className="flex items-center gap-1 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
+                                  {count > 0 ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveDish(service.name)}
+                                        className="w-6 h-6 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
+                                        title="減少一份"
+                                      >
+                                        <Minus className="w-3 h-3" />
+                                      </button>
+                                      <span className="w-5 text-center text-xs font-bold text-[#142F4B] font-mono">
+                                        {count}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAddDish(service.name, service.maxQty)}
+                                        className="w-6 h-6 rounded-lg bg-[#23466B] hover:bg-[#183654] text-white flex items-center justify-center transition-colors cursor-pointer"
+                                        title="增加一份"
+                                      >
+                                        <Plus className="w-3 h-3" />
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleAddDish(service.name, service.maxQty)}
+                                      className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                      <span>點選</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -1343,9 +1594,10 @@ export function ReservationSection({
                                     <>
                                       <button
                                         type="button"
-                                        onClick={() => handleRemoveDish(item.name)}
-                                        className="w-7 h-7 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
-                                        title="減少一份"
+                                        disabled={typeof item.minQty === 'number' && count <= item.minQty}
+                                        onClick={() => handleRemoveDish(item.name, item.minQty)}
+                                        className="w-7 h-7 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] disabled:opacity-40 disabled:cursor-not-allowed text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
+                                        title={typeof item.minQty === 'number' && count <= item.minQty ? `至少需選 ${item.minQty} 份` : '減少一份'}
                                       >
                                         <Minus className="w-3.5 h-3.5" />
                                       </button>
@@ -1354,9 +1606,10 @@ export function ReservationSection({
                                       </span>
                                       <button
                                         type="button"
-                                        onClick={() => handleAddDish(item.name)}
-                                        className="w-7 h-7 rounded-lg bg-[#23466B] hover:bg-[#183654] text-white flex items-center justify-center transition-colors cursor-pointer"
-                                        title="增加一份"
+                                        disabled={typeof item.maxQty === 'number' && count >= item.maxQty}
+                                        onClick={() => handleAddDish(item.name, item.maxQty)}
+                                        className="w-7 h-7 rounded-lg bg-[#23466B] hover:bg-[#183654] disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors cursor-pointer"
+                                        title={typeof item.maxQty === 'number' && count >= item.maxQty ? `最多可選 ${item.maxQty} 份` : '增加一份'}
                                       >
                                         <Plus className="w-3.5 h-3.5" />
                                       </button>
@@ -1364,7 +1617,7 @@ export function ReservationSection({
                                   ) : (
                                     <button
                                       type="button"
-                                      onClick={() => handleAddDish(item.name)}
+                                      onClick={() => handleAddDish(item.name, item.maxQty)}
                                       className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
                                     >
                                       <Plus className="w-3.5 h-3.5" />
@@ -1459,7 +1712,7 @@ export function ReservationSection({
 
                     {/* Pre-ordered items summary */}
                     <div>
-                      <span className="text-xs text-[#5D7E9F]">優先預選餐點：</span>
+                      <span className="text-xs text-[#5D7E9F]">優先預選餐點／特別服務：</span>
                       {selectedDishes.length > 0 ? (
                         <div className="mt-1 p-3 rounded-2xl bg-white border border-[#CBDDEB] space-y-1.5">
                           <div className="flex flex-wrap gap-2">
@@ -1482,7 +1735,7 @@ export function ReservationSection({
                             ))}
                           </div>
                           <div className="text-right text-xs font-bold text-[#23466B] pt-1">
-                            預選餐點合計：{totalGil.toLocaleString()} Gil
+                            預選餐點與服務合計：{totalGil.toLocaleString()} Gil
                           </div>
                         </div>
                       ) : (
