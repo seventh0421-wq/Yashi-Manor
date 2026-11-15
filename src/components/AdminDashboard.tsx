@@ -39,6 +39,7 @@ import {
   query,
   orderBy,
   doc,
+  getDoc,
   updateDoc,
   deleteDoc,
 } from 'firebase/firestore';
@@ -72,6 +73,9 @@ export function AdminDashboard() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
 
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [adminChecking, setAdminChecking] = useState<boolean>(false);
+
   // Track Firebase Auth state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -81,14 +85,58 @@ export function AdminDashboard() {
     return () => unsubscribe();
   }, []);
 
-  const isAdmin = useMemo(() => {
-    if (!currentUser?.email) return false;
-    return AUTHORIZED_ADMIN_EMAILS.includes(currentUser.email);
+  // Verify admin authorization consistently with backend & firestore.rules:
+  // 1) Verified email matching lowercased allowlist, OR
+  // 2) Explicit /admins/{uid} document in the named Firestore database
+  useEffect(() => {
+    let cancelled = false;
+
+    async function verifyFrontendAdmin() {
+      if (!currentUser) {
+        setIsAdmin(false);
+        setAdminChecking(false);
+        return;
+      }
+
+      const normalizedEmail = (currentUser.email || '').trim().toLowerCase();
+      const normalizedAllowlist = AUTHORIZED_ADMIN_EMAILS.map((e) => e.trim().toLowerCase());
+      const matchesVerifiedAllowlist =
+        currentUser.emailVerified === true &&
+        Boolean(normalizedEmail) &&
+        normalizedAllowlist.includes(normalizedEmail);
+
+      if (matchesVerifiedAllowlist) {
+        setIsAdmin(true);
+        setAdminChecking(false);
+        return;
+      }
+
+      setAdminChecking(true);
+      try {
+        const adminSnap = await getDoc(doc(db, 'admins', currentUser.uid));
+        if (!cancelled) {
+          setIsAdmin(adminSnap.exists());
+        }
+      } catch {
+        if (!cancelled) {
+          setIsAdmin(false);
+        }
+      } finally {
+        if (!cancelled) {
+          setAdminChecking(false);
+        }
+      }
+    }
+
+    verifyFrontendAdmin();
+    return () => {
+      cancelled = true;
+    };
   }, [currentUser]);
 
-  // Listen to Firestore reservations collection in real-time
+  // Listen to Firestore reservations collection in real-time (only after admin authorization is confirmed)
   useEffect(() => {
-    if (!currentUser) {
+    if (!currentUser || !isAdmin) {
       setReservations([]);
       setLoadingData(false);
       return;
@@ -139,7 +187,7 @@ export function AdminDashboard() {
     );
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, [currentUser, isAdmin]);
 
   // Google Sign-in Handler
   const [unauthorizedDomain, setUnauthorizedDomain] = useState<string | null>(null);
@@ -357,7 +405,7 @@ export function AdminDashboard() {
     return { total, pending, confirmed, completed, totalGuests };
   }, [reservations]);
 
-  if (authLoading) {
+  if (authLoading || adminChecking) {
     return (
       <div className="min-h-[calc(100vh-80px)] flex items-center justify-center pt-24 pb-20 bg-gradient-to-b from-[#F2F7FB] via-[#FAFBFD] to-[#EEF5FB]">
         <div className="flex flex-col items-center gap-3 text-[#244A72]">

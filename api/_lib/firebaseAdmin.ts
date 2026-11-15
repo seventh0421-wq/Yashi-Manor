@@ -199,10 +199,14 @@ export function getTrustedClientIp(req: any): string {
 }
 
 export function hashSourceIp(ip: string): string {
-  const salt =
-    process.env.GUESTBOOK_IP_SALT?.trim() ||
-    process.env.PURIN_NOTIFY_SECRET?.trim() ||
-    DEFAULT_PROJECT_ID;
+  const salt = process.env.GUESTBOOK_IP_SALT?.trim();
+  if (!salt) {
+    throw new ApiError(
+      503,
+      '留言系統尚未設定來源識別金鑰（GUESTBOOK_IP_SALT），暫時無法送出留言。',
+      'GUESTBOOK_IP_SALT_MISSING'
+    );
+  }
   return crypto
     .createHmac('sha256', salt)
     .update(`guestbook:${ip}`)

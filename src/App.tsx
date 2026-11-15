@@ -3,6 +3,7 @@ import { TopProgressBar } from './components/TopProgressBar';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { CalendarSection } from './components/CalendarSection';
+import { GuestbookSection } from './components/GuestbookSection';
 import { AboutSection } from './components/AboutSection';
 import { StaffSection } from './components/StaffSection';
 import { MenuSection } from './components/MenuSection';
@@ -51,6 +52,7 @@ export default function App() {
               onSelectStaffForReservation={handleSelectStaffForReservation}
               onNavigate={handleTabChange}
             />
+            <GuestbookSection />
           </div>
         )}
 
