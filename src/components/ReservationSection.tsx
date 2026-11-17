@@ -136,7 +136,6 @@ const PRE_ORDER_CATEGORIES: PreOrderCategory[] = [
     items: [
       { id: 'drink-1', name: '蜜瓜果汁', price: 10000, desc: '鮮榨冰鎮香甜蜜瓜汁' },
       { id: 'drink-2', name: '高山茶', price: 10000, desc: '甘醇清雅手採高山溫潤熱茶' },
-      { id: 'drink-3', name: '馬薩拉奶茶', price: 10000, desc: '近東芳香辛香料厚濃暖胃奶茶' },
       { id: 'drink-4', name: '抹茶', price: 10000, desc: '遠東特級石臼抹茶現點手工刷泡' },
     ],
   },
@@ -146,7 +145,6 @@ const PRE_ORDER_CATEGORIES: PreOrderCategory[] = [
       { id: 'spec-1', name: '開心汁', price: 50000, desc: '夢幻微醺氣泡特調飲品', tag: '萊可推薦', staffSeed: 'laiko' },
       { id: 'spec-2', name: '無花果凍糕', price: 50000, desc: '層次豐富的法式清甜凍糕', tag: '璐可推薦', staffSeed: 'luko' },
       { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅', tag: '栗栗推薦', staffSeed: 'kurikuri' },
-      { id: 'spec-4', name: '鮮紅羅蘭莓派', price: 50000, desc: '黑衣森林酸甜飽滿漿果派', tag: '胖冬瓜推薦', staffSeed: 'donggua' },
       { id: 'spec-5', name: '蜂蜜瑪芬', price: 50000, desc: '融入野花蜂蜜與香醇奶油的鬆軟溫潤瑪芬', tag: '薯泥勇者推薦', staffSeed: 'potatobrave' },
       { id: 'spec-soup', name: '南瓜濃湯', price: 50000, desc: '本人慢火熬煮的暖胃南瓜濃湯，口感綿密溫厚', tag: '陰濕男鬼推薦', staffSeed: 'yinshi' },
       { id: 'spec-takoyaki', name: '章魚燒', price: 50000, desc: '圓滾滾的金黃章魚燒，煩惱也會跟著滾走', tag: '翹屁嫩兔推薦', staffSeed: 'ptowo' },
@@ -190,14 +188,6 @@ const getPersonalizedMaidMessage = (staffName: string, customerName: string) => 
         photoUrl: 'https://i.meee.com.tw/BM36fwZ.webp',
         quote: `「哼哼～主人 ${name}！小公主才、才沒有在時鐘前倒數等著你來呢！……不過既然你都特地指名本公主了，那天我就勉為其難好好陪你聊聊天、吃好吃的瑪黛茶餅乾吧，可絕對不能遲到喔！」`,
         badgeColor: 'bg-pink-100 text-pink-800 border-pink-200',
-      };
-    case '胖冬瓜':
-      return {
-        speaker: '胖冬瓜',
-        avatarSeed: 'donggua',
-        photoUrl: 'https://i.meee.com.tw/EmzeSiG.png',
-        quote: `「主人 ${name}，預約已妥善收悉。漫長夜色會溫柔包容一切冒險者的故事，若主人不嫌棄，我已備妥私心最愛的鮮紅羅蘭莓派，願能在靜謐的燭光下成為您的傾聽者。」`,
-        badgeColor: 'bg-teal-100 text-teal-800 border-teal-200',
       };
     case '薯泥勇者':
       return {

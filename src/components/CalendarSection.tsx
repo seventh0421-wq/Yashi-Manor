@@ -1,22 +1,20 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Clock,
   Sparkles,
-  ChevronLeft,
-  ChevronRight,
   Heart,
   ArrowRight,
   CalendarDays,
   CheckCircle2,
 } from 'lucide-react';
 import {
-  getMonthSchedule,
+  BUSINESS_HOURS_STANDARD,
+  getFeaturedDutySchedule,
   getStaffMembersByIds,
-  findNearestOpenDay,
 } from '../data/scheduleData';
+import { StaffMember, DutyScheduleDay, PageTab } from '../types';
 import { StaffAvatar } from './StaffAvatars';
-import { DutyScheduleDay, PageTab } from '../types';
 import { playChime } from '../utils/audio';
 
 interface CalendarSectionProps {
@@ -25,89 +23,39 @@ interface CalendarSectionProps {
   onNavigate?: (tab: PageTab) => void;
 }
 
+function formatDutyStaffName(staff: StaffMember): string {
+  if (staff.id === 'anne') {
+    return '小安（阿喵）';
+  }
+  return staff.name;
+}
+
 export function CalendarSection({
   id = 'schedule-calendar',
   onSelectStaffForReservation,
   onNavigate,
 }: CalendarSectionProps) {
-  // Use current date
   const today = useMemo(() => new Date(), []);
-  const [currentYear, setCurrentYear] = useState<number>(today.getFullYear());
-  const [currentMonth, setCurrentMonth] = useState<number>(today.getMonth() + 1); // 1-12
 
-  // Generate schedule for current month
-  const monthSchedule = useMemo(() => {
-    return getMonthSchedule(currentYear, currentMonth);
-  }, [currentYear, currentMonth]);
-
-  // Only open days for the duty roster (每週五、週六開館日)
+  // Home page duty schedule: show only 11/20 (Fri) and 11/21 (Sat)
   const openDays = useMemo(() => {
-    return monthSchedule.filter((d) => d.isOpen);
-  }, [monthSchedule]);
-
-  // Find default selected day: if today is open, use today; otherwise nearest open day
-  const defaultSelectedDay = useMemo(() => {
-    const isThisCurrentMonth =
-      today.getFullYear() === currentYear && today.getMonth() + 1 === currentMonth;
-    const targetDayNumber = isThisCurrentMonth ? today.getDate() : 1;
-    const nearest = findNearestOpenDay(monthSchedule, targetDayNumber);
-    return nearest || openDays[0] || monthSchedule[0];
-  }, [currentYear, currentMonth, monthSchedule, today, openDays]);
+    return getFeaturedDutySchedule();
+  }, []);
 
   const [selectedDateString, setSelectedDateString] = useState<string>(
-    defaultSelectedDay?.date || `${currentYear}-09-11`
+    openDays[0]?.date || '2026-11-20'
   );
 
-  // Keep selected date synced when month changes
-  useEffect(() => {
-    if (openDays.length > 0 && !openDays.some((d) => d.date === selectedDateString)) {
-      setSelectedDateString(openDays[0].date);
-    }
-  }, [openDays, selectedDateString]);
-
   const activeDay = useMemo(() => {
-    const found = openDays.find((d) => d.date === selectedDateString);
-    if (found) return found;
-    return openDays[0] || monthSchedule[0];
-  }, [openDays, monthSchedule, selectedDateString]);
-
-  const handlePrevMonth = () => {
-    playChime(1.0);
-    if (currentMonth === 1) {
-      setCurrentYear((y) => y - 1);
-      setCurrentMonth(12);
-    } else {
-      setCurrentMonth((m) => m - 1);
-    }
-  };
-
-  const handleNextMonth = () => {
-    playChime(1.0);
-    if (currentMonth === 12) {
-      setCurrentYear((y) => y + 1);
-      setCurrentMonth(1);
-    } else {
-      setCurrentMonth((m) => m + 1);
-    }
-  };
-
-  const handleResetToCurrentMonth = () => {
-    playChime(1.1);
-    setCurrentYear(today.getFullYear());
-    setCurrentMonth(today.getMonth() + 1);
-    const todayPad = (n: number) => (n < 10 ? `0${n}` : `${n}`);
-    const todayStr = `${today.getFullYear()}-${todayPad(today.getMonth() + 1)}-${todayPad(
-      today.getDate()
-    )}`;
-    setSelectedDateString(todayStr);
-  };
+    return openDays.find((d) => d.date === selectedDateString) || openDays[0];
+  }, [openDays, selectedDateString]);
 
   const handleSelectDay = (dayItem: DutyScheduleDay) => {
     playChime(1.15);
     setSelectedDateString(dayItem.date);
   };
 
-  // Staff on duty for the selected active day (女僕與執事出勤名單)
+  // Staff on duty for the selected active day (接待人員)
   const staffOnDuty = useMemo(() => {
     if (!activeDay || !activeDay.isOpen) return [];
     return getStaffMembersByIds(activeDay.dutyStaffIds);
@@ -168,53 +116,28 @@ export function CalendarSection({
           </h2>
 
           <p className="mt-2 text-xs sm:text-sm text-[#466584] leading-relaxed font-serif-tc font-medium">
-            夜蒔館每週五、週六 晚間 <span className="font-bold text-[#1B3E63]">20:30 - 24:00</span> 開館。
-            點選開館日期，即可查看當日值班侍從名冊與預約席位！
+            營業時間 <span className="font-bold text-[#1B3E63]">{BUSINESS_HOURS_STANDARD}</span>。
+            點選下方開館日期，即可查看當日接待人員與預約席位！
           </p>
         </div>
 
         {/* ========================================================= */}
-        {/* MONTH SWITCHER & INFO BAR */}
+        {/* DUTY SCHEDULE INFO BAR */}
         {/* ========================================================= */}
-        <div className="flex items-center justify-between gap-3 bg-white/90 backdrop-blur-md rounded-2xl border border-[#CBDDEB] px-3.5 sm:px-5 py-3 shadow-[0_4px_16px_rgba(20,50,85,0.06)] mb-6">
-          <button
-            type="button"
-            onClick={handlePrevMonth}
-            className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[#F0F5FA] hover:bg-[#E2EDF7] text-[#244A72] border border-[#CBDDEB] transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold active:scale-95"
-            title="上一個月"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">上個月</span>
-          </button>
-
-          <div className="flex items-center gap-2 sm:gap-3 text-center">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white/90 backdrop-blur-md rounded-2xl border border-[#CBDDEB] px-4 sm:px-5 py-3 shadow-[0_4px_16px_rgba(20,50,85,0.06)] mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
             <CalendarDays className="w-4 h-4 sm:w-5 sm:h-5 text-[#2A527A]" />
             <h3 className="text-base sm:text-lg font-bold font-serif-tc text-[#15324E] tracking-wider">
-              {currentYear} 年 {currentMonth} 月
+              近期開館出勤時間（11/20 – 11/21）
             </h3>
             <span className="text-[11px] sm:text-xs font-bold text-[#204970] bg-[#E8F1F9] px-2.5 py-0.5 rounded-full border border-[#CBDDEB]">
               共 {openDays.length} 個開館日
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={handleResetToCurrentMonth}
-              className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#2A527A] bg-[#F0F5FA] hover:bg-[#E2EDF7] border border-[#CBDDEB] transition-colors cursor-pointer hidden sm:inline-block"
-              title="回到本月"
-            >
-              回到本月
-            </button>
-            <button
-              type="button"
-              onClick={handleNextMonth}
-              className="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-[#F0F5FA] hover:bg-[#E2EDF7] text-[#244A72] border border-[#CBDDEB] transition-colors cursor-pointer flex items-center gap-1 text-xs font-bold active:scale-95"
-              title="下一個月"
-            >
-              <span className="hidden sm:inline">下個月</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+          <div className="flex items-center gap-1.5 text-xs font-bold text-[#244A72] bg-[#F0F5FA] px-3 py-1 rounded-xl border border-[#CBDDEB]">
+            <Clock className="w-3.5 h-3.5 text-[#356391]" />
+            <span>營業時間：{BUSINESS_HOURS_STANDARD}</span>
           </div>
         </div>
 
@@ -239,11 +162,11 @@ export function CalendarSection({
               {openDays.map((dayItem) => {
                 const isSelected = activeDay?.date === dayItem.date;
                 const isToday =
-                  today.getFullYear() === currentYear &&
-                  today.getMonth() + 1 === currentMonth &&
+                  today.getFullYear() === dayItem.year &&
+                  today.getMonth() + 1 === dayItem.month &&
                   today.getDate() === dayItem.day;
                 const dayStaff = getStaffMembersByIds(dayItem.dutyStaffIds);
-                const weekdayText = dayItem.dayOfWeek === 5 ? '週五' : '週六';
+                const weekdayShort = dayItem.dayOfWeek === 5 ? '五' : '六';
 
                 return (
                   <button
@@ -261,7 +184,7 @@ export function CalendarSection({
                         <span className={`text-base font-bold font-serif-tc font-mono ${
                           isSelected ? 'text-[#122F4C]' : 'text-[#204060]'
                         }`}>
-                          {dayItem.year}/{dayItem.month < 10 ? `0${dayItem.month}` : dayItem.month}/{dayItem.day < 10 ? `0${dayItem.day}` : dayItem.day} ({weekdayText})
+                          {dayItem.month}/{dayItem.day}（{weekdayShort}）
                         </span>
 
                         {isToday && (
@@ -271,18 +194,18 @@ export function CalendarSection({
                         )}
 
                         <span className="text-[11px] font-medium text-[#41688E] bg-[#EAF2F9] px-2 py-0.5 rounded-md">
-                          常規開館夜
+                          23:00 – 01:00
                         </span>
                       </div>
 
                       {/* Regular duty staff preview */}
-                      <div className="flex items-center gap-1 mt-2">
-                        <div className="flex -space-x-1.5 overflow-hidden">
+                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                        <div className="flex -space-x-1.5 overflow-hidden shrink-0">
                           {dayStaff.map((s) => (
                             <div
                               key={s.id}
                               className="inline-block w-6 h-6 rounded-full ring-1.5 ring-white overflow-hidden shadow-2xs bg-white"
-                              title={s.name}
+                              title={formatDutyStaffName(s)}
                             >
                               <StaffAvatar
                                 seed={s.avatarSeed}
@@ -293,8 +216,8 @@ export function CalendarSection({
                             </div>
                           ))}
                         </div>
-                        <span className="text-[11px] text-[#55789B] ml-1 font-medium">
-                          {dayStaff.map((s) => s.name).join('、')}
+                        <span className="text-[11px] text-[#55789B] font-medium">
+                          接待人員：{dayStaff.map(formatDutyStaffName).join('、')}
                         </span>
                       </div>
                     </div>
@@ -337,7 +260,7 @@ export function CalendarSection({
                     </span>
 
                     <span className="text-xs font-semibold text-[#3B628A] bg-[#EBF3FA] px-3 py-0.5 rounded-full border border-[#C5DBEE]">
-                      常規開館夜
+                      開館夜
                     </span>
                   </div>
 
@@ -350,7 +273,7 @@ export function CalendarSection({
                     <Clock className="w-4 h-4 text-[#356391] shrink-0" />
                     <span>營業時間：</span>
                     <span className="px-2 py-0.5 rounded bg-[#EAF2F9] text-[#1B3F66] font-mono font-bold">
-                      {activeDay?.businessHours || '20:30 - 24:00 (GMT+8)'}
+                      {activeDay?.businessHours || BUSINESS_HOURS_STANDARD}
                     </span>
                   </div>
 
@@ -368,7 +291,7 @@ export function CalendarSection({
                       <div className="flex items-center gap-1.5">
                         <Heart className="w-4 h-4 text-pink-500 fill-pink-500" />
                         <h4 className="text-sm sm:text-base font-bold text-[#15324E] font-serif-tc">
-                          當日值班侍從
+                          當日接待人員
                         </h4>
                       </div>
                       {onNavigate && (
@@ -406,7 +329,7 @@ export function CalendarSection({
                               <div className="min-w-0">
                                 <div className="flex items-center gap-1.5 flex-wrap">
                                   <h5 className="text-base font-bold text-[#142F4B] font-serif-tc">
-                                    {staff.name}
+                                    {formatDutyStaffName(staff)}
                                   </h5>
                                   <span className={`px-1.5 py-0.5 rounded text-[10px] font-extrabold border ${
                                     staff.role === 'butler'

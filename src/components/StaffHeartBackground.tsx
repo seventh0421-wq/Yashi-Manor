@@ -30,7 +30,6 @@ export function StaffHeartBackground({ cheerColor, staffName }: StaffHeartBackgr
   // Color tuning: preserves authentic cheerColor hex codes while deriving realistic watercolor wash & pigment levels
   const watercolorTheme = useMemo(() => {
     const isLuko = staffName.includes('璐可') || cheerColor.toUpperCase() === '#322C3B';
-    const isDonggua = staffName.includes('胖冬瓜') || cheerColor.toUpperCase() === '#234172';
     const isKurikuri = staffName.includes('栗栗') || cheerColor.toUpperCase() === '#96BDB9';
 
     if (isLuko) {
@@ -46,22 +45,6 @@ export function StaffHeartBackground({ cheerColor, staffName }: StaffHeartBackgr
         `,
         splatterColor: '#6B547E',
         glowColor: 'rgba(90, 70, 106, 0.35)',
-      };
-    }
-
-    if (isDonggua) {
-      // 胖冬瓜: Deep celestial sapphire / indigo watercolor (#234172)
-      return {
-        strokeMain: '#315488',
-        strokeCore: '#234172',
-        strokeLight: '#5C82BC',
-        strokeWash: 'rgba(49, 84, 136, 0.24)',
-        ambientWash: `
-          radial-gradient(ellipse at 30% 45%, rgba(49, 84, 136, 0.24) 0%, rgba(49, 84, 136, 0.07) 50%, transparent 75%),
-          linear-gradient(135deg, rgba(35, 65, 114, 0.15) 0%, transparent 60%)
-        `,
-        splatterColor: '#3A639E',
-        glowColor: 'rgba(35, 65, 114, 0.35)',
       };
     }
 

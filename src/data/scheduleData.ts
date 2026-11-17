@@ -1,7 +1,7 @@
 import { DutyScheduleDay, StaffMember } from '../types';
 import { STAFF_MEMBERS } from './cafeData';
 
-export const BUSINESS_HOURS_STANDARD = '20:30 - 24:00 (GMT+8)';
+export const BUSINESS_HOURS_STANDARD = '23:00 – 01:00（營業至隔日凌晨）';
 
 // Helper to look up staff by ID
 export function getStaffById(id: string): StaffMember | undefined {
@@ -20,6 +20,33 @@ export function getMaidsOnDuty(ids: string[]): StaffMember[] {
 
 export function getButlersOnDuty(ids: string[]): StaffMember[] {
   return getStaffMembersByIds(ids).filter((s) => s.role === 'butler');
+}
+
+export function getFeaturedDutySchedule(): DutyScheduleDay[] {
+  return [
+    {
+      date: '2026-11-20',
+      year: 2026,
+      month: 11,
+      day: 20,
+      dayOfWeek: 5,
+      isOpen: true,
+      businessHours: BUSINESS_HOURS_STANDARD,
+      dutyStaffIds: ['laiko', 'luko', 'potatobrave', 'kurikuri', 'anne'],
+      note: '11/20（五）開館夜・營業時間 23:00 – 01:00（營業至隔日凌晨）',
+    },
+    {
+      date: '2026-11-21',
+      year: 2026,
+      month: 11,
+      day: 21,
+      dayOfWeek: 6,
+      isOpen: true,
+      businessHours: BUSINESS_HOURS_STANDARD,
+      dutyStaffIds: ['laiko', 'potatobrave', 'yinshi', 'ptowo', 'kurikuri', 'anne'],
+      note: '11/21（六）開館夜・營業時間 23:00 – 01:00（營業至隔日凌晨）',
+    },
+  ];
 }
 
 /**

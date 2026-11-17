@@ -312,64 +312,6 @@ export function StaffPortrait({ staff }: StaffPortraitProps) {
           </svg>
         );
 
-      case 'donggua':
-        // 胖冬瓜: Kind-hearted chef butler, gentle warm eyes, handsome sturdy presence, chef vest
-        return (
-          <svg viewBox="0 0 400 520" className="w-auto max-w-full h-auto max-h-[620px] sm:max-h-[700px] md:max-h-[760px] lg:max-h-[820px] object-contain drop-shadow-[0_20px_40px_rgba(20,40,70,0.22)]">
-            <defs>
-              <linearGradient id="dong-vest" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#3C4B54" />
-                <stop offset="100%" stopColor="#253138" />
-              </linearGradient>
-            </defs>
-
-            {/* Cozy Warm Sparkles */}
-            <circle cx="80" cy="110" r="3" fill="#6B93A8" opacity="0.7" />
-            <circle cx="320" cy="130" r="2.5" fill="#6B93A8" opacity="0.8" />
-            <circle cx="70" cy="260" r="2" fill="#E8A663" opacity="0.6" />
-            <circle cx="330" cy="280" r="3" fill="#E8A663" opacity="0.7" />
-            <path d="M190,45 L193,55 L203,58 L193,61 L190,71 L187,61 L177,58 L187,55 Z" fill="#628C9F" opacity="0.7" />
-
-            {/* Sturdy Broad Shoulders */}
-            <path d="M30,520 Q110,320 200,320 Q290,320 370,520 Z" fill="url(#dong-vest)" />
-            {/* Chef Apron & Shirt */}
-            <polygon points="200,320 150,460 250,460" fill="#FFFFFF" />
-            {/* White Neck Cravat */}
-            <path d="M185,335 C185,330 215,330 215,335 L210,405 L190,405 Z" fill="#4B6A78" />
-            <circle cx="200" cy="345" r="5" fill="#D4AF37" />
-
-            {/* Neck */}
-            <path d="M175,250 L175,330 L225,330 L225,250 Z" fill="#F7E6D7" />
-
-            {/* Broad Reassuring Face */}
-            <ellipse cx="200" cy="215" rx="74" ry="78" fill="#FFF1E4" />
-
-            {/* Ears */}
-            <ellipse cx="124" cy="220" rx="10" ry="16" fill="#F5DDCA" />
-            <ellipse cx="276" cy="220" rx="10" ry="16" fill="#F5DDCA" />
-
-            {/* Kind Crinkled Smiling Eyes */}
-            <path d="M160,210 Q175,200 190,212" stroke="#253744" strokeWidth="3.8" fill="none" strokeLinecap="round" />
-            <path d="M210,212 Q225,200 240,210" stroke="#253744" strokeWidth="3.8" fill="none" strokeLinecap="round" />
-            {/* Eye smile crinkles */}
-            <path d="M154,212 Q158,216 156,220" stroke="#C7A58E" strokeWidth="1.8" fill="none" />
-            <path d="M246,212 Q242,216 244,220" stroke="#C7A58E" strokeWidth="1.8" fill="none" />
-
-            {/* Eyebrows */}
-            <path d="M156,192 Q174,182 188,193" stroke="#3A4D59" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-            <path d="M212,193 Q226,182 244,192" stroke="#3A4D59" strokeWidth="3.5" fill="none" strokeLinecap="round" />
-
-            {/* Gentle Warm Nose */}
-            <path d="M197,212 L193,234 L207,235" stroke="#DCAE94" strokeWidth="2.8" fill="none" strokeLinecap="round" />
-
-            {/* Big Warm Reassuring Smile */}
-            <path d="M175,252 Q200,276 225,252" stroke="#A85742" strokeWidth="3.2" fill="none" strokeLinecap="round" />
-
-            {/* Handsome Short Charcoal Hair */}
-            <path d="M125,205 C120,115 280,115 275,205 C265,150 245,145 220,155 C210,135 180,135 170,160 C155,145 135,160 125,205 Z" fill="#2E3F47" />
-          </svg>
-        );
-
       default:
         return null;
     }

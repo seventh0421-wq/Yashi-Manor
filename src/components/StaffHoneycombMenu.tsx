@@ -22,7 +22,6 @@ interface HexCellConfig {
  * - 萊可: Col 1, Row 1 (top-left apex)
  * - 璐可: Col 2, Row 1 (upper-right)
  * - 栗栗: Col 1, Row 2 (mid-left)
- * - 胖冬瓜: Col 2, Row 2 (mid-right)
  * - 薯泥勇者: Col 1, Row 3 (lower-left)
  *
  * Surrounded by a clean, minimal halo of outline-only wireframe cells.
@@ -42,8 +41,8 @@ const HONEYCOMB_CELLS: HexCellConfig[] = [
   // Mid row
   { id: 'hex-left-kurikuri', col: 0, row: 2, accentSymbol: '✦' },
   { id: 'staff-kurikuri', col: 1, row: 2, staffId: 'kurikuri' },
-  { id: 'staff-donggua', col: 2, row: 2, staffId: 'donggua' },
-  { id: 'hex-right-donggua', col: 3, row: 2 },
+  { id: 'hex-mid-right', col: 2, row: 2, accentSymbol: '✧' },
+  { id: 'hex-right-mid', col: 3, row: 2 },
 
   // Lower row 1
   { id: 'staff-potatobrave', col: 1, row: 3, staffId: 'potatobrave' },

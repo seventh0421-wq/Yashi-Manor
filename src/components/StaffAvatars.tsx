@@ -14,11 +14,10 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
   }[size];
 
   // If a photoUrl is directly supplied, or seed is one of the staff members with photo
-  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'donggua' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway' || seed === 'anne' || seed === 'maple') {
+  if (avatarUrl || seed === 'laiko' || seed === 'luko' || seed === 'kurikuri' || seed === 'potatobrave' || seed === 'yinshi' || seed === 'error' || seed === 'ptowo' || seed === 'p2' || seed === 'fuwaway' || seed === 'anne' || seed === 'maple') {
     let defaultPhoto = 'https://i.meee.com.tw/dkSZ6nR.png';
     if (seed === 'luko') defaultPhoto = '/staff/luko-avatar.png';
     if (seed === 'kurikuri') defaultPhoto = 'https://i.meee.com.tw/BM36fwZ.webp';
-    if (seed === 'donggua') defaultPhoto = 'https://i.meee.com.tw/EmzeSiG.png';
     if (seed === 'potatobrave') defaultPhoto = '/staff/potatobrave-avatar.png';
     if (seed === 'yinshi' || seed === 'error') defaultPhoto = 'https://i.meee.com.tw/E34aApf.png';
     if (seed === 'ptowo' || seed === 'p2') defaultPhoto = '/staff/ptowo-avatar.png';
@@ -58,10 +57,6 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
       objectPos = 'object-[center_28%]';
       zoomScale = 'scale-[1.65]';
       transformOrigin = 'origin-[center_28%]';
-    } else if (seed === 'donggua' || photo.includes('EmzeSiG')) {
-      objectPos = 'object-[center_19%]';
-      zoomScale = 'scale-[1.65]';
-      transformOrigin = 'origin-[center_19%]';
     } else if (seed === 'potatobrave' || photo.includes('0ca30OC') || photo.includes('QH6ChFc') || photo.includes('r22y8YXn') || photo.includes('GQQPYyrg') || photo.includes('zyMcfrb') || photo.includes('potatobrave') || photo.includes('V4AC8Ds') || photo.includes('JuLHejO')) {
       // Dedicated square headshot with warm knight expression
       objectPos = 'object-center';
@@ -238,38 +233,6 @@ export function StaffAvatar({ seed, avatarUrl, size = 'lg', className = '' }: St
             <path d="M35,32 Q46,45 50,47 Q53,35 65,34" fill="#D97706" />
             {/* Cute energetic sweat drop symbol of "辛苦" (hard work) */}
             <path d="M72,38 C72,38 75,41 75,43 C75,44.5 73.5,45.5 72,45.5 C70.5,45.5 69,44.5 69,43 C69,41 72,38 72,38 Z" fill="#38BDF8" />
-          </svg>
-        </div>
-      );
-
-    case 'donggua':
-      // 胖冬瓜: Chubby, warm, comforting gentle chef butler, warm rosy cheeks, cozy smile
-      return (
-        <div className={`${sizeClasses} w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center relative ${className}`}>
-          <svg viewBox="0 0 100 100" className="w-full h-full scale-105">
-            <circle cx="50" cy="50" r="50" fill="#FFFFFF" />
-            {/* Cozy chef/butler attire */}
-            <path d="M10,95 Q50,62 90,95 L90,100 L10,100 Z" fill="#2E4A44" />
-            <polygon points="50,68 36,92 64,92" fill="#FFFFFF" />
-            {/* Forest green ribbon scarf */}
-            <ellipse cx="50" cy="72" rx="6" ry="3" fill="#4E7C73" />
-            <path d="M47,74 L44,88 L56,88 L53,74 Z" fill="#4E7C73" />
-            {/* Chubby round face */}
-            <circle cx="50" cy="48" r="22" fill="#FEF3EA" />
-            {/* Soft big rosy cheeks */}
-            <ellipse cx="34" cy="52" rx="4.5" ry="3" fill="#FCA5A5" opacity="0.6" />
-            <ellipse cx="66" cy="52" rx="4.5" ry="3" fill="#FCA5A5" opacity="0.6" />
-            {/* Warm squinting happy curved eyes */}
-            <path d="M37,45 Q42,40 47,45" stroke="#263833" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-            <path d="M53,45 Q58,40 63,45" stroke="#263833" strokeWidth="2.2" fill="none" strokeLinecap="round" />
-            {/* Friendly warm smile */}
-            <path d="M44,55 Q50,61 56,55" stroke="#993333" strokeWidth="2" fill="none" strokeLinecap="round" />
-            {/* Hair */}
-            <path d="M26,45 Q26,24 50,22 Q74,24 74,45 Q66,28 50,28 Q34,28 26,45 Z" fill="#3B4A45" />
-            <path d="M32,32 Q45,36 50,42 Q55,34 68,32" fill="#506660" />
-            {/* Little chef star hat on head */}
-            <path d="M42,22 C42,16 46,14 50,14 C54,14 58,16 58,22 Z" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="0.8" />
-            <rect x="42" y="20" width="16" height="3" fill="#E2E8F0" rx="1" />
           </svg>
         </div>
       );
