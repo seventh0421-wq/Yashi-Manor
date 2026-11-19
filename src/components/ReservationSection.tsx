@@ -38,6 +38,8 @@ import { handleFirestoreError, OperationType } from '../lib/firestoreError';
 import {
   getUpcomingCafeOpenDates,
   formatToYMDWithWeekday,
+  CLOSED_RESERVATION_DATES,
+  isClosedReservationDate,
 } from '../utils/dateUtils';
 
 interface ReservationSectionProps {
@@ -68,6 +70,8 @@ interface PreOrderCategoryItem {
   staffSeed?: string;
   minQty?: number;
   maxQty?: number;
+  disabled?: boolean;
+  disabledLabel?: string;
 }
 
 interface PreOrderCategory {
@@ -95,7 +99,10 @@ const SPECIAL_SERVICE_ITEMS: PreOrderCategoryItem[] = [
     id: 'srv-signature-drawing',
     name: '簽繪',
     price: 200000,
-    desc: '親筆手繪簽名板或桌邊手繪紀念圖，含專屬客製留言與角色可愛插圖',
+    desc: '此次營業兩日（11/20、11/21）暫不開放簽繪服務，敬請見諒。',
+    tag: '不開放',
+    disabled: true,
+    disabledLabel: '不開放',
   },
   {
     id: 'srv-omurice-magic',
@@ -264,8 +271,14 @@ export function ReservationSection({
 
   // Form Fields - Step 1
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    if (initialDate) return formatToYMDWithWeekday(initialDate);
-    return upcomingOpenDates[0]?.value || '2026/11/06 (週五)';
+    if (initialDate) {
+      const formatted = formatToYMDWithWeekday(initialDate);
+      if (!isClosedReservationDate(formatted)) return formatted;
+    }
+    return (
+      upcomingOpenDates.find((d) => !CLOSED_RESERVATION_DATES.has(d.rawDate))?.value ||
+      '2026/11/20 (週五)'
+    );
   });
   const [showCustomDatePicker, setShowCustomDatePicker] = useState<boolean>(false);
   const [customDateInput, setCustomDateInput] = useState<string>('');
@@ -319,7 +332,10 @@ export function ReservationSection({
   // Sync initial date if prop changes
   useEffect(() => {
     if (initialDate) {
-      setSelectedDate(formatToYMDWithWeekday(initialDate));
+      const formatted = formatToYMDWithWeekday(initialDate);
+      if (!isClosedReservationDate(formatted)) {
+        setSelectedDate(formatted);
+      }
     }
   }, [initialDate]);
 
@@ -335,8 +351,12 @@ export function ReservationSection({
     }
   }, []);
 
+  const isDishDisabled = (dishName: string) =>
+    SPECIAL_SERVICE_ITEMS.some((item) => item.name === dishName && item.disabled);
+
   // Dish quantity handlers
   const handleAddDish = (dishName: string, maxQty?: number) => {
+    if (isDishDisabled(dishName)) return;
     playChime(1.2);
     setSelectedDishCounts((prev) => {
       const current = prev[dishName] || 0;
@@ -351,6 +371,7 @@ export function ReservationSection({
   };
 
   const handleSetDishQuantity = (dishName: string, quantity: number) => {
+    if (isDishDisabled(dishName)) return;
     playChime(quantity > 0 ? 1.15 : 0.9);
     setValidationError(null);
     setSelectedDishCounts((prev) => {
@@ -391,6 +412,7 @@ export function ReservationSection({
     const list: PreOrderItem[] = [];
     PRE_ORDER_CATEGORIES.forEach((cat) => {
       cat.items.forEach((item) => {
+        if (item.disabled) return;
         const qty = selectedDishCounts[item.name] || 0;
         if (qty > 0) {
           list.push({
@@ -415,6 +437,10 @@ export function ReservationSection({
     if (currentStep === 1) {
       if (!selectedDate) {
         setValidationError('請選擇預約日期');
+        return;
+      }
+      if (isClosedReservationDate(selectedDate)) {
+        setValidationError('下週五（11/27）與下週六（11/28）時段暫不開放預約，請改選其他日期');
         return;
       }
       if (!selectedTimeSlot.trim()) {
@@ -928,46 +954,75 @@ export function ReservationSection({
                     </div>
 
                     <p className="text-[11px] text-[#55789B] mb-2.5">
-                      夜蒔館常規開館日為每週五、週六。以下為最接近之實際西元開館日期（YYYY/MM/DD）：
+                      目前開放預約 11/20（五）、11/21（六）時段，下週五、週六（11/27、11/28）暫不開放預約：
                     </p>
 
                     {/* Quick Date Options with explicit YYYY/MM/DD */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                       {upcomingOpenDates.slice(0, 4).map((dateOption) => {
-                        const isSelected = selectedDate === dateOption.value;
+                        const isClosed = CLOSED_RESERVATION_DATES.has(dateOption.rawDate);
+                        const isSelected = !isClosed && selectedDate === dateOption.value;
                         return (
                           <button
                             key={dateOption.value}
                             type="button"
+                            disabled={isClosed}
+                            aria-disabled={isClosed}
                             onClick={() => {
+                              if (isClosed) return;
                               playChime(1.1);
                               setSelectedDate(dateOption.value);
                               setValidationError(null);
                             }}
-                            className={`p-3 sm:p-3.5 rounded-2xl text-center border transition-all cursor-pointer flex flex-col items-center justify-between min-h-[76px] ${
-                              isSelected
-                                ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs ring-2 ring-[#70A6D6]'
-                                : 'bg-white hover:bg-[#F3F8FC] text-[#2F5175] border-[#CBDDEB]'
+                            title={
+                              isClosed
+                                ? `${dateOption.dateYMD} (${dateOption.weekday}) 暫不開放預約`
+                                : `預約 ${dateOption.dateYMD} (${dateOption.weekday})`
+                            }
+                            className={`p-3 sm:p-3.5 rounded-2xl text-center border transition-all flex flex-col items-center justify-between min-h-[76px] ${
+                              isClosed
+                                ? 'bg-slate-50/90 text-slate-400 border-slate-200 opacity-75 cursor-not-allowed select-none'
+                                : isSelected
+                                ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs ring-2 ring-[#70A6D6] cursor-pointer'
+                                : 'bg-white hover:bg-[#F3F8FC] text-[#2F5175] border-[#CBDDEB] cursor-pointer'
                             }`}
                           >
                             <div className="flex items-center gap-1.5 mb-1">
-                              <Calendar className={`w-3.5 h-3.5 ${isSelected ? 'text-amber-300' : 'text-[#4A729A]'}`} />
+                              <Calendar
+                                className={`w-3.5 h-3.5 ${
+                                  isClosed
+                                    ? 'text-slate-400'
+                                    : isSelected
+                                    ? 'text-amber-300'
+                                    : 'text-[#4A729A]'
+                                }`}
+                              />
                               <span className="font-mono text-xs sm:text-sm font-bold tracking-tight">
                                 {dateOption.dateYMD}
                               </span>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                              <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-[#1D3C5C]'}`}>
+                            <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                              <span
+                                className={`text-xs font-bold ${
+                                  isClosed
+                                    ? 'text-slate-400'
+                                    : isSelected
+                                    ? 'text-white'
+                                    : 'text-[#1D3C5C]'
+                                }`}
+                              >
                                 ({dateOption.weekday})
                               </span>
                               <span
                                 className={`text-[10px] px-1.5 py-0.5 rounded-md font-semibold ${
-                                  isSelected
+                                  isClosed
+                                    ? 'bg-slate-200 text-slate-600'
+                                    : isSelected
                                     ? 'bg-white/20 text-amber-200'
                                     : 'bg-[#EBF3FA] text-[#486B8F]'
                                 }`}
                               >
-                                {dateOption.relativeLabel}
+                                {isClosed ? `${dateOption.relativeLabel}・不開放` : dateOption.relativeLabel}
                               </span>
                             </div>
                           </button>
@@ -1006,7 +1061,7 @@ export function ReservationSection({
                                 輸入自選預約日期 (西元年月日 YYYY/MM/DD)
                               </label>
                               <p className="text-[11px] text-[#6384A2]">
-                                挑選日曆或直接填寫，系統將自動解析為正式 YYYY/MM/DD 格式。
+                                挑選日曆或直接填寫，系統將自動解析為正式 YYYY/MM/DD 格式（11/27、11/28 暫不開放）。
                               </p>
                             </div>
 
@@ -1019,6 +1074,12 @@ export function ReservationSection({
                                   const val = e.target.value;
                                   setCustomDateInput(val);
                                   if (val) {
+                                    if (CLOSED_RESERVATION_DATES.has(val)) {
+                                      setValidationError(
+                                        '下週五（11/27）與下週六（11/28）時段暫不開放預約，請改選其他日期。'
+                                      );
+                                      return;
+                                    }
                                     const formatted = formatToYMDWithWeekday(val);
                                     setSelectedDate(formatted);
                                     setValidationError(null);
@@ -1030,30 +1091,33 @@ export function ReservationSection({
                           </div>
 
                           {/* Extended upcoming open days quick chips */}
-                          {upcomingOpenDates.length > 4 && (
+                          {upcomingOpenDates.slice(4).filter((d) => !CLOSED_RESERVATION_DATES.has(d.rawDate)).length > 0 && (
                             <div className="pt-2 border-t border-[#E5EEF5]">
                               <span className="text-[11px] text-[#55789B] font-bold block mb-1.5">
                                 更多後續開館日快選：
                               </span>
                               <div className="flex flex-wrap gap-2">
-                                {upcomingOpenDates.slice(4).map((d) => (
-                                  <button
-                                    key={d.value}
-                                    type="button"
-                                    onClick={() => {
-                                      playChime(1.1);
-                                      setSelectedDate(d.value);
-                                      setValidationError(null);
-                                    }}
-                                    className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold border transition-colors cursor-pointer ${
-                                      selectedDate === d.value
-                                        ? 'bg-[#23466B] text-white border-[#1B3654]'
-                                        : 'bg-[#F2F6FA] hover:bg-[#E2EDF7] text-[#294B6F] border-[#CBDDEB]'
-                                    }`}
-                                  >
-                                    {d.dateYMD} ({d.weekday})
-                                  </button>
-                                ))}
+                                {upcomingOpenDates
+                                  .slice(4)
+                                  .filter((d) => !CLOSED_RESERVATION_DATES.has(d.rawDate))
+                                  .map((d) => (
+                                    <button
+                                      key={d.value}
+                                      type="button"
+                                      onClick={() => {
+                                        playChime(1.1);
+                                        setSelectedDate(d.value);
+                                        setValidationError(null);
+                                      }}
+                                      className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold border transition-colors cursor-pointer ${
+                                        selectedDate === d.value
+                                          ? 'bg-[#23466B] text-white border-[#1B3654]'
+                                          : 'bg-[#F2F6FA] hover:bg-[#E2EDF7] text-[#294B6F] border-[#CBDDEB]'
+                                      }`}
+                                    >
+                                      {d.dateYMD} ({d.weekday})
+                                    </button>
+                                  ))}
                               </div>
                             </div>
                           )}
@@ -1328,75 +1392,103 @@ export function ReservationSection({
                       </span>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {SPECIAL_SERVICE_ITEMS.filter((s) => s.id !== 'srv-designated-chat').map((service) => {
-                          const count = selectedDishCounts[service.name] || 0;
+                          const isDisabled = Boolean(service.disabled);
+                          const count = isDisabled ? 0 : selectedDishCounts[service.name] || 0;
                           const isAdded = count > 0;
                           return (
                             <div
                               key={service.id}
+                              aria-disabled={isDisabled}
                               className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
-                                isAdded
+                                isDisabled
+                                  ? 'bg-slate-50/90 border-slate-200 opacity-75 cursor-not-allowed select-none'
+                                  : isAdded
                                   ? 'bg-[#F2F7FB] border-[#23466B] shadow-2xs ring-1 ring-[#23466B]/20'
                                   : 'bg-white hover:bg-[#FAFBFD] border-[#CBDDEB]'
                               }`}
                             >
                               <div>
                                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                                  <span className="font-bold text-sm text-[#193552] font-serif-tc">
+                                  <span
+                                    className={`font-bold text-sm font-serif-tc ${
+                                      isDisabled ? 'text-slate-500' : 'text-[#193552]'
+                                    }`}
+                                  >
                                     {service.name}
                                   </span>
                                   {service.tag && (
-                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                    <span
+                                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                        isDisabled
+                                          ? 'bg-slate-200 text-slate-600 border-slate-300'
+                                          : 'bg-amber-50 text-amber-700 border-amber-200'
+                                      }`}
+                                    >
                                       {service.tag}
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-[11px] text-[#6484A2] mt-1 leading-relaxed">
+                                <p
+                                  className={`text-[11px] mt-1 leading-relaxed ${
+                                    isDisabled ? 'text-slate-500' : 'text-[#6484A2]'
+                                  }`}
+                                >
                                   {service.desc}
                                 </p>
                               </div>
 
                               <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#E6EFF7]">
                                 <div className="flex items-baseline gap-1">
-                                  <span className="font-serif font-bold text-sm sm:text-base text-[#23466B]">
+                                  <span
+                                    className={`font-serif font-bold text-sm sm:text-base ${
+                                      isDisabled ? 'text-slate-400 line-through' : 'text-[#23466B]'
+                                    }`}
+                                  >
                                     {service.price.toLocaleString()}
                                   </span>
                                   <span className="text-[10px] font-serif text-[#64748B]">Gil</span>
                                 </div>
 
-                                <div className="flex items-center gap-1 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
-                                  {count > 0 ? (
-                                    <>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleRemoveDish(service.name)}
-                                        className="w-6 h-6 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
-                                        title="減少一份"
-                                      >
-                                        <Minus className="w-3 h-3" />
-                                      </button>
-                                      <span className="w-5 text-center text-xs font-bold text-[#142F4B] font-mono">
-                                        {count}
-                                      </span>
+                                {isDisabled ? (
+                                  <span className="px-3 py-1 rounded-xl bg-slate-200 text-slate-600 border border-slate-300 text-xs font-bold cursor-not-allowed">
+                                    {service.disabledLabel || '不開放'}
+                                  </span>
+                                ) : (
+                                  <div className="flex items-center gap-1 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
+                                    {count > 0 ? (
+                                      <>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleRemoveDish(service.name)}
+                                          className="w-6 h-6 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
+                                          title="減少一份"
+                                        >
+                                          <Minus className="w-3 h-3" />
+                                        </button>
+                                        <span className="w-5 text-center text-xs font-bold text-[#142F4B] font-mono">
+                                          {count}
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleAddDish(service.name, service.maxQty)}
+                                          className="w-6 h-6 rounded-lg bg-[#23466B] hover:bg-[#183654] text-white flex items-center justify-center transition-colors cursor-pointer"
+                                          title="增加一份"
+                                        >
+                                          <Plus className="w-3 h-3" />
+                                        </button>
+                                      </>
+                                    ) : (
                                       <button
                                         type="button"
                                         onClick={() => handleAddDish(service.name, service.maxQty)}
-                                        className="w-6 h-6 rounded-lg bg-[#23466B] hover:bg-[#183654] text-white flex items-center justify-center transition-colors cursor-pointer"
-                                        title="增加一份"
+                                        className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
                                       >
                                         <Plus className="w-3 h-3" />
+                                        <span>點選</span>
                                       </button>
-                                    </>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleAddDish(service.name, service.maxQty)}
-                                      className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
-                                    >
-                                      <Plus className="w-3 h-3" />
-                                      <span>點選</span>
-                                    </button>
-                                  )}
-                                </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
@@ -1533,27 +1625,37 @@ export function ReservationSection({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {catGroup.items.map((item) => {
-                            const count = selectedDishCounts[item.name] || 0;
+                            const isDisabled = Boolean(item.disabled);
+                            const count = isDisabled ? 0 : selectedDishCounts[item.name] || 0;
                             const isAdded = count > 0;
 
                             return (
                               <div
                                 key={item.id}
+                                aria-disabled={isDisabled}
                                 className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                                  isAdded
+                                  isDisabled
+                                    ? 'bg-slate-50/90 border-slate-200 opacity-75 cursor-not-allowed select-none'
+                                    : isAdded
                                     ? 'bg-[#F2F7FB] border-[#23466B] shadow-2xs ring-1 ring-[#23466B]/20'
                                     : 'bg-white hover:bg-[#FAFBFD] border-[#CBDDEB]'
                                 }`}
                               >
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="font-bold text-sm sm:text-base text-[#193552] font-serif-tc">
+                                    <span
+                                      className={`font-bold text-sm sm:text-base font-serif-tc ${
+                                        isDisabled ? 'text-slate-500' : 'text-[#193552]'
+                                      }`}
+                                    >
                                       {item.name}
                                     </span>
                                     {item.tag && (
                                       <span
                                         className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                          item.tag === '不包含在低消內'
+                                          isDisabled
+                                            ? 'bg-slate-200 text-slate-600 border-slate-300'
+                                            : item.tag === '不包含在低消內'
                                             ? 'bg-amber-50 text-amber-700 border-amber-200'
                                             : 'bg-[#EEF5FB] text-[#23466B] border-[#CBDDEB]'
                                         }`}
@@ -1567,54 +1669,68 @@ export function ReservationSection({
                                       </span>
                                     )}
                                   </div>
-                                  <p className="text-[11px] text-[#6484A2] mt-0.5 line-clamp-2">
+                                  <p
+                                    className={`text-[11px] mt-0.5 line-clamp-2 ${
+                                      isDisabled ? 'text-slate-500' : 'text-[#6484A2]'
+                                    }`}
+                                  >
                                     {item.desc}
                                   </p>
                                   <div className="flex items-baseline gap-1 mt-1">
-                                    <span className="font-serif font-bold text-sm sm:text-base text-[#23466B]">
+                                    <span
+                                      className={`font-serif font-bold text-sm sm:text-base ${
+                                        isDisabled ? 'text-slate-400 line-through' : 'text-[#23466B]'
+                                      }`}
+                                    >
                                       {item.price.toLocaleString()}
                                     </span>
                                     <span className="text-[10px] font-serif text-[#64748B]">Gil</span>
                                   </div>
                                 </div>
 
-                                {/* Counter Stepper */}
-                                <div className="flex items-center gap-1.5 shrink-0 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
-                                  {count > 0 ? (
-                                    <>
+                                {/* Counter Stepper or Disabled Badge */}
+                                {isDisabled ? (
+                                  <span className="shrink-0 px-3 py-1.5 rounded-xl bg-slate-200 text-slate-600 border border-slate-300 text-xs font-bold cursor-not-allowed">
+                                    {item.disabledLabel || '不開放'}
+                                  </span>
+                                ) : (
+                                  <div className="flex items-center gap-1.5 shrink-0 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
+                                    {count > 0 ? (
+                                      <>
+                                        <button
+                                          type="button"
+                                          disabled={typeof item.minQty === 'number' && count <= item.minQty}
+                                          onClick={() => handleRemoveDish(item.name, item.minQty)}
+                                          className="w-7 h-7 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] disabled:opacity-40 disabled:cursor-not-allowed text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
+                                          title={typeof item.minQty === 'number' && count <= item.minQty ? `至少需選 ${item.minQty} 份` : '減少一份'}
+                                        >
+                                          <Minus className="w-3.5 h-3.5" />
+                                        </button>
+                                        <span className="w-6 text-center text-xs font-bold text-[#142F4B] font-mono">
+                                          {count}
+                                        </span>
+                                        <button
+                                          type="button"
+                                          disabled={typeof item.maxQty === 'number' && count >= item.maxQty}
+                                          onClick={() => handleAddDish(item.name, item.maxQty)}
+                                          className="w-7 h-7 rounded-lg bg-[#23466B] hover:bg-[#183654] disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors cursor-pointer"
+                                          title={typeof item.maxQty === 'number' && count >= item.maxQty ? `最多可選 ${item.maxQty} 份` : '增加一份'}
+                                        >
+                                          <Plus className="w-3.5 h-3.5" />
+                                        </button>
+                                      </>
+                                    ) : (
                                       <button
                                         type="button"
-                                        disabled={typeof item.minQty === 'number' && count <= item.minQty}
-                                        onClick={() => handleRemoveDish(item.name, item.minQty)}
-                                        className="w-7 h-7 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] disabled:opacity-40 disabled:cursor-not-allowed text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
-                                        title={typeof item.minQty === 'number' && count <= item.minQty ? `至少需選 ${item.minQty} 份` : '減少一份'}
-                                      >
-                                        <Minus className="w-3.5 h-3.5" />
-                                      </button>
-                                      <span className="w-6 text-center text-xs font-bold text-[#142F4B] font-mono">
-                                        {count}
-                                      </span>
-                                      <button
-                                        type="button"
-                                        disabled={typeof item.maxQty === 'number' && count >= item.maxQty}
                                         onClick={() => handleAddDish(item.name, item.maxQty)}
-                                        className="w-7 h-7 rounded-lg bg-[#23466B] hover:bg-[#183654] disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors cursor-pointer"
-                                        title={typeof item.maxQty === 'number' && count >= item.maxQty ? `最多可選 ${item.maxQty} 份` : '增加一份'}
+                                        className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
                                       >
                                         <Plus className="w-3.5 h-3.5" />
+                                        <span>點選</span>
                                       </button>
-                                    </>
-                                  ) : (
-                                    <button
-                                      type="button"
-                                      onClick={() => handleAddDish(item.name, item.maxQty)}
-                                      className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
-                                    >
-                                      <Plus className="w-3.5 h-3.5" />
-                                      <span>點選</span>
-                                    </button>
-                                  )}
-                                </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             );
                           })}

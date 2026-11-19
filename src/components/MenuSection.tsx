@@ -44,7 +44,7 @@ export function MenuSection() {
                   OPEN TIME
                 </div>
                 <div className="text-xs sm:text-sm font-mono text-[#23466B] font-bold mt-0.5 tracking-wider">
-                  20:00 ~ 24:00
+                  23:00 ~ 01:00
                 </div>
                 <div className="mt-1 inline-block px-2 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-[10px] sm:text-[11px] font-bold text-amber-900">
                   低消 3w Gil

@@ -179,7 +179,7 @@ export function Footer({ onSelectTab }: FooterProps) {
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-[#2F4763]">
                 <span className="text-[#8AA3BC]">固定營業時段</span>
-                <span className="text-white font-medium">每週五、六 20:30起</span>
+                <span className="text-white font-medium">每週五、六 23:00–01:00</span>
               </div>
             </div>
             <p className="text-[11px] text-[#7189A0]">

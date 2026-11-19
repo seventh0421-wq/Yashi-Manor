@@ -28,28 +28,42 @@ export function LocationSection() {
   const minutes = taipeiDate.getMinutes();
   const totalMinutes = hours * 60 + minutes;
 
-  // Business hours: Friday (5) and Saturday (6) from 20:30 to 24:00 (GMT+8)
-  const isOpen = (dayOfWeek === 5 || dayOfWeek === 6) && totalMinutes >= 20 * 60 + 30 && totalMinutes < 24 * 60;
+  // Business hours: Friday & Saturday 23:00 - 01:00 (extends into Sat/Sun 00:00-01:00, GMT+8)
+  const isOpen =
+    (dayOfWeek === 5 && totalMinutes >= 23 * 60) ||
+    (dayOfWeek === 6 && (totalMinutes < 60 || totalMinutes >= 23 * 60)) ||
+    (dayOfWeek === 0 && totalMinutes < 60);
 
   const dayNames = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
   const currentDayName = dayNames[dayOfWeek];
   const timeString = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(taipeiDate.getSeconds()).padStart(2, '0')}`;
 
-  let nextOpenText = '本週五 20:30 開館';
-  if (dayOfWeek === 5) {
-    if (totalMinutes < 20 * 60 + 30) {
-      nextOpenText = '今日 (週五) 20:30 準時開館';
+  // Next week Fri/Sat (2026/11/27, 11/28) are temporarily closed
+  const isNextWeekClosed =
+    taipeiDate.getFullYear() === 2026 &&
+    taipeiDate.getMonth() === 10 &&
+    ((taipeiDate.getDate() === 22 && totalMinutes >= 60) ||
+      (taipeiDate.getDate() >= 23 && taipeiDate.getDate() <= 28));
+
+  let nextOpenText = '本週五 23:00 開館';
+  if (isNextWeekClosed) {
+    nextOpenText = '下週五、週六時段暫不開放，下次開館時間請留意官網公告';
+  } else if (dayOfWeek === 5) {
+    if (totalMinutes < 23 * 60) {
+      nextOpenText = '今日 (週五) 23:00 準時開館';
     } else {
-      nextOpenText = '明日 (週六) 20:30 開館';
+      nextOpenText = '明日 (週六) 23:00 開館';
     }
   } else if (dayOfWeek === 6) {
-    if (totalMinutes < 20 * 60 + 30) {
-      nextOpenText = '今日 (週六) 20:30 準時開館';
+    if (totalMinutes < 23 * 60) {
+      nextOpenText = '今日 (週六) 23:00 準時開館';
     } else {
-      nextOpenText = '下週五 20:30 開館';
+      nextOpenText = '下次開館時間請留意官網公告';
     }
+  } else if (dayOfWeek === 0) {
+    nextOpenText = '下次開館時間請留意官網公告';
   } else {
-    nextOpenText = '本週五 20:30 開館';
+    nextOpenText = '本週五 23:00 開館';
   }
 
   const handleCopyAddress = () => {

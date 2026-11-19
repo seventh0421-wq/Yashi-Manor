@@ -10,7 +10,7 @@ export const SHOP_INFO = {
   address: '薰衣草苗圃 12區46號',
   fullLocation: '利維坦 薰衣草苗圃 12區46號',
   teleportGuide: '由格里達尼亞以太之光傳送至「薰衣草苗圃」第12分區，搭乘都市內小水晶至「樹陰小區（東南）」，向南步行約30秒即可抵達門牌46號。',
-  businessHours: '每週五、週六 晚間 20:30 - 24:00 (台灣時間 GMT+8)',
+  businessHours: '每週五、週六 23:00 - 01:00 營業至隔日凌晨 (台灣時間 GMT+8)',
   entryFee: '入場低消 30,000 Gil（店內餐點飲品以遊戲內金幣 Gil 計算）',
   rpLevel: '輕無 RP（自由輕鬆・新手友善）',
   minimumSpend: 30000,

@@ -45,7 +45,7 @@ export function formatToYMDWithWeekday(input: Date | string): string {
       }
     }
 
-    // If it's a legacy label like "本週五 (20:30起)"
+    // If it's a legacy label like "本週五 (23:00起)"
     const upcoming = getUpcomingCafeOpenDates(4);
     if (input.includes('本週五') && upcoming[0]) return upcoming[0].value;
     if (input.includes('本週六') && upcoming[1]) return upcoming[1].value;
@@ -57,6 +57,16 @@ export function formatToYMDWithWeekday(input: Date | string): string {
   if (isNaN(d.getTime())) return '';
   const weekday = WEEKDAYS[d.getDay()];
   return `${formatToYMD(d)} (${weekday})`;
+}
+
+export const CLOSED_RESERVATION_DATES = new Set(['2026-11-27', '2026-11-28']);
+
+export function isClosedReservationDate(input: string): boolean {
+  if (!input) return false;
+  const normalized = input.trim().replace(/\//g, '-');
+  return (
+    normalized.startsWith('2026-11-27') || normalized.startsWith('2026-11-28')
+  );
 }
 
 export interface UpcomingOpenDate {
@@ -75,14 +85,7 @@ export function getUpcomingCafeOpenDates(count: number = 6): UpcomingOpenDate[] 
   const result: UpcomingOpenDate[] = [];
   const now = new Date();
 
-  // If today is Friday or Saturday, check if it's already past midnight closing (24:00)
-  // If still within Friday or Saturday before 24:00, allow today.
   const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  // If today is Friday/Saturday and hours are past 23:59, start looking from tomorrow
-  if (now.getHours() >= 24) {
-    cursor.setDate(cursor.getDate() + 1);
-  }
 
   let foundFridays = 0;
   let foundSaturdays = 0;
