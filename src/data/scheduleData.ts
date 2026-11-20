@@ -43,7 +43,7 @@ export function getFeaturedDutySchedule(): DutyScheduleDay[] {
       dayOfWeek: 6,
       isOpen: true,
       businessHours: BUSINESS_HOURS_STANDARD,
-      dutyStaffIds: ['laiko', 'potatobrave', 'yinshi', 'ptowo', 'kurikuri', 'anne'],
+      dutyStaffIds: ['laiko', 'potatobrave', 'yinshi', 'ptowo', 'kurikuri', 'anne', 'fuwaway'],
       note: '11/21（六）開館夜・營業時間 23:00 – 01:00（營業至隔日凌晨）',
     },
   ];
