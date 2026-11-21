@@ -49,6 +49,19 @@ import { handleFirestoreError, OperationType } from '../lib/firestoreError';
 import { ReservationData, ReservationStatus } from '../types';
 import { STAFF_MEMBERS } from '../data/cafeData';
 import { AdminGuestbookPanel } from './AdminGuestbookPanel';
+import {
+  DESIGNATED_CHAT_SERVICE_NAME,
+  MINIMUM_SPEND_PER_GUEST,
+  SIGNATURE_DRAWING_SERVICE_NAME,
+  calculateReservationTotalGil,
+} from '../../api/_lib/reservationPricing';
+
+const KNOWN_SERVICE_NAMES = new Set<string>([
+  DESIGNATED_CHAT_SERVICE_NAME,
+  '純拍照留影',
+  SIGNATURE_DRAWING_SERVICE_NAME,
+  '蛋包飯魔法',
+]);
 
 export function AdminDashboard() {
   const [adminTab, setAdminTab] = useState<'reservations' | 'guestbook'>('reservations');
@@ -321,7 +334,7 @@ export function AdminDashboard() {
       '伺服器',
       '人數',
       '聯絡方式',
-      '餐點清單',
+      '預約服務／歷史餐點清單',
       '備註需求',
       '建立時間',
     ];
@@ -1064,33 +1077,63 @@ export function AdminDashboard() {
                     </span>
                   </div>
 
-                  {/* Pre-order dishes */}
-                  <div className="py-1 border-b border-slate-100">
-                    <span className="text-[#6484A4] block mb-1">預選餐點清單：</span>
-                    {selectedReservation.selectedDishes && selectedReservation.selectedDishes.length > 0 ? (
-                      <div className="space-y-1 bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60">
-                        {selectedReservation.selectedDishes.map((dish, i) => (
-                          <div key={i} className="flex items-center justify-between text-[#28496D]">
-                            <span>
-                              • {dish.name} × {dish.quantity}
-                            </span>
-                            <span className="font-mono text-[11px] text-[#557697]">
-                              {(dish.price * dish.quantity).toLocaleString()} Gil
-                            </span>
+                  {/* Special services / Historical pre-order dishes */}
+                  {(() => {
+                    const items = selectedReservation.selectedDishes || [];
+                    const hasItems = items.length > 0;
+                    const isServicesOnly =
+                      hasItems && items.every((item) => KNOWN_SERVICE_NAMES.has(item.name));
+                    const guestCount = Math.max(1, Number(selectedReservation.guestCount || 1));
+                    const minSpendThreshold = guestCount * MINIMUM_SPEND_PER_GUEST;
+                    const itemsTotal = calculateReservationTotalGil(items);
+
+                    return (
+                      <div className="py-1 border-b border-slate-100 space-y-1.5">
+                        <span className="text-[#6484A4] block">
+                          {!hasItems
+                            ? '預約服務與餐點狀態：'
+                            : isServicesOnly
+                            ? '已預約特別侍奉服務：'
+                            : '歷史預選餐點與服務清單：'}
+                        </span>
+
+                        {hasItems ? (
+                          <div className="space-y-1 bg-amber-50/60 p-2.5 rounded-xl border border-amber-200/60">
+                            {items.map((dish, i) => (
+                              <div key={i} className="flex items-center justify-between gap-2 text-[#28496D]">
+                                <span>
+                                  • {dish.name} × {dish.quantity}
+                                  {dish.name === DESIGNATED_CHAT_SERVICE_NAME && (
+                                    <span className="ml-1 text-[10px] text-[#6484A4]">
+                                      （單價 {dish.price.toLocaleString()} Gil）
+                                    </span>
+                                  )}
+                                </span>
+                                <span className="font-mono text-[11px] text-[#557697] shrink-0">
+                                  {(dish.price * dish.quantity).toLocaleString()} Gil
+                                </span>
+                              </div>
+                            ))}
+                            <div className="pt-1.5 border-t border-amber-200/60 text-right font-bold text-amber-900 text-xs">
+                              {isServicesOnly ? '特別侍奉服務費用合計：' : '歷史項目合計：'}
+                              {itemsTotal.toLocaleString()} Gil
+                            </div>
                           </div>
-                        ))}
-                        <div className="pt-1.5 border-t border-amber-200/60 text-right font-bold text-amber-900 text-xs">
-                          合計：{' '}
-                          {selectedReservation.selectedDishes
-                            .reduce((sum, d) => sum + d.price * d.quantity, 0)
-                            .toLocaleString()}{' '}
-                          Gil
+                        ) : (
+                          <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-slate-500 text-xs">
+                            未預約特別侍奉服務（純入席預約，餐點與飲品於現場點選）
+                          </div>
+                        )}
+
+                        <div className="text-[11px] text-[#557697] flex items-center justify-between px-1">
+                          <span>入席低消門檻（每人 30,000 Gil）：</span>
+                          <span className="font-mono font-bold text-[#1E3B5C]">
+                            {minSpendThreshold.toLocaleString()} Gil（{guestCount} 位）
+                          </span>
                         </div>
                       </div>
-                    ) : (
-                      <span className="text-slate-400 italic">無預選餐點（入席後現場點餐）</span>
-                    )}
-                  </div>
+                    );
+                  })()}
 
                   {/* Special requests */}
                   <div className="py-1 border-b border-slate-100">

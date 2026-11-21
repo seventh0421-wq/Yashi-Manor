@@ -53,6 +53,12 @@ export function MenuSection() {
             </div>
           </div>
 
+          {/* Dine-in Ordering Notice */}
+          <div className="mb-7 p-3.5 sm:p-4 rounded-xl bg-[#F4F8FC] border border-[#CBDDEB] flex items-center gap-2.5 text-xs sm:text-sm text-[#23466B] font-medium">
+            <AlertCircle className="w-4 h-4 text-[#285078] shrink-0" />
+            <span>本館餐點與飲品皆於入席後現場點選，官網不提供預點餐服務。</span>
+          </div>
+
           {/* 2-Column Menu Layout */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-10 items-start">
             {/* Left Column (5 Cols) - 沙拉、甜點、飲品 */}
@@ -273,6 +279,9 @@ export function MenuSection() {
                 <h3 className="text-[#23466B] font-serif font-bold tracking-[0.3em] text-sm sm:text-base pl-1">
                   SPECIALTIES・特色餐點
                 </h3>
+                <p className="text-[11px] sm:text-xs text-[#557494] font-medium mt-1">
+                  ※ 特色餐點不列入最低消費計算。
+                </p>
               </div>
 
               {/* 4. Specialties List with Staff Recommendations */}
@@ -562,11 +571,16 @@ export function MenuSection() {
           {/* BOTTOM NOTICE & MINIMUM SPEND (低消與正式營運備註) */}
           {/* ========================================================= */}
           <div className="mt-8 p-4 sm:p-5 rounded-xl bg-[#F8FAFC] border border-[#D5E3EE] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs sm:text-sm text-[#48627C]">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-[#285078] shrink-0" />
-              <span className="font-semibold text-[#183654]">
-                備註：以上價格將於正式營運時再做更動
-              </span>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-[#285078] shrink-0" />
+                <span className="font-semibold text-[#183654]">
+                  備註：以上價格將於正式營運時再做更動
+                </span>
+              </div>
+              <p className="text-xs text-[#557494] pl-6">
+                特色餐點的消費金額不計入最低消費門檻。
+              </p>
             </div>
             <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0 bg-white px-3 py-1.5 rounded-lg border border-[#CBDDEB] shadow-2xs">
               <span className="text-[#647C94]">入席基本消費：</span>

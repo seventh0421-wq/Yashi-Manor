@@ -9,6 +9,10 @@ import {
   createReservationWithIdempotency,
   validateAndNormalizeReservationInput,
 } from './_lib/reservationService.js';
+import {
+  calculateMinimumSpendSummary,
+  calculateSpecialServiceSummary,
+} from './_lib/reservationPricing.js';
 
 // Per-instance anti-spam rate limiter: max 8 requests per 10 minutes per IP
 const ipRateMap = new Map<string, { count: number; expiresAt: number }>();
@@ -162,9 +166,20 @@ export default async function handler(req: any, res: any) {
       }
     }
 
+    const minimumSpend = calculateMinimumSpendSummary(
+      result.reservation.selectedDishes,
+      result.reservation.guestCount
+    );
+    const serviceSummary = calculateSpecialServiceSummary(
+      result.reservation.selectedDishes,
+      result.reservation.guestCount
+    );
+
     return res.status(200).json({
       success: true,
       reservation: result.reservation,
+      minimumSpend,
+      serviceSummary,
       idempotentReplay: result.idempotentReplay,
       recoveredFromTimeout: result.recoveredFromTimeout,
       notifiedPurin,

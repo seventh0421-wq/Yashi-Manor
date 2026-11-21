@@ -38,6 +38,14 @@ import {
   CLOSED_RESERVATION_DATES,
   isClosedReservationDate,
 } from '../utils/dateUtils';
+import {
+  DESIGNATED_CHAT_SERVICE_NAME,
+  MINIMUM_SPEND_PER_GUEST,
+  type ReservationItemCategory,
+  calculateDesignatedChatUnitPrice,
+  calculateReservationTotalGil,
+  calculateSpecialServiceSummary,
+} from '../../api/_lib/reservationPricing';
 
 function createReservationRequestId(): string {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -68,6 +76,7 @@ const SERVERS = [
 interface PreOrderCategoryItem {
   id: string;
   name: string;
+  category: ReservationItemCategory;
   price: number;
   desc: string;
   tag?: string;
@@ -87,21 +96,24 @@ const SPECIAL_SERVICE_ITEMS: PreOrderCategoryItem[] = [
   {
     id: 'srv-designated-chat',
     name: '指名聊天服務',
+    category: 'service',
     price: 200000,
-    desc: '一節 20 分鐘・最多兩節（由專屬指名侍從與您單獨互動談心，必選至少一節）',
-    tag: '必選至少一節・一節 20 分鐘・最多兩節',
-    minQty: 1,
+    desc: '一節 20 分鐘・最多兩節（由專屬指名侍從與您單獨互動談心，可依需求選填）',
+    tag: '選填・一節 20 分鐘・最多兩節',
+    minQty: 0,
     maxQty: 2,
   },
   {
     id: 'srv-photo-session',
     name: '純拍照留影',
+    category: 'service',
     price: 100000,
     desc: '與心儀的女僕或執事於店內特色角落合影紀念（Gpose / 拍立得動作）',
   },
   {
     id: 'srv-signature-drawing',
     name: '簽繪',
+    category: 'service',
     price: 200000,
     desc: '此次營業兩日（11/20、11/21）暫不開放簽繪服務，敬請見諒。',
     tag: '不開放',
@@ -111,63 +123,10 @@ const SPECIAL_SERVICE_ITEMS: PreOrderCategoryItem[] = [
   {
     id: 'srv-omurice-magic',
     name: '蛋包飯魔法',
+    category: 'service',
     price: 20000,
     desc: '桌邊施放專屬美味魔法咒語與手繪互動（本項目不包含在低消內）',
     tag: '不包含在低消內',
-  },
-];
-
-// Menu items for pre-ordering
-const PRE_ORDER_CATEGORIES: PreOrderCategory[] = [
-  {
-    category: 'SALAD・沙拉輕食',
-    items: [
-      { id: 'salad-1', name: '無花果沙拉', price: 10000, desc: '鮮採無花果佐清脆生菜特調油醋' },
-      { id: 'salad-2', name: '番茄沙拉', price: 10000, desc: '熟成紅番茄切片佐新鮮水牛起司' },
-    ],
-  },
-  {
-    category: 'MAIN DISHES・飽足主餐',
-    items: [
-      { id: 'dish-1', name: '元氣蛋包飯', price: 20000, desc: '金黃歐姆蛋番茄燉飯，含桌邊女僕手繪' },
-      { id: 'dish-2', name: '雞肉奶油麵', price: 20000, desc: '濃郁白醬燉嫩雞義大利麵' },
-      { id: 'dish-3', name: '魚子醬三明治', price: 20000, desc: '特選珍品魚子醬手作軟吐司' },
-    ],
-  },
-  {
-    category: 'DESSERTS・甜蜜點心',
-    items: [
-      { id: 'dessert-1', name: '巧克力奶油蛋糕', price: 20000, desc: '濃郁絲滑黑巧克力佐手打鮮奶油' },
-      { id: 'dessert-2', name: '無花果餅乾', price: 20000, desc: '低溫烘烤手作香酥無花果碎餅乾' },
-      { id: 'dessert-3', name: '炸紅白湯圓', price: 20000, desc: '金黃香酥軟糯紅白雙色湯圓，佐花生糖粉' },
-    ],
-  },
-  {
-    category: 'DRINKS・沁涼飲品與熱茶',
-    items: [
-      { id: 'drink-1', name: '蜜瓜果汁', price: 10000, desc: '鮮榨冰鎮香甜蜜瓜汁' },
-      { id: 'drink-2', name: '高山茶', price: 10000, desc: '甘醇清雅手採高山溫潤熱茶' },
-      { id: 'drink-4', name: '抹茶', price: 10000, desc: '遠東特級石臼抹茶現點手工刷泡' },
-    ],
-  },
-  {
-    category: 'SPECIALTIES・特色餐點與尊榮套餐',
-    items: [
-      { id: 'spec-1', name: '開心汁', price: 50000, desc: '夢幻微醺氣泡特調飲品', tag: '萊可推薦', staffSeed: 'laiko' },
-      { id: 'spec-2', name: '無花果凍糕', price: 50000, desc: '層次豐富的法式清甜凍糕', tag: '璐可推薦', staffSeed: 'luko' },
-      { id: 'spec-3', name: '瑪黛茶餅乾', price: 50000, desc: '香脆微甘的手作瑪黛茶酥餅', tag: '栗栗推薦', staffSeed: 'kurikuri' },
-      { id: 'spec-5', name: '蜂蜜瑪芬', price: 50000, desc: '融入野花蜂蜜與香醇奶油的鬆軟溫潤瑪芬', tag: '薯泥勇者推薦', staffSeed: 'potatobrave' },
-      { id: 'spec-soup', name: '南瓜濃湯', price: 50000, desc: '本人慢火熬煮的暖胃南瓜濃湯，口感綿密溫厚', tag: '陰濕男鬼推薦', staffSeed: 'yinshi' },
-      { id: 'spec-takoyaki', name: '章魚燒', price: 50000, desc: '圓滾滾的金黃章魚燒，煩惱也會跟著滾走', tag: '翹屁嫩兔推薦', staffSeed: 'ptowo' },
-      { id: 'spec-berry-tea', name: '仙子莓茶', price: 50000, desc: '酸甜莓果香氣伴隨薄荷甘草清韻，撫平一天疲憊', tag: '花鳴威推薦', staffSeed: 'fuwaway' },
-      { id: 'spec-masala-chai', name: '馬薩拉奶茶', price: 50000, desc: '濃郁茶香伴隨著琥珀丁香甘甜暖胃，讓人欲罷不能的特色奶茶', tag: '安海瑟薇大力推薦', staffSeed: 'anne' },
-      { id: 'spec-apple-tart', name: '蘋果塔', price: 50000, desc: '庫爾扎斯仙女蘋果烘烤出的香氣蘋果塔，吃了準沒錯(ゝ∀・)b', tag: '焚楓推薦', staffSeed: 'maple' },
-      { id: 'spec-6', name: '夜香花套餐', price: 60000, desc: '莊園尊榮經典套餐・前菜、主餐、夜香茶飲與特製甜點全套饗宴', tag: '尊榮套餐' },
-    ],
-  },
-  {
-    category: 'SPECIAL SERVICES・特別侍奉服務',
-    items: SPECIAL_SERVICE_ITEMS,
   },
 ];
 
@@ -304,11 +263,9 @@ export function ReservationSection({
   const [worldServer, setWorldServer] = useState<string>('鳳凰 (Phoenix)');
   const [contactMethod, setContactMethod] = useState<string>('');
 
-  // Form Fields - Step 3: Pre-order Menu Selection (Optional) + Mandatory Designated Chat Service (min 1 session)
-  // Store dish name -> quantity
-  const [selectedDishCounts, setSelectedDishCounts] = useState<Record<string, number>>({
-    指名聊天服務: 1,
-  });
+  // Form Fields - Step 3: Optional Special Services (all services optional; no food/beverage pre-ordering)
+  // Store service name -> quantity
+  const [selectedDishCounts, setSelectedDishCounts] = useState<Record<string, number>>({});
   const [specialRequests, setSpecialRequests] = useState<string>('');
 
   // Confirmed booking state
@@ -408,32 +365,39 @@ export function ReservationSection({
 
   const handleClearDishes = () => {
     playChime(0.85);
-    setSelectedDishCounts((prev) => ({
-      指名聊天服務: Math.max(1, prev['指名聊天服務'] || 1),
-    }));
+    setSelectedDishCounts({});
   };
 
-  // Convert selected map to PreOrderItem array
-  const getSelectedDishesList = (): PreOrderItem[] => {
-    const list: PreOrderItem[] = [];
-    PRE_ORDER_CATEGORIES.forEach((cat) => {
-      cat.items.forEach((item) => {
-        if (item.disabled) return;
-        const qty = selectedDishCounts[item.name] || 0;
-        if (qty > 0) {
-          list.push({
-            name: item.name,
-            price: item.price,
-            quantity: qty,
-          });
-        }
-      });
-    });
-    return list;
-  };
+  const designatedChatUnitPrice = calculateDesignatedChatUnitPrice(guestCount);
 
-  const selectedDishes = getSelectedDishesList();
-  const totalGil = selectedDishes.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  // Convert selected map to active special service items while keeping PreOrderItem[] payload
+  // (`selectedDishes`) backwards-compatible for API, Firestore, AdminDashboard & Purin Bot.
+  const selectedLineItems = SPECIAL_SERVICE_ITEMS.flatMap((item) => {
+    if (item.disabled) return [];
+    const qty = selectedDishCounts[item.name] || 0;
+    if (qty <= 0) return [];
+    return [
+      {
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        price:
+          item.name === DESIGNATED_CHAT_SERVICE_NAME
+            ? designatedChatUnitPrice
+            : item.price,
+        quantity: qty,
+      },
+    ];
+  });
+
+  const selectedDishes: PreOrderItem[] = selectedLineItems.map(({ name, price, quantity }) => ({
+    name,
+    price,
+    quantity,
+  }));
+  const serviceSummary = calculateSpecialServiceSummary(selectedLineItems, guestCount);
+  const specialServiceTotal = serviceSummary.specialServiceTotal;
+  const minimumSpendRequired = serviceSummary.minimumSpendRequired;
   const totalDishCount = selectedDishes.reduce((sum, item) => sum + item.quantity, 0);
 
   const handleNext = () => {
@@ -466,10 +430,6 @@ export function ReservationSection({
       );
       if (isSelectedStaffOffDuty) {
         setValidationError(`${selectedStaff} 目前未值勤，請改選其他侍從或不指名`);
-        return;
-      }
-      if ((selectedDishCounts['指名聊天服務'] || 0) < 1) {
-        setValidationError('指名聊天服務需至少選擇 1 節');
         return;
       }
       playChime(1.1);
@@ -617,7 +577,7 @@ export function ReservationSection({
     setCurrentStep(1);
     setSelectedTimeSlot('');
     setCustomerName('');
-    setSelectedDishCounts({ 指名聊天服務: 1 });
+    setSelectedDishCounts({});
     setSpecialRequests('');
   };
 
@@ -765,22 +725,38 @@ export function ReservationSection({
                     <strong className="text-white">所屬伺服器：</strong> {confirmedReservation.worldServer}
                   </p>
 
-                  <div>
-                    <strong className="text-white">預選餐點／特別服務：</strong>{' '}
-                    {confirmedReservation.selectedDishes && confirmedReservation.selectedDishes.length > 0 ? (
-                      <span className="text-amber-200">
-                        {confirmedReservation.selectedDishes
-                          .map((d) => `${d.name} x${d.quantity}`)
-                          .join('、')}{' '}
-                        （合計:{' '}
-                        {confirmedReservation.selectedDishes
-                          .reduce((s, d) => s + d.price * d.quantity, 0)
-                          .toLocaleString()}{' '}
-                        Gil）
-                      </span>
-                    ) : (
-                      <span className="text-white/70">未提前預選（入席後現場向女僕或執事點餐）</span>
-                    )}
+                  <div className="space-y-1.5">
+                    <div>
+                      <strong className="text-white">已預約特別侍奉服務：</strong>{' '}
+                      {confirmedReservation.selectedDishes && confirmedReservation.selectedDishes.length > 0 ? (
+                        <span className="text-amber-200">
+                          {confirmedReservation.selectedDishes
+                            .map(
+                              (d) =>
+                                `${d.name} x${d.quantity}（${(d.price * d.quantity).toLocaleString()} Gil）`
+                            )
+                            .join('、')}{' '}
+                          （特別侍奉服務費用合計：
+                          {calculateReservationTotalGil(
+                            confirmedReservation.selectedDishes
+                          ).toLocaleString()}{' '}
+                          Gil）
+                        </span>
+                      ) : (
+                        <span className="text-white/80">
+                          未預約特別侍奉服務，餐點與飲品請於入席後現場點選。
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#B5D3EE]">
+                      <strong className="text-white">入席低消提醒：</strong>
+                      每人最低消費 {MINIMUM_SPEND_PER_GUEST.toLocaleString()} Gil（本次共{' '}
+                      {confirmedReservation.guestCount} 位，入席低消門檻{' '}
+                      {(
+                        Math.max(1, confirmedReservation.guestCount || 1) * MINIMUM_SPEND_PER_GUEST
+                      ).toLocaleString()}{' '}
+                      Gil；餐點與飲品於入席後現場點選，一般餐飲與夜香花套餐計入低消，特色餐點與特別侍奉服務不計入低消）
+                    </p>
                   </div>
 
                   {confirmedReservation.specialRequests && (
@@ -855,7 +831,7 @@ export function ReservationSection({
                 {[
                   { num: 1, label: '時段與侍從', sub: 'Date & Staff' },
                   { num: 2, label: '主人資訊', sub: 'Guest Info' },
-                  { num: 3, label: '餐點選擇', sub: 'Menu (Optional)' },
+                  { num: 3, label: '特別服務', sub: 'Services (Optional)' },
                   { num: 4, label: '確認預約', sub: 'Review' },
                 ].map((step) => {
                   const isActive = currentStep === step.num;
@@ -1141,33 +1117,91 @@ export function ReservationSection({
                   </div>
 
                   {/* 1.3 Guest Count (先選入席人數) */}
-                  <div>
-                    <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel mb-2.5">
+                  <div className="space-y-2.5">
+                    <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel">
                       3. 入席人數 (Party Size)
                     </label>
-                    <div className="grid grid-cols-4 gap-2.5 max-w-md">
-                      {[1, 2, 3, 4].map((count) => {
-                        const isSelected = guestCount === count;
-                        return (
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <div className="grid grid-cols-5 gap-2 max-w-lg flex-1 min-w-[280px]">
+                        {[1, 2, 3, 4].map((count) => {
+                          const isSelected = guestCount === count;
+                          return (
+                            <button
+                              key={count}
+                              type="button"
+                              onClick={() => {
+                                playChime(1.05);
+                                setGuestCount(count);
+                              }}
+                              className={`p-3 rounded-2xl text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                                isSelected
+                                  ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs'
+                                  : 'bg-white hover:bg-[#F3F8FC] text-[#2E5074] border-[#CBDDEB]'
+                              }`}
+                            >
+                              <Users className="w-4 h-4 shrink-0" />
+                              <span>{count} 位</span>
+                            </button>
+                          );
+                        })}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            playChime(1.05);
+                            setGuestCount((prev) => (prev >= 5 ? prev : 5));
+                          }}
+                          className={`p-3 rounded-2xl text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                            guestCount >= 5
+                              ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs'
+                              : 'bg-white hover:bg-[#F3F8FC] text-[#2E5074] border-[#CBDDEB]'
+                          }`}
+                        >
+                          <span>{guestCount >= 5 ? `${guestCount} 位` : '5+ 位'}</span>
+                        </button>
+                      </div>
+
+                      {guestCount >= 5 && (
+                        <div className="inline-flex items-center gap-2 bg-white border border-[#CBDDEB] rounded-2xl px-3 py-2 shadow-2xs">
                           <button
-                            key={count}
                             type="button"
                             onClick={() => {
-                              playChime(1.05);
-                              setGuestCount(count);
+                              playChime(0.95);
+                              setGuestCount((prev) => Math.max(1, prev - 1));
                             }}
-                            className={`p-3 rounded-2xl text-xs sm:text-sm font-bold border transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
-                              isSelected
-                                ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs'
-                                : 'bg-white hover:bg-[#F3F8FC] text-[#2E5074] border-[#CBDDEB]'
-                            }`}
+                            className="w-7 h-7 rounded-xl bg-[#F0F5FA] hover:bg-[#E1EBF5] text-[#23466B] flex items-center justify-center cursor-pointer"
+                            title="減少人數"
                           >
-                            <Users className="w-4 h-4" />
-                            <span>{count} 位</span>
+                            <Minus className="w-3.5 h-3.5" />
                           </button>
-                        );
-                      })}
+                          <span className="min-w-[3.5rem] text-center text-xs sm:text-sm font-bold text-[#142F4B] font-mono">
+                            {guestCount} 位
+                          </span>
+                          <button
+                            type="button"
+                            disabled={guestCount >= 20}
+                            onClick={() => {
+                              playChime(1.05);
+                              setGuestCount((prev) => Math.min(20, prev + 1));
+                            }}
+                            className="w-7 h-7 rounded-xl bg-[#23466B] hover:bg-[#183654] disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center cursor-pointer"
+                            title="增加人數（最多 20 位）"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
+                    <p className="text-[11px] font-medium text-[#4D7094]">
+                      ※ 每位客人入席低消 {MINIMUM_SPEND_PER_GUEST.toLocaleString()} Gil（本次共 {guestCount} 位，門檻{' '}
+                      <strong className="text-[#1E4064] font-mono">
+                        {minimumSpendRequired.toLocaleString()} Gil
+                      </strong>
+                      ）；若於第 3 步選購「指名聊天服務」，目前 {guestCount} 位為{' '}
+                      <strong className="text-[#1E4064] font-mono">
+                        {designatedChatUnitPrice.toLocaleString()} Gil / 節
+                      </strong>
+                      。
+                    </p>
                   </div>
 
                   {/* 1.4 Preferred Staff selection (再選專屬指名) */}
@@ -1284,200 +1318,6 @@ export function ReservationSection({
                       })}
                     </div>
                   </div>
-
-                  {/* 1.5 Designated Service & Special Services */}
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <label className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel">
-                        5. 指名服務與特別侍奉服務 (Special Services)
-                      </label>
-                      <span className="text-[11px] font-semibold text-[#55789B]">
-                        指名聊天服務必選至少一節・其餘服務可依需求自由加選
-                      </span>
-                    </div>
-
-                    {/* Sub-block A: 指名聊天服務 (顯示金額與節數・必選至少 1 節) */}
-                    {(() => {
-                      const chatSessions = Math.max(1, selectedDishCounts['指名聊天服務'] || 1);
-                      const chatUnitPrice = 200000;
-                      const isUnassigned = selectedStaff === '不指名';
-                      return (
-                        <div className="p-4 sm:p-5 rounded-2xl bg-[#F4F8FC] border border-[#C6DAEC] space-y-3">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="font-bold text-sm sm:text-base text-[#173554] font-serif-tc">
-                                  指名服務｜指名聊天服務
-                                </span>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                                  必選至少一節
-                                </span>
-                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-[#23466B] border border-[#CBDDEB]">
-                                  一節 20 分鐘・最多兩節
-                                </span>
-                              </div>
-                              <p className="text-xs text-[#55789B] mt-1">
-                                由您的專屬侍從於席間單獨互動談心，請選擇預約節數（至少 1 節）。
-                              </p>
-                            </div>
-                            <div className="shrink-0 text-left sm:text-right">
-                              <span className="font-serif font-bold text-base sm:text-lg text-[#1F4164]">
-                                {chatUnitPrice.toLocaleString()}
-                              </span>
-                              <span className="text-xs font-serif text-[#5C7E9F] ml-1">Gil / 節</span>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            {[
-                              { qty: 1, label: '1 節', sub: '20 分鐘・200,000 Gil' },
-                              { qty: 2, label: '2 節', sub: '40 分鐘・400,000 Gil' },
-                            ].map((opt) => {
-                              const isSelected = chatSessions === opt.qty;
-                              return (
-                                <button
-                                  key={opt.qty}
-                                  type="button"
-                                  onClick={() => handleSetDishQuantity('指名聊天服務', opt.qty)}
-                                  className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
-                                    isSelected
-                                      ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs ring-2 ring-[#70A6D6]'
-                                      : 'bg-white hover:bg-[#EDF4FB] text-[#2B4E72] border-[#CBDDEB]'
-                                  }`}
-                                >
-                                  <span className="text-xs sm:text-sm font-bold">{opt.label}</span>
-                                  <span
-                                    className={`text-[10px] sm:text-[11px] mt-0.5 font-mono ${
-                                      isSelected ? 'text-amber-200' : 'text-[#5C7E9F]'
-                                    }`}
-                                  >
-                                    {opt.sub}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          {isUnassigned && (
-                            <p className="text-[11px] font-medium text-[#476787] bg-white/80 border border-[#D4E3F0] rounded-xl px-3 py-2">
-                              ※ 若上方第 4 欄選擇「不指名」，入席時將由館內現場為您安排值勤侍從提供服務。
-                            </p>
-                          )}
-                        </div>
-                      );
-                    })()}
-
-                    {/* Sub-block B: 其他特別侍奉服務 */}
-                    <div className="space-y-2">
-                      <span className="block text-xs font-bold text-[#35587E]">
-                        其他特別侍奉服務（選填・可複選或調整數量）
-                      </span>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {SPECIAL_SERVICE_ITEMS.filter((s) => s.id !== 'srv-designated-chat').map((service) => {
-                          const isDisabled = Boolean(service.disabled);
-                          const count = isDisabled ? 0 : selectedDishCounts[service.name] || 0;
-                          const isAdded = count > 0;
-                          return (
-                            <div
-                              key={service.id}
-                              aria-disabled={isDisabled}
-                              className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
-                                isDisabled
-                                  ? 'bg-slate-50/90 border-slate-200 opacity-75 cursor-not-allowed select-none'
-                                  : isAdded
-                                  ? 'bg-[#F2F7FB] border-[#23466B] shadow-2xs ring-1 ring-[#23466B]/20'
-                                  : 'bg-white hover:bg-[#FAFBFD] border-[#CBDDEB]'
-                              }`}
-                            >
-                              <div>
-                                <div className="flex items-center justify-between gap-2 flex-wrap">
-                                  <span
-                                    className={`font-bold text-sm font-serif-tc ${
-                                      isDisabled ? 'text-slate-500' : 'text-[#193552]'
-                                    }`}
-                                  >
-                                    {service.name}
-                                  </span>
-                                  {service.tag && (
-                                    <span
-                                      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                        isDisabled
-                                          ? 'bg-slate-200 text-slate-600 border-slate-300'
-                                          : 'bg-amber-50 text-amber-700 border-amber-200'
-                                      }`}
-                                    >
-                                      {service.tag}
-                                    </span>
-                                  )}
-                                </div>
-                                <p
-                                  className={`text-[11px] mt-1 leading-relaxed ${
-                                    isDisabled ? 'text-slate-500' : 'text-[#6484A2]'
-                                  }`}
-                                >
-                                  {service.desc}
-                                </p>
-                              </div>
-
-                              <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#E6EFF7]">
-                                <div className="flex items-baseline gap-1">
-                                  <span
-                                    className={`font-serif font-bold text-sm sm:text-base ${
-                                      isDisabled ? 'text-slate-400 line-through' : 'text-[#23466B]'
-                                    }`}
-                                  >
-                                    {service.price.toLocaleString()}
-                                  </span>
-                                  <span className="text-[10px] font-serif text-[#64748B]">Gil</span>
-                                </div>
-
-                                {isDisabled ? (
-                                  <span className="px-3 py-1 rounded-xl bg-slate-200 text-slate-600 border border-slate-300 text-xs font-bold cursor-not-allowed">
-                                    {service.disabledLabel || '不開放'}
-                                  </span>
-                                ) : (
-                                  <div className="flex items-center gap-1 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
-                                    {count > 0 ? (
-                                      <>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleRemoveDish(service.name)}
-                                          className="w-6 h-6 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
-                                          title="減少一份"
-                                        >
-                                          <Minus className="w-3 h-3" />
-                                        </button>
-                                        <span className="w-5 text-center text-xs font-bold text-[#142F4B] font-mono">
-                                          {count}
-                                        </span>
-                                        <button
-                                          type="button"
-                                          onClick={() => handleAddDish(service.name, service.maxQty)}
-                                          className="w-6 h-6 rounded-lg bg-[#23466B] hover:bg-[#183654] text-white flex items-center justify-center transition-colors cursor-pointer"
-                                          title="增加一份"
-                                        >
-                                          <Plus className="w-3 h-3" />
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleAddDish(service.name, service.maxQty)}
-                                        className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
-                                      >
-                                        <Plus className="w-3 h-3" />
-                                        <span>點選</span>
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
                 </motion.div>
               )}
 
@@ -1551,7 +1391,7 @@ export function ReservationSection({
               )}
 
               {/* ========================================================= */}
-              {/* STEP 3: PRE-ORDER MENU (餐點選擇・非必填・客人可跳過) */}
+              {/* STEP 3: SPECIAL SERVICES ONLY (特別侍奉服務・選填・不提供餐點預點) */}
               {/* ========================================================= */}
               {currentStep === 3 && (
                 <motion.div
@@ -1565,24 +1405,24 @@ export function ReservationSection({
                   {/* Informational Banner */}
                   <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#EEF5FB] to-[#F5F9FD] border border-[#CBDDEB] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <Utensils className="w-4 h-4 text-[#23466B]" />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Sparkles className="w-4 h-4 text-[#23466B]" />
                         <h3 className="text-sm sm:text-base font-bold text-[#142F4B] font-serif-tc">
-                          美味餐點優先點選（非必填）
+                          特別侍奉服務預約（選填）
                         </h3>
                         <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                          可跳過
+                          可跳過・純入席預約
                         </span>
                       </div>
                       <p className="text-xs text-[#5D7E9F] mt-1">
-                        提前為您備妥精緻茶點與主餐。若尚未決定，可直接點擊「下一步」跳過，入席時再向女僕或執事點餐。
+                        本館餐點與飲品皆於入席後現場點選，官網僅提供入席預約與特別侍奉服務預約；若無需加選服務，可直接點擊「下一步」。
                       </p>
                     </div>
 
                     {totalDishCount > 0 && (
                       <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                         <span className="text-xs font-bold text-[#23466B] bg-white px-2.5 py-1 rounded-xl border border-[#CBDDEB]">
-                          已選 {totalDishCount} 份・{totalGil.toLocaleString()} Gil
+                          已選 {totalDishCount} 項・{specialServiceTotal.toLocaleString()} Gil
                         </span>
                         <button
                           type="button"
@@ -1595,140 +1435,253 @@ export function ReservationSection({
                     )}
                   </div>
 
-                  {/* Menu Categories Accordion/Blocks */}
-                  <div className="space-y-6">
-                    {PRE_ORDER_CATEGORIES.map((catGroup) => (
-                      <div key={catGroup.category} className="space-y-2.5">
-                        <div className="flex items-center gap-2 pb-1 border-b border-[#D8E6F2]">
-                          <span className="text-xs font-bold uppercase tracking-widest text-[#23466B] font-serif">
-                            {catGroup.category}
-                          </span>
+                  {/* Concise Minimum Spend Reminder (No progress bar) */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#FFFDF6] border border-amber-200/90 shadow-2xs space-y-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <span className="text-sm sm:text-base font-bold text-[#142F4B] font-serif-tc">
+                        入席最低消費提醒
+                      </span>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-white text-[#23466B] border border-[#CBDDEB] self-start sm:self-auto">
+                        每位客人最低消費 {MINIMUM_SPEND_PER_GUEST.toLocaleString()} Gil
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#476787]">
+                      本次預約總人數為 <strong className="text-[#142F4B]">{guestCount} 位</strong>，入席低消門檻為{' '}
+                      <strong className="font-mono text-[#142F4B]">
+                        {minimumSpendRequired.toLocaleString()} Gil
+                      </strong>
+                      。
+                    </p>
+                    <p className="text-[11px] text-[#557494] leading-relaxed">
+                      餐點與飲品請於入席後現場點選。一般餐飲與夜香花套餐可計入低消；特色餐點（夜香花套餐除外）及特別侍奉服務不計入低消。
+                    </p>
+                  </div>
+
+                  {/* Sub-block A: 指名聊天服務 (選填・依總人數計費・最多 2 節) */}
+                  {(() => {
+                    const chatSessions = selectedDishCounts[DESIGNATED_CHAT_SERVICE_NAME] || 0;
+                    const chatUnitPrice = designatedChatUnitPrice;
+                    const chatSubtotal = chatUnitPrice * chatSessions;
+                    const isUnassigned = selectedStaff === '不指名';
+                    return (
+                      <div className="p-4 sm:p-5 rounded-2xl bg-[#F4F8FC] border border-[#C6DAEC] space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-sm sm:text-base text-[#173554] font-serif-tc">
+                                指名服務｜指名聊天服務
+                              </span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white text-[#23466B] border border-[#CBDDEB]">
+                                選填・一節 20 分鐘・最多兩節
+                              </span>
+                            </div>
+                            <p className="text-xs text-[#55789B] mt-1">
+                              依整筆預約總人數（目前 <strong className="text-[#1F4164]">{guestCount} 位</strong>）計費：1 位 200,000 Gil／節，每增加 1 位客人加收 100,000 Gil／節。
+                            </p>
+                          </div>
+                          <div className="shrink-0 text-left sm:text-right">
+                            <div>
+                              <span className="font-serif font-bold text-base sm:text-lg text-[#1F4164]">
+                                {chatUnitPrice.toLocaleString()}
+                              </span>
+                              <span className="text-xs font-serif text-[#5C7E9F] ml-1">Gil / 節</span>
+                            </div>
+                            <div className="text-[11px] font-bold text-[#23466B] font-mono">
+                              {chatSessions > 0
+                                ? `已選 ${chatSessions} 節小計：${chatSubtotal.toLocaleString()} Gil`
+                                : '目前未選擇（0 Gil）'}
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {catGroup.items.map((item) => {
-                            const isDisabled = Boolean(item.disabled);
-                            const count = isDisabled ? 0 : selectedDishCounts[item.name] || 0;
-                            const isAdded = count > 0;
-
+                        <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                          {[
+                            {
+                              qty: 0,
+                              label: '不預約',
+                              sub: '僅預約入席・0 Gil',
+                            },
+                            {
+                              qty: 1,
+                              label: '1 節',
+                              sub: `20 分鐘・${chatUnitPrice.toLocaleString()} Gil`,
+                            },
+                            {
+                              qty: 2,
+                              label: '2 節',
+                              sub: `40 分鐘・${(chatUnitPrice * 2).toLocaleString()} Gil`,
+                            },
+                          ].map((opt) => {
+                            const isSelected = chatSessions === opt.qty;
                             return (
-                              <div
-                                key={item.id}
-                                aria-disabled={isDisabled}
-                                className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                                  isDisabled
-                                    ? 'bg-slate-50/90 border-slate-200 opacity-75 cursor-not-allowed select-none'
-                                    : isAdded
-                                    ? 'bg-[#F2F7FB] border-[#23466B] shadow-2xs ring-1 ring-[#23466B]/20'
-                                    : 'bg-white hover:bg-[#FAFBFD] border-[#CBDDEB]'
+                              <button
+                                key={opt.qty}
+                                type="button"
+                                onClick={() => handleSetDishQuantity(DESIGNATED_CHAT_SERVICE_NAME, opt.qty)}
+                                className={`p-3 sm:p-3.5 rounded-2xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                                  isSelected
+                                    ? 'bg-[#23466B] text-white border-[#1C3A5A] shadow-xs ring-2 ring-[#70A6D6]'
+                                    : 'bg-white hover:bg-[#EDF4FB] text-[#2B4E72] border-[#CBDDEB]'
                                 }`}
                               >
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span
-                                      className={`font-bold text-sm sm:text-base font-serif-tc ${
-                                        isDisabled ? 'text-slate-500' : 'text-[#193552]'
-                                      }`}
-                                    >
-                                      {item.name}
-                                    </span>
-                                    {item.tag && (
-                                      <span
-                                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                          isDisabled
-                                            ? 'bg-slate-200 text-slate-600 border-slate-300'
-                                            : item.tag === '不包含在低消內'
-                                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                            : 'bg-[#EEF5FB] text-[#23466B] border-[#CBDDEB]'
-                                        }`}
-                                      >
-                                        {item.staffSeed && (
-                                          <div className="w-3.5 h-3.5 rounded-full overflow-hidden shrink-0 border border-white">
-                                            <StaffAvatar seed={item.staffSeed} className="w-3.5 h-3.5" />
-                                          </div>
-                                        )}
-                                        <span>{item.tag}</span>
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p
-                                    className={`text-[11px] mt-0.5 line-clamp-2 ${
-                                      isDisabled ? 'text-slate-500' : 'text-[#6484A2]'
-                                    }`}
-                                  >
-                                    {item.desc}
-                                  </p>
-                                  <div className="flex items-baseline gap-1 mt-1">
-                                    <span
-                                      className={`font-serif font-bold text-sm sm:text-base ${
-                                        isDisabled ? 'text-slate-400 line-through' : 'text-[#23466B]'
-                                      }`}
-                                    >
-                                      {item.price.toLocaleString()}
-                                    </span>
-                                    <span className="text-[10px] font-serif text-[#64748B]">Gil</span>
-                                  </div>
-                                </div>
-
-                                {/* Counter Stepper or Disabled Badge */}
-                                {isDisabled ? (
-                                  <span className="shrink-0 px-3 py-1.5 rounded-xl bg-slate-200 text-slate-600 border border-slate-300 text-xs font-bold cursor-not-allowed">
-                                    {item.disabledLabel || '不開放'}
-                                  </span>
-                                ) : (
-                                  <div className="flex items-center gap-1.5 shrink-0 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
-                                    {count > 0 ? (
-                                      <>
-                                        <button
-                                          type="button"
-                                          disabled={typeof item.minQty === 'number' && count <= item.minQty}
-                                          onClick={() => handleRemoveDish(item.name, item.minQty)}
-                                          className="w-7 h-7 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] disabled:opacity-40 disabled:cursor-not-allowed text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
-                                          title={typeof item.minQty === 'number' && count <= item.minQty ? `至少需選 ${item.minQty} 份` : '減少一份'}
-                                        >
-                                          <Minus className="w-3.5 h-3.5" />
-                                        </button>
-                                        <span className="w-6 text-center text-xs font-bold text-[#142F4B] font-mono">
-                                          {count}
-                                        </span>
-                                        <button
-                                          type="button"
-                                          disabled={typeof item.maxQty === 'number' && count >= item.maxQty}
-                                          onClick={() => handleAddDish(item.name, item.maxQty)}
-                                          className="w-7 h-7 rounded-lg bg-[#23466B] hover:bg-[#183654] disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors cursor-pointer"
-                                          title={typeof item.maxQty === 'number' && count >= item.maxQty ? `最多可選 ${item.maxQty} 份` : '增加一份'}
-                                        >
-                                          <Plus className="w-3.5 h-3.5" />
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <button
-                                        type="button"
-                                        onClick={() => handleAddDish(item.name, item.maxQty)}
-                                        className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
-                                      >
-                                        <Plus className="w-3.5 h-3.5" />
-                                        <span>點選</span>
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
+                                <span className="text-xs sm:text-sm font-bold">{opt.label}</span>
+                                <span
+                                  className={`text-[10px] sm:text-[11px] mt-0.5 font-mono ${
+                                    isSelected ? 'text-amber-200' : 'text-[#5C7E9F]'
+                                  }`}
+                                >
+                                  {opt.sub}
+                                </span>
+                              </button>
                             );
                           })}
                         </div>
+
+                        {isUnassigned && chatSessions > 0 && (
+                          <p className="text-[11px] font-medium text-[#476787] bg-white/80 border border-[#D4E3F0] rounded-xl px-3 py-2">
+                            ※ 您在第 1 步選擇「不指名」，入席時將由館內現場為您安排值勤侍從提供指名聊天服務。
+                          </p>
+                        )}
                       </div>
-                    ))}
+                    );
+                  })()}
+
+                  {/* Sub-block B: 其他特別侍奉服務 */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2 pb-1 border-b border-[#D8E6F2]">
+                      <span className="text-xs font-bold uppercase tracking-widest text-[#23466B] font-serif">
+                        SPECIAL SERVICES・其他特別侍奉服務（選填）
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {SPECIAL_SERVICE_ITEMS.filter((s) => s.id !== 'srv-designated-chat').map((service) => {
+                        const isDisabled = Boolean(service.disabled);
+                        const count = isDisabled ? 0 : selectedDishCounts[service.name] || 0;
+                        const isAdded = count > 0;
+                        return (
+                          <div
+                            key={service.id}
+                            aria-disabled={isDisabled}
+                            className={`p-3.5 rounded-2xl border transition-all flex flex-col justify-between gap-3 ${
+                              isDisabled
+                                ? 'bg-slate-50/90 border-slate-200 opacity-75 cursor-not-allowed select-none'
+                                : isAdded
+                                ? 'bg-[#F2F7FB] border-[#23466B] shadow-2xs ring-1 ring-[#23466B]/20'
+                                : 'bg-white hover:bg-[#FAFBFD] border-[#CBDDEB]'
+                            }`}
+                          >
+                            <div>
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <span
+                                  className={`font-bold text-sm font-serif-tc ${
+                                    isDisabled ? 'text-slate-500' : 'text-[#193552]'
+                                  }`}
+                                >
+                                  {service.name}
+                                </span>
+                                {service.tag && (
+                                  <span
+                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                      isDisabled
+                                        ? 'bg-slate-200 text-slate-600 border-slate-300'
+                                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                                    }`}
+                                  >
+                                    {service.tag}
+                                  </span>
+                                )}
+                              </div>
+                              <p
+                                className={`text-[11px] mt-1 leading-relaxed ${
+                                  isDisabled ? 'text-slate-500' : 'text-[#6484A2]'
+                                }`}
+                              >
+                                {service.desc}
+                              </p>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-2 pt-2 border-t border-[#E6EFF7]">
+                              <div className="flex items-baseline gap-1">
+                                <span
+                                  className={`font-serif font-bold text-sm sm:text-base ${
+                                    isDisabled ? 'text-slate-400 line-through' : 'text-[#23466B]'
+                                  }`}
+                                >
+                                  {service.price.toLocaleString()}
+                                </span>
+                                <span className="text-[10px] font-serif text-[#64748B]">Gil</span>
+                              </div>
+
+                              {isDisabled ? (
+                                <span className="px-3 py-1 rounded-xl bg-slate-200 text-slate-600 border border-slate-300 text-xs font-bold cursor-not-allowed">
+                                  {service.disabledLabel || '不開放'}
+                                </span>
+                              ) : (
+                                <div className="flex items-center gap-1 bg-white border border-[#CBDDEB] rounded-xl p-1 shadow-2xs">
+                                  {count > 0 ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveDish(service.name)}
+                                        className="w-6 h-6 rounded-lg bg-[#F0F5FA] hover:bg-[#E1EBF5] text-[#23466B] flex items-center justify-center transition-colors cursor-pointer"
+                                        title="減少一份"
+                                      >
+                                        <Minus className="w-3 h-3" />
+                                      </button>
+                                      <span className="w-5 text-center text-xs font-bold text-[#142F4B] font-mono">
+                                        {count}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAddDish(service.name, service.maxQty)}
+                                        className="w-6 h-6 rounded-lg bg-[#23466B] hover:bg-[#183654] text-white flex items-center justify-center transition-colors cursor-pointer"
+                                        title="增加一份"
+                                      >
+                                        <Plus className="w-3 h-3" />
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleAddDish(service.name, service.maxQty)}
+                                      className="px-2.5 py-1 rounded-lg bg-[#F0F5FA] hover:bg-[#23466B] hover:text-white text-[#23466B] text-xs font-bold flex items-center gap-1 transition-all cursor-pointer"
+                                    >
+                                      <Plus className="w-3 h-3" />
+                                      <span>點選</span>
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Live Special Service Fee Summary */}
+                  <div className="p-4 rounded-2xl bg-[#F4F8FC] border border-[#CBDDEB] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                    <span className="font-bold text-[#23466B]">已預約特別侍奉服務費用</span>
+                    {selectedDishes.length > 0 ? (
+                      <span className="font-mono font-bold text-sm text-[#142F4B]">
+                        {specialServiceTotal.toLocaleString()} Gil
+                      </span>
+                    ) : (
+                      <span className="text-[#557494] font-medium">
+                        未預約特別侍奉服務，餐點與飲品請於入席後現場點選。
+                      </span>
+                    )}
                   </div>
 
                   {/* Special Requests */}
                   <div>
                     <label className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-[#35587E] font-cinzel mb-1.5">
-                      備註需求 / 餐點口味客製 / 祝賀留言 (選填)
+                      備註需求 / 祝賀留言 (選填)
                     </label>
                     <textarea
                       rows={2}
-                      placeholder="例：希望蛋包飯手繪畫莫古力、茶飲溫熱微甜，或紀念日特別留言等..."
+                      placeholder="例：紀念日祝賀、希望互動的氛圍，或同行入席特別說明等..."
                       value={specialRequests}
                       onChange={(e) => setSpecialRequests(e.target.value)}
                       className="w-full px-4 py-2.5 rounded-2xl bg-white border border-[#CBDDEB] text-[#1C3A5A] placeholder-[#8BA4BD] text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#528AC0] shadow-2xs"
@@ -1798,39 +1751,85 @@ export function ReservationSection({
                       </div>
                     </div>
 
-                    {/* Pre-ordered items summary */}
-                    <div>
-                      <span className="text-xs text-[#5D7E9F]">優先預選餐點／特別服務：</span>
-                      {selectedDishes.length > 0 ? (
-                        <div className="mt-1 p-3 rounded-2xl bg-white border border-[#CBDDEB] space-y-1.5">
-                          <div className="flex flex-wrap gap-2">
-                            {selectedDishes.map((dish) => (
-                              <span
-                                key={dish.name}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#EEF5FB] text-[#23466B] text-xs font-bold border border-[#D0E0EE]"
-                              >
-                                <span>{dish.name}</span>
-                                <span className="text-[#5B7E9E]">x{dish.quantity}</span>
-                                <span className="text-[11px] text-[#23466B]">
-                                  ({(dish.price * dish.quantity).toLocaleString()} Gil)
-                                </span>
-                                {dish.name === '蛋包飯魔法' && (
-                                  <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
-                                    不包含在低消內
+                    {/* Special Services & Fee / Minimum Spend Summary */}
+                    <div className="space-y-3">
+                      <div>
+                        <span className="text-xs text-[#5D7E9F]">已預約特別侍奉服務：</span>
+                        {selectedDishes.length > 0 ? (
+                          <div className="mt-1 p-3 rounded-2xl bg-white border border-[#CBDDEB] space-y-1.5">
+                            <div className="flex flex-wrap gap-2">
+                              {selectedDishes.map((dish) => (
+                                <span
+                                  key={dish.name}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#EEF5FB] text-[#23466B] text-xs font-bold border border-[#D0E0EE]"
+                                >
+                                  <span>{dish.name}</span>
+                                  <span className="text-[#5B7E9E]">x{dish.quantity}</span>
+                                  <span className="text-[11px] text-[#23466B]">
+                                    ({(dish.price * dish.quantity).toLocaleString()} Gil)
                                   </span>
-                                )}
-                              </span>
-                            ))}
+                                  {dish.name === DESIGNATED_CHAT_SERVICE_NAME && (
+                                    <span className="text-[10px] font-semibold text-[#35587E] bg-white px-1.5 py-0.5 rounded-md border border-[#CBDDEB]">
+                                      依 {guestCount} 位計費・{dish.price.toLocaleString()}/節
+                                    </span>
+                                  )}
+                                  {dish.name === '蛋包飯魔法' && (
+                                    <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-md border border-amber-200">
+                                      不包含在低消內
+                                    </span>
+                                  )}
+                                </span>
+                              ))}
+                            </div>
+                            <div className="text-right text-xs font-bold text-[#23466B] pt-1">
+                              已預約特別侍奉服務費用：{specialServiceTotal.toLocaleString()} Gil
+                            </div>
                           </div>
-                          <div className="text-right text-xs font-bold text-[#23466B] pt-1">
-                            預選餐點與服務合計：{totalGil.toLocaleString()} Gil
+                        ) : (
+                          <p className="text-xs font-medium text-[#557494] mt-1 p-3 rounded-2xl bg-white border border-[#CBDDEB]">
+                            未預約特別侍奉服務，餐點與飲品請於入席後現場點選。
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Step 4 Fee & Minimum Spend Reminder */}
+                      <div className="p-3.5 rounded-2xl border bg-[#FFFDF6] border-amber-200 text-xs space-y-2.5">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                          <div>
+                            <span className="text-[#5D7E9F] block text-[11px]">預約總人數</span>
+                            <strong className="text-[#173554] font-mono text-sm">
+                              {guestCount} 位
+                            </strong>
+                          </div>
+                          <div>
+                            <span className="text-[#5D7E9F] block text-[11px]">每人低消</span>
+                            <strong className="text-[#173554] font-mono text-sm">
+                              {MINIMUM_SPEND_PER_GUEST.toLocaleString()} Gil
+                            </strong>
+                          </div>
+                          <div>
+                            <span className="text-[#5D7E9F] block text-[11px]">本次入席低消門檻</span>
+                            <strong className="text-[#173554] font-mono text-sm">
+                              {minimumSpendRequired.toLocaleString()} Gil
+                            </strong>
+                          </div>
+                          <div>
+                            <span className="text-[#5D7E9F] block text-[11px]">特別侍奉服務費用合計</span>
+                            <strong className="text-[#173554] font-mono text-sm">
+                              {specialServiceTotal.toLocaleString()} Gil
+                            </strong>
                           </div>
                         </div>
-                      ) : (
-                        <p className="text-xs font-medium text-[#6484A2] mt-0.5">
-                          未預選餐點（入席後現場向女僕點餐）
-                        </p>
-                      )}
+
+                        <div className="pt-2 border-t border-black/5 space-y-1 text-[11px] text-[#476787]">
+                          <p className="font-medium text-[#203D5B]">
+                            餐點與飲品請於入席後現場點選。一般餐飲與夜香花套餐可計入低消；特色餐點（夜香花套餐除外）及特別侍奉服務不計入低消。
+                          </p>
+                          <p className="text-[#557494]">
+                            ※ 低消僅供入席點餐提醒，不阻擋預約建立、不會自動加收，亦不與特別侍奉服務費用合併成應付總額。
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
                     {specialRequests && (
@@ -1885,7 +1884,7 @@ export function ReservationSection({
                   className="px-7 py-2.5 rounded-2xl bg-[#23466B] hover:bg-[#183654] text-white text-xs sm:text-sm font-bold flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
                 >
                   <span>
-                    {currentStep === 3 && selectedDishes.length === 0 ? '跳過點餐 / 下一步' : '下一步'}
+                    {currentStep === 3 && selectedDishes.length === 0 ? '跳過特別服務 / 下一步' : '下一步'}
                   </span>
                   <ChevronRight className="w-4 h-4" />
                 </button>

@@ -1,6 +1,10 @@
 import crypto from 'node:crypto';
 import { FieldPath, type Firestore } from 'firebase-admin/firestore';
 import { ApiError, sanitizeText } from './firebaseAdmin.js';
+import {
+  DESIGNATED_CHAT_SERVICE_NAME,
+  resolveAuthoritativeBookableService,
+} from './reservationPricing.js';
 
 function isClosedReservationDate(input: string): boolean {
   if (!input) return false;
@@ -161,25 +165,81 @@ export function validateAndNormalizeReservationInput(rawBody: Record<string, any
   const specialRequests = sanitizeText(rawBody.specialRequests ?? '', true).slice(0, 500);
 
   const selectedDishes: ReservationDishInput[] = [];
-  if (Array.isArray(rawBody.selectedDishes)) {
-    for (const rawItem of rawBody.selectedDishes.slice(0, 20)) {
-      if (!rawItem || typeof rawItem !== 'object') continue;
-      const name = sanitizeText((rawItem as any).name, false).slice(0, 64);
-      const price = Number((rawItem as any).price);
+  if (rawBody.selectedDishes !== undefined && rawBody.selectedDishes !== null) {
+    if (!Array.isArray(rawBody.selectedDishes)) {
+      throw new ApiError(400, '特別侍奉服務欄位格式無效。', 'INVALID_SERVICE_SELECTION');
+    }
+
+    const mergedByName = new Map<string, ReservationDishInput>();
+
+    for (const rawItem of rawBody.selectedDishes.slice(0, 30)) {
+      if (!rawItem || typeof rawItem !== 'object') {
+        throw new ApiError(400, '特別侍奉服務項目格式無效。', 'INVALID_SERVICE_SELECTION');
+      }
+
+      const rawId = sanitizeText((rawItem as any).id, false).slice(0, 64);
+      const rawName = sanitizeText((rawItem as any).name, false).slice(0, 64);
       const quantity = Number((rawItem as any).quantity);
-      if (!name) continue;
-      if (name === '簽繪') {
+
+      if (!rawId && !rawName) {
+        throw new ApiError(400, '特別侍奉服務項目缺少名稱或識別碼。', 'INVALID_SERVICE_SELECTION');
+      }
+
+      const resolved = resolveAuthoritativeBookableService(
+        { id: rawId, name: rawName },
+        parsedCount
+      );
+
+      if (resolved.kind === 'disabled_service') {
         throw new ApiError(
           400,
           '此次營業兩日暫不開放簽繪服務，請移除該項目後再送出。',
           'SERVICE_NOT_AVAILABLE'
         );
       }
-      if (!Number.isFinite(price) || price < 0 || !Number.isInteger(quantity) || quantity < 1 || quantity > 50) {
-        throw new ApiError(400, '預選餐點或服務數量格式無效。', 'INVALID_DISH_SELECTION');
+
+      if (resolved.kind === 'food_preorder_disabled') {
+        throw new ApiError(
+          400,
+          `官網已停止提供餐點與飲品預點服務（${resolved.itemName}），僅受理入席預約與特別侍奉服務；餐點請於入席後現場點選。`,
+          'FOOD_PREORDER_NOT_ALLOWED'
+        );
       }
-      selectedDishes.push({ name, price, quantity });
+
+      if (resolved.kind === 'unknown') {
+        throw new ApiError(
+          400,
+          `包含無效或未開放預約的項目：${resolved.label}。官網僅提供入席預約與特別侍奉服務。`,
+          'INVALID_SERVICE_SELECTION'
+        );
+      }
+
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > 50) {
+        throw new ApiError(400, '特別侍奉服務數量格式無效。', 'INVALID_SERVICE_SELECTION');
+      }
+
+      const canonicalName = resolved.item.name;
+      const existing = mergedByName.get(canonicalName);
+      const nextQuantity = (existing?.quantity || 0) + quantity;
+      const maxAllowedQty = canonicalName === DESIGNATED_CHAT_SERVICE_NAME ? 2 : 50;
+      if (nextQuantity > maxAllowedQty) {
+        throw new ApiError(
+          400,
+          canonicalName === DESIGNATED_CHAT_SERVICE_NAME
+            ? '指名聊天服務每次預約最多可選 2 節。'
+            : '單項特別侍奉服務預約數量超過上限。',
+          'INVALID_SERVICE_SELECTION'
+        );
+      }
+
+      mergedByName.set(canonicalName, {
+        name: canonicalName,
+        price: resolved.unitPrice,
+        quantity: nextQuantity,
+      });
     }
+
+    selectedDishes.push(...mergedByName.values());
   }
 
   const payload: NormalizedReservationPayload = {
