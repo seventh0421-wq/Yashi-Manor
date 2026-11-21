@@ -59,8 +59,8 @@ service cloud.firestore {
         && request.resource.data.createdAt is string
         && request.resource.data.createdAt.size() <= 64;
 
-      // Public can query a specific reservation code with get
-      allow get: if true;
+      // Only Staff and Admin can read individual reservation documents (prevents sequential ID enumeration)
+      allow get: if isAdmin();
 
       // Staff and Admin can view all reservations
       allow list: if isAdmin();

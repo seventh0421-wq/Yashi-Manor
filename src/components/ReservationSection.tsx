@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Calendar,
@@ -32,15 +32,19 @@ import { STAFF_MEMBERS } from '../data/cafeData';
 import { ReservationData, PreOrderItem } from '../types';
 import { playChime, playMagicSpell } from '../utils/audio';
 import { StaffAvatar } from './StaffAvatars';
-import { db } from '../lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
-import { handleFirestoreError, OperationType } from '../lib/firestoreError';
 import {
   getUpcomingCafeOpenDates,
   formatToYMDWithWeekday,
   CLOSED_RESERVATION_DATES,
   isClosedReservationDate,
 } from '../utils/dateUtils';
+
+function createReservationRequestId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `req-${crypto.randomUUID()}`;
+  }
+  return `req-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+}
 
 interface ReservationSectionProps {
   initialStaffName?: string;
@@ -311,8 +315,10 @@ export function ReservationSection({
   const [confirmedReservation, setConfirmedReservation] = useState<ReservationData | null>(null);
   // Thank-you dialog modal & success celebration state
   const [showThankYouModal, setShowThankYouModal] = useState<boolean>(false);
-  // Submission state
+  // Submission & idempotency guards
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const submittingRef = useRef<boolean>(false);
+  const pendingRequestRef = useRef<{ signature: string; requestId: string } | null>(null);
 
   // Validation errors
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -503,35 +509,16 @@ export function ReservationSection({
   };
 
   const handleFinalSubmit = async () => {
-    setIsSubmitting(true);
-    playMagicSpell();
-
-    // Calculate today's date formatted as YYYYMMDD (e.g. 20260912)
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const dateStr = `${year}${month}${day}`;
-
-    // Get today's order sequence number
-    let orderSeqNum = 1;
-    const storageKey = `nocturne_order_seq_${dateStr}`;
-    try {
-      const storedCount = localStorage.getItem(storageKey);
-      if (storedCount) {
-        orderSeqNum = parseInt(storedCount, 10) + 1;
-      }
-      localStorage.setItem(storageKey, orderSeqNum.toString());
-    } catch {
-      // fallback
+    if (submittingRef.current) {
+      return;
     }
 
-    // Format: 日期 + 今天第幾個訂單 (例如：20260912-01)
-    const formattedSeq = orderSeqNum < 10 ? `0${orderSeqNum}` : `${orderSeqNum}`;
-    const bookingId = `${dateStr}-${formattedSeq}`;
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    setValidationError(null);
+    playMagicSpell();
 
-    const reservation: ReservationData = {
-      id: bookingId,
+    const submissionPayload = {
       date: selectedDate,
       timeSlot: selectedTimeSlot.trim(),
       staffName: selectedStaff,
@@ -539,92 +526,87 @@ export function ReservationSection({
       customerName: customerName.trim(),
       worldServer,
       contactMethod: contactMethod.trim(),
-      selectedDishes,
+      selectedDishes: selectedDishes || [],
       specialRequests: specialRequests.trim(),
-      status: 'pending',
-      createdAt: new Date().toISOString(),
     };
 
-    let savedSuccessfully = false;
+    const signature = JSON.stringify(submissionPayload);
+    if (!pendingRequestRef.current || pendingRequestRef.current.signature !== signature) {
+      pendingRequestRef.current = {
+        signature,
+        requestId: createReservationRequestId(),
+      };
+    }
+    const requestId = pendingRequestRef.current.requestId;
 
-    // 1. Primary: Call secure Vercel backend to validate, save to named Firestore, and notify Purin Bot
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+
     try {
       const response = await fetch('/api/create-reservation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: reservation.id,
-          date: reservation.date,
-          timeSlot: reservation.timeSlot,
-          staffName: reservation.staffName,
-          guestCount: reservation.guestCount,
-          customerName: reservation.customerName,
-          worldServer: reservation.worldServer,
-          contactMethod: reservation.contactMethod || '',
-          selectedDishes: reservation.selectedDishes || [],
-          specialRequests: reservation.specialRequests || '',
+          requestId,
+          ...submissionPayload,
         }),
+        signal: controller.signal,
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          savedSuccessfully = true;
-        }
-      }
-    } catch (apiErr) {
-      console.warn('Backend /api/create-reservation call error, attempting direct Firestore save:', apiErr);
-    }
+      const result = await response.json().catch(() => null);
 
-    // 2. Direct Firestore fallback (in case API route is unreachable on static host)
-    if (!savedSuccessfully) {
-      const pathForReservation = `reservations/${bookingId}`;
-      try {
-        await setDoc(doc(db, 'reservations', bookingId), {
-          id: reservation.id,
-          date: reservation.date,
-          timeSlot: reservation.timeSlot,
-          staffName: reservation.staffName,
-          guestCount: reservation.guestCount,
-          customerName: reservation.customerName,
-          worldServer: reservation.worldServer,
-          contactMethod: reservation.contactMethod || '',
-          selectedDishes: reservation.selectedDishes || [],
-          specialRequests: reservation.specialRequests || '',
-          status: 'pending',
-          adminNotes: '',
-          createdAt: reservation.createdAt,
-        });
-        savedSuccessfully = true;
-      } catch (err) {
-        console.error('Failed to write reservation to Firestore:', err);
+      if (response.ok && result?.success && result?.reservation) {
+        const savedReservation: ReservationData = result.reservation;
+        pendingRequestRef.current = null;
+        setConfirmedReservation(savedReservation);
         try {
-          handleFirestoreError(err, OperationType.WRITE, pathForReservation);
+          localStorage.setItem('nocturne_active_reservation', JSON.stringify(savedReservation));
         } catch {
-          // Handled and logged
+          // Ignore storage unavailability (e.g. private browsing)
         }
+        setShowThankYouModal(true);
+        window.scrollTo({ top: 80, behavior: 'smooth' });
+        return;
       }
-    }
 
-    setIsSubmitting(false);
+      const errorCode = typeof result?.code === 'string' ? result.code : '';
+      const serverMessage =
+        typeof result?.error === 'string' && result.error.trim()
+          ? result.error.trim()
+          : `預約伺服器回應異常（HTTP ${response.status}），請稍後再試。`;
 
-    // 3. ONLY display reservation success modal if Firestore save was confirmed!
-    if (savedSuccessfully) {
-      setConfirmedReservation(reservation);
-      try {
-        localStorage.setItem('nocturne_active_reservation', JSON.stringify(reservation));
-      } catch {
-        // Ignore
+      // If requestId cannot be reused (mismatch/invalid), rotate it for the next attempt;
+      // for 409 RESERVATION_IN_PROGRESS or 429/5xx, keep the exact same requestId so retry is idempotent.
+      if (
+        errorCode === 'REQUEST_ID_PAYLOAD_MISMATCH' ||
+        errorCode === 'MISSING_REQUEST_ID' ||
+        errorCode === 'INVALID_REQUEST_ID'
+      ) {
+        pendingRequestRef.current = null;
       }
-      setShowThankYouModal(true);
-      window.scrollTo({ top: 80, behavior: 'smooth' });
-    } else {
-      setValidationError('預約傳送失敗，請確認網路連線或稍候重試。');
+
+      setValidationError(errorCode ? `${serverMessage}（代碼：${errorCode}）` : serverMessage);
+    } catch (apiErr: any) {
+      if (apiErr?.name === 'AbortError') {
+        setValidationError(
+          '等候預約伺服器回應逾時。系統已保留本次請求識別碼，請直接再次點擊「正式送出預約」確認預約結果，不會重複建單。'
+        );
+      } else {
+        setValidationError(
+          '無法連線至預約伺服器，請確認網路連線後再次點擊送出。系統已保留本次請求識別碼，不會重複建立預約。'
+        );
+      }
+    } finally {
+      clearTimeout(timeoutId);
+      submittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
   const handleResetReservation = () => {
     playChime(1.0);
+    pendingRequestRef.current = null;
+    setValidationError(null);
     setConfirmedReservation(null);
     setShowThankYouModal(false);
     try {
@@ -1873,13 +1855,21 @@ export function ReservationSection({
               )}
             </AnimatePresence>
 
+            {/* Inline Step 4 Error Banner near Submit Button */}
+            {currentStep === 4 && validationError && (
+              <div className="mt-6 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm font-bold flex items-center gap-2">
+                <span>⚠️ {validationError}</span>
+              </div>
+            )}
+
             {/* STEP NAVIGATION BUTTONS (FOOTER OF WIZARD) */}
             <div className="mt-8 sm:mt-10 pt-5 border-t border-[#DDE7F0] flex items-center justify-between gap-4">
               {currentStep > 1 ? (
                 <button
                   type="button"
+                  disabled={isSubmitting}
                   onClick={handlePrev}
-                  className="px-5 py-2.5 rounded-2xl bg-white hover:bg-[#F2F6FA] text-[#34597E] border border-[#CBDDEB] text-xs sm:text-sm font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-2xl bg-white hover:bg-[#F2F6FA] disabled:opacity-60 disabled:cursor-not-allowed text-[#34597E] border border-[#CBDDEB] text-xs sm:text-sm font-bold flex items-center gap-2 shadow-2xs transition-colors cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>上一步</span>
@@ -1909,7 +1899,7 @@ export function ReservationSection({
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 animate-spin text-amber-300" />
-                      <span>正在同步傳送至 Discord...</span>
+                      <span>正在確認並建立預約中...</span>
                     </>
                   ) : (
                     <>

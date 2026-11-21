@@ -1,79 +1,17 @@
-import 'dotenv/config';
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-import fs from 'node:fs';
-import path from 'node:path';
+import {
+  ApiError,
+  getAdminFirestore,
+  getTrustedClientIp,
+  parseJsonBody,
+} from './_lib/firebaseAdmin.js';
+import {
+  createFirestoreReservationDbAdapter,
+  createReservationWithIdempotency,
+  validateAndNormalizeReservationInput,
+} from './_lib/reservationService.js';
 
-interface FirebaseConfig {
-  projectId: string;
-  appId: string;
-  apiKey: string;
-  authDomain: string;
-  firestoreDatabaseId: string;
-  storageBucket: string;
-  messagingSenderId: string;
-  measurementId?: string;
-  oAuthClientId?: string;
-  recaptchaSiteKey?: string;
-}
-
-const DEFAULT_FIREBASE_CONFIG: FirebaseConfig = {
-  projectId: 'commission-app-484109',
-  appId: '1:383791327956:web:3a503cc621ebc68da66941',
-  apiKey: 'AIzaSyAeR8-vP2o6ZH3_FqUIitTgDCOuiST1_Kc',
-  authDomain: 'commission-app-484109.firebaseapp.com',
-  firestoreDatabaseId: 'ai-studio-ff14-f124879a-6271-44c8-8bcd-ef8384a862a9',
-  storageBucket: 'commission-app-484109.firebasestorage.app',
-  messagingSenderId: '383791327956',
-};
-
-function getFirebaseConfig(): FirebaseConfig {
-  // 1. Allow full JSON override via server environment variable
-  if (process.env.FIREBASE_CONFIG) {
-    try {
-      const parsed = JSON.parse(process.env.FIREBASE_CONFIG);
-      return { ...DEFAULT_FIREBASE_CONFIG, ...parsed };
-    } catch {
-      // Continue to next resolution strategy
-    }
-  }
-
-  // 2. Safe file read without ESM import attributes to prevent ERR_IMPORT_ATTRIBUTE_MISSING
-  try {
-    const candidatePaths = [
-      path.resolve(process.cwd(), 'firebase-applet-config.json'),
-      path.resolve(process.cwd(), '../firebase-applet-config.json'),
-    ];
-
-    for (const filePath of candidatePaths) {
-      if (fs.existsSync(filePath)) {
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        return { ...DEFAULT_FIREBASE_CONFIG, ...JSON.parse(fileContent) };
-      }
-    }
-  } catch {
-    // Graceful fallback if filesystem tracing is restricted on serverless runtimes
-  }
-
-  // 3. Fallback to built-in project configuration
-  return DEFAULT_FIREBASE_CONFIG;
-}
-
-const firebaseConfig = getFirebaseConfig();
-const firestoreDbId =
-  process.env.FIRESTORE_DATABASE_ID ||
-  firebaseConfig.firestoreDatabaseId ||
-  'ai-studio-ff14-f124879a-6271-44c8-8bcd-ef8384a862a9';
-
-// Initialize Firebase App instance for serverless runtime
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-// Connect explicitly to the designated named Firestore database
-const db = getFirestore(app, firestoreDbId);
-
-// In-memory rate-limiter: max 5 submissions per 10 minutes per IP
+// Per-instance anti-spam rate limiter: max 8 requests per 10 minutes per IP
 const ipRateMap = new Map<string, { count: number; expiresAt: number }>();
-// Deduplication tracking: reject identical reservationId within 5 minutes
-const recentBookings = new Map<string, number>();
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
@@ -82,31 +20,56 @@ function isRateLimited(ip: string): boolean {
     ipRateMap.set(ip, { count: 1, expiresAt: now + 10 * 60 * 1000 });
     return false;
   }
-  if (record.count >= 5) {
+  if (record.count >= 8) {
     return true;
   }
   record.count += 1;
   return false;
 }
 
-function isDuplicate(reservationId: string): boolean {
-  const now = Date.now();
-  const lastSeen = recentBookings.get(reservationId);
-  if (lastSeen && now - lastSeen < 5 * 60 * 1000) {
-    return true;
+function handleReservationApiError(res: any, err: unknown) {
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      code: err.code,
+      error: err.message,
+    });
   }
-  recentBookings.set(reservationId, now);
-  return false;
+
+  const message = err instanceof Error ? err.message : String(err);
+  console.error('[Reservation API Error]', message);
+
+  if (
+    message.includes('Could not load the default credentials') ||
+    message.includes('PERMISSION_DENIED') ||
+    message.includes('UNAUTHENTICATED')
+  ) {
+    return res.status(503).json({
+      success: false,
+      code: 'FIREBASE_ADMIN_UNAUTHENTICATED',
+      error: '預約系統後端尚未設定有效的 Firebase Admin 憑證，請檢查伺服器環境變數。',
+    });
+  }
+
+  return res.status(500).json({
+    success: false,
+    code: 'INTERNAL_ERROR',
+    error: '伺服器處理預約時發生錯誤，請稍後再試。',
+  });
 }
 
 /**
  * Vercel Serverless Function / Local API Endpoint:
- * 1. Validates inputs and rate limits requests.
- * 2. Writes reservation to the designated named Firestore database.
- * 3. Triggers Purin Discord Bot notify-reservation endpoint (non-blocking for customer).
+ * 1. Validates inputs & requestId idempotency key.
+ * 2. Uses Firebase Admin Firestore Transaction (named DB) to atomically:
+ *    - Enforce idempotent retries & processing lease timeout recovery with processingToken
+ *    - Allocate unique YYYYMMDD-XXXX reservation code without colliding with existing docs
+ *    - Persist reservation document
+ * 3. Triggers Purin Discord Bot notification only for newly created bookings (non-blocking).
  */
 export default async function handler(req: any, res: any) {
-  // CORS & Method Check
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -114,138 +77,100 @@ export default async function handler(req: any, res: any) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: 'Method not allowed. Only POST is accepted.' });
-  }
-
-  // Determine client IP for basic anti-spam rate limiting
-  const forwarded = req.headers['x-forwarded-for'];
-  const clientIp = typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : req.socket?.remoteAddress || '127.0.0.1';
-
-  if (isRateLimited(clientIp)) {
-    return res.status(429).json({
+    return res.status(405).json({
       success: false,
-      error: '預約請求過於頻繁，請稍候 10 分鐘後再試。',
+      code: 'METHOD_NOT_ALLOWED',
+      error: '僅支援 POST 請求。',
     });
   }
 
   try {
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    const {
-      id,
-      date,
-      timeSlot,
-      staffName,
-      guestCount,
-      customerName,
-      worldServer,
-      contactMethod,
-      selectedDishes,
-      specialRequests,
-    } = body;
+    const trustedIp = getTrustedClientIp(req);
+    const rateKey =
+      trustedIp !== 'unknown'
+        ? trustedIp
+        : typeof req.headers?.['x-forwarded-for'] === 'string'
+        ? req.headers['x-forwarded-for'].split(',')[0].trim()
+        : 'unknown';
 
-    // Backend Validation
-    if (!customerName || typeof customerName !== 'string' || !customerName.trim()) {
-      return res.status(400).json({ success: false, error: '請輸入冒險者名稱。' });
-    }
-    if (!worldServer || typeof worldServer !== 'string' || !worldServer.trim()) {
-      return res.status(400).json({ success: false, error: '請選擇冒險者伺服器。' });
-    }
-    if (!date || typeof date !== 'string') {
-      return res.status(400).json({ success: false, error: '請選擇預約日期。' });
-    }
-    if (!timeSlot || typeof timeSlot !== 'string') {
-      return res.status(400).json({ success: false, error: '請選擇預約時段。' });
+    if (isRateLimited(rateKey)) {
+      throw new ApiError(
+        429,
+        '預約請求過於頻繁，請稍候 10 分鐘後再試。',
+        'RATE_LIMIT_EXCEEDED'
+      );
     }
 
-    const parsedCount = Number(guestCount);
-    if (isNaN(parsedCount) || parsedCount < 1 || parsedCount > 20) {
-      return res.status(400).json({ success: false, error: '預約人數需在 1 至 20 人之間。' });
-    }
+    const body = parseJsonBody(req);
+    const validated = validateAndNormalizeReservationInput(body);
 
-    // Format reservation document ID
-    const bookingId = (typeof id === 'string' && id.trim())
-      ? id.trim().slice(0, 48)
-      : `YASHI-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+    const adminDb = getAdminFirestore();
+    const dbAdapter = createFirestoreReservationDbAdapter(adminDb);
 
-    // Prevent duplicate submission spamming
-    if (isDuplicate(bookingId)) {
-      return res.status(409).json({ success: false, error: '該預約編號已在處理中，請勿重複提交。' });
-    }
+    const result = await createReservationWithIdempotency(dbAdapter, validated);
 
-    const nowIso = new Date().toISOString();
-    const reservationData = {
-      id: bookingId,
-      date: String(date).slice(0, 32),
-      timeSlot: String(timeSlot).slice(0, 32),
-      staffName: String(staffName || '不指名').slice(0, 64),
-      guestCount: parsedCount,
-      customerName: String(customerName).trim().slice(0, 64),
-      worldServer: String(worldServer).trim().slice(0, 64),
-      contactMethod: String(contactMethod || '').trim().slice(0, 100),
-      selectedDishes: Array.isArray(selectedDishes) ? selectedDishes.slice(0, 20) : [],
-      specialRequests: String(specialRequests || '').trim().slice(0, 500),
-      status: 'pending',
-      adminNotes: '',
-      createdAt: nowIso,
-    };
-
-    // 1. Write to named Firestore Database
-    await setDoc(doc(db, 'reservations', bookingId), reservationData);
-
-    // 2. Notify Purin Discord Bot via Netlify function (Non-blocking: failure will not revert reservation)
+    // Notify Purin Discord Bot ONLY when a brand-new reservation was created
     let notifiedPurin = false;
-    let purinError: string | null = null;
+    let purinNote: string | undefined;
 
-    const PURIN_ENDPOINT =
-      process.env.PURIN_BOT_API_URL ||
-      'https://celadon-sunflower-6aca93.netlify.app/.netlify/functions/notify-reservation';
-    const PURIN_SECRET =
-      process.env.PURIN_NOTIFY_SECRET ||
-      'a77367736a77367736a77367736a77367736';
+    if (!result.idempotentReplay) {
+      const PURIN_ENDPOINT =
+        process.env.PURIN_BOT_API_URL?.trim() ||
+        'https://celadon-sunflower-6aca93.netlify.app/.netlify/functions/notify-reservation';
+      const PURIN_SECRET = process.env.PURIN_NOTIFY_SECRET?.trim();
 
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
-
-      const purinResponse = await fetch(PURIN_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Purin-Auth-Key': PURIN_SECRET,
-        },
-        body: JSON.stringify({
-          source: 'yashikan-official-web',
-          event: 'new_reservation',
-          reservationId: bookingId,
-        }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-
-      if (purinResponse.ok) {
-        notifiedPurin = true;
+      if (!PURIN_SECRET) {
+        purinNote = 'PURIN_NOTIFY_SECRET_NOT_CONFIGURED';
+        console.warn(
+          `[Purin Bot] PURIN_NOTIFY_SECRET is not configured; skipped notification for ${result.reservation.id}.`
+        );
       } else {
-        purinError = `Purin Bot HTTP ${purinResponse.status}`;
-        console.warn(`[Purin Bot] Notification failed (${purinError}), but reservation ${bookingId} was safely saved.`);
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+          const purinResponse = await fetch(PURIN_ENDPOINT, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Purin-Auth-Key': PURIN_SECRET,
+            },
+            body: JSON.stringify({
+              source: 'yashikan-official-web',
+              event: 'new_reservation',
+              reservationId: result.reservation.id,
+            }),
+            signal: controller.signal,
+          });
+
+          clearTimeout(timeoutId);
+
+          if (purinResponse.ok) {
+            notifiedPurin = true;
+          } else {
+            purinNote = `Purin Bot HTTP ${purinResponse.status}`;
+            console.warn(
+              `[Purin Bot] Notification failed (${purinNote}), but reservation ${result.reservation.id} was safely saved.`
+            );
+          }
+        } catch (err: any) {
+          purinNote = err?.message || 'Purin Bot endpoint unreachable';
+          console.warn(
+            `[Purin Bot] Notification exception (${purinNote}), but reservation ${result.reservation.id} was safely saved.`
+          );
+        }
       }
-    } catch (err: any) {
-      purinError = err?.message || 'Purin Bot endpoint unreachable';
-      console.warn(`[Purin Bot] Notification exception (${purinError}), but reservation ${bookingId} was safely saved.`);
     }
 
-    // Return success to the client
     return res.status(200).json({
       success: true,
-      reservation: reservationData,
+      reservation: result.reservation,
+      idempotentReplay: result.idempotentReplay,
+      recoveredFromTimeout: result.recoveredFromTimeout,
       notifiedPurin,
-      ...(purinError ? { purinNote: purinError } : {}),
+      ...(purinNote ? { purinNote } : {}),
     });
-  } catch (error: any) {
-    console.error('Failed to create reservation on server:', error);
-    return res.status(500).json({
-      success: false,
-      error: '伺服器處理預約時發生錯誤，請稍後重試。',
-    });
+  } catch (err) {
+    return handleReservationApiError(res, err);
   }
 }

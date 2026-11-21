@@ -198,12 +198,78 @@
         }
       },
       "required": ["lastSuccessAt", "hourlyTimestamps", "updatedAt"]
+    },
+    "ReservationRequest": {
+      "title": "ReservationRequest",
+      "description": "Server-only idempotency and lease-locking record keyed by client requestId",
+      "type": "object",
+      "properties": {
+        "requestId": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "status": {
+          "type": "string",
+          "enum": ["processing", "completed", "failed"]
+        },
+        "payloadHash": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "processingToken": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "processingExpiresAt": {
+          "type": "number"
+        },
+        "bookingId": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "attemptCount": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": ["requestId", "status", "payloadHash", "createdAt", "updatedAt"]
+    },
+    "ReservationCounter": {
+      "title": "ReservationCounter",
+      "description": "Server-only daily atomic sequence counter for YYYYMMDD-XXXX reservation codes",
+      "type": "object",
+      "properties": {
+        "dateKey": {
+          "type": "string",
+          "maxLength": 8
+        },
+        "lastSeq": {
+          "type": "number"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": ["dateKey", "lastSeq", "updatedAt"]
     }
   },
   "firestore": {
     "/reservations/{reservationId}": {
       "schema": "Reservation",
       "description": "Stores guest dining reservations for the cafe"
+    },
+    "/reservationRequests/{requestId}": {
+      "schema": "ReservationRequest",
+      "description": "Server-only idempotency and lease locking for reservation creation"
+    },
+    "/reservationCounters/{dateKey}": {
+      "schema": "ReservationCounter",
+      "description": "Server-only daily atomic sequence counter for YYYYMMDD-XXXX reservation codes"
     },
     "/admins/{adminUid}": {
       "schema": "AdminUser",
